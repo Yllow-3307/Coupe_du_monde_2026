@@ -244,75 +244,65 @@ function renderMatchs(){
 }
 
 function renderBracket(){
-  const el=document.getElementById('bracket');
-  const R0_LEFT = Array.from({length:8},(_,i)=>({k1:`r0m${i}t1`,k2:`r0m${i}t2`}));
-  const R0_RIGHT = Array.from({length:8},(_,i)=>({k1:`r0m${i+8}t1`,k2:`r0m${i+8}t2`}));
-
-  function bCol(slots, ri, offset, flip){
-    const spacer = Math.pow(2,ri)*6;
+  const el = document.getElementById('bracket');
+  
+  // Fonction générique pour générer une colonne (gauche ou droite)
+  // slots = nombre de matchs dans la colonne, ri = index du tour, offset = point de départ des matchs
+  function bCol(slots, ri, offset){
+    const spacer = Math.pow(2, ri) * 12; // Espace dynamique entre les matchs pour l'arbre
     let html = '';
-    for(let i=0;i<slots;i++){
-      const mi = offset + i;
-      const k1=`r${ri}m${mi}t1`, k2=`r${ri}m${mi}t2`;
-      const t1=D.bracket[k1]||(ri===0?`Éq.${mi*2+1}`:'?');
-      const t2=D.bracket[k2]||(ri===0?`Éq.${mi*2+2}`:'?');
-      const nk=`r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
-      const w=D.bracket[nk];
-      html+=`<div class="b-match">
+    for(let i = 0; i < slots; i++){
+      const mi = offset + i; // Index unique du match
+      const k1 = `r${ri}m${mi}t1`, k2 = `r${ri}m${mi}t2`;
+      const t1 = D.bracket[k1] || (ri === 0 ? `Éq.${mi*2+1}` : '?');
+      const t2 = D.bracket[k2] || (ri === 0 ? `Éq.${mi*2+2}` : '?');
+      
+      // Calcul du match suivant dans le tour d'après
+      const nk = `r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
+      const w = D.bracket[nk];
+      
+      html += `<div class="b-match">
         <div class="b-team${w===t1?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',1)">${t1}</div>
         <div class="b-team${w===t2?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',2)">${t2}</div>
       </div>`;
-      if(i<slots-1) html+=`<div style="height:${spacer}px"></div>`;
+      if(i < slots - 1) html += `<div style="height:${spacer}px"></div>`;
     }
     return html;
   }
 
-  const champion = D.bracket['r5m0t1'] || null;
-
-  const colLabels = ["32es","16es","Quarts","Demies"];
-
+  const colLabels = ["32es", "16es", "Huitièmes", "Quarts", "Demies"];
+  
+  // 1. Construction de la partie GAUCHE (Matchs 0 à 7 pour le Round 0)
   let leftCols = '';
-  for(let r=0;r<4;r++){
-    const slots = 8/Math.pow(2,r);
-    const offset = r===0?0 : 0;
+  for(let r = 0; r < 5; r++){
+    const slots = 8 / Math.pow(2, r); // 8 -> 4 -> 2 -> 1 -> 0.5 (géré par la boucle)
+    if (slots < 1) break;
     leftCols += `<div class="b-col" style="min-width:120px">
       <div class="b-col-title">${colLabels[r]}</div>
-      <div style="display:flex;flex-direction:column">${bCol(slots,r,0,false)}</div>
+      <div style="display:flex;flex-direction:column;justify-content:center;height:100%">${bCol(slots, r, 0)}</div>
     </div>`;
   }
 
+  // 2. Construction de la partie DROITE (Matchs 8 à 15 pour le Round 0)
+  // On inverse la boucle pour l'affichage visuel de droite à gauche
   let rightCols = '';
-  for(let r=3;r>=0;r--){
-    const slots = 8/Math.pow(2,3-r);
+  for(let r = 4; r >= 0; r--){
+    const slots = 8 / Math.pow(2, r);
+    if (slots < 1) continue;
+    // L'offset magique : le premier match de droite au Round R commence après les matchs de gauche
+    const offset = 8 / Math.pow(2, r); 
     rightCols += `<div class="b-col" style="min-width:120px">
       <div class="b-col-title">${colLabels[r]}</div>
-      <div style="display:flex;flex-direction:column">${bColRight(slots,r)}</div>
+      <div style="display:flex;flex-direction:column;justify-content:center;height:100%">${bCol(slots, r, offset)}</div>
     </div>`;
   }
 
-  function bColRight(slots, ri){
-    const spacer = Math.pow(2,ri)*6;
-    let html='';
-    for(let i=0;i<slots;i++){
-      const mi = Math.pow(2,3-ri)*1 + i;
-      const k1=`r${ri}m${mi}t1`, k2=`r${ri}m${mi}t2`;
-      const t1=D.bracket[k1]||(ri===0?`Éq.${mi*2+1}`:'?');
-      const t2=D.bracket[k2]||(ri===0?`Éq.${mi*2+2}`:'?');
-      const nk=`r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
-      const w=D.bracket[nk];
-      html+=`<div class="b-match">
-        <div class="b-team${w===t1?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',1)">${t1}</div>
-        <div class="b-team${w===t2?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',2)">${t2}</div>
-      </div>`;
-      if(i<slots-1) html+=`<div style="height:${spacer}px"></div>`;
-    }
-    return html;
-  }
-
-  const fk1='r4m0t1', fk2='r4m0t2';
-  const ft1=D.bracket[fk1]||'?'; const ft2=D.bracket[fk2]||'?';
-  const fw=D.bracket['r5m0t1'];
-  const finaleHtml=`<div class="b-col" style="min-width:120px;align-items:center">
+  // 3. Finale centrale (Vainqueur demi-gauche match 0 vs Vainqueur demi-droite match 1)
+  const ft1 = D.bracket['r4m0t1'] || '?'; 
+  const ft2 = D.bracket['r4m0t2'] || '?';
+  const fw = D.bracket['r5m0t1']; // Le Champion
+  
+  const finaleHtml = `<div class="b-col" style="min-width:130px;align-items:center;justify-content:center">
     <div class="b-col-title" style="text-align:center">Finale</div>
     <div class="b-match">
       <div class="b-team${fw===ft1?' winner':''}" onclick="pickW(4,0,'${ft1.replace(/'/g,"\\'")}','${ft2.replace(/'/g,"\\'")}',1)">${ft1}</div>
@@ -320,16 +310,17 @@ function renderBracket(){
     </div>
   </div>`;
 
-  el.innerHTML=`<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Renseigne les équipes qualifiées après les groupes, puis clique sur le vainqueur de chaque match pour faire avancer le bracket.</p>
+  // Rendu global dans le HTML
+  el.innerHTML = `<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Renseigne les équipes qualifiées après les groupes, puis clique sur le vainqueur de chaque match pour faire avancer le bracket.</p>
   <div class="bracket-wrap">
-    <div class="bracket-tree" style="align-items:center">
+    <div class="bracket-tree" style="align-items:stretch;justify-content:center">
       ${leftCols}
-      <div style="width:8px"></div>
+      <div style="width:15px"></div>
       ${finaleHtml}
-      <div style="width:8px"></div>
+      <div style="width:15px"></div>
       ${rightCols}
     </div>
-    ${champion?`<div style="text-align:center;margin-top:16px"><div style="font-size:24px;margin-bottom:6px">🏆</div><div style="display:inline-block;padding:8px 20px;background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-lg);font-weight:500;color:var(--color-text-primary);font-size:14px">${champion}</div></div>`:''}
+    ${fw ? `<div style="text-align:center;margin-top:20px"><div style="font-size:28px;margin-bottom:6px">🏆</div><div style="display:inline-block;padding:8px 20px;background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-lg);font-weight:500;color:var(--color-text-primary);font-size:14px">CHAMPION : ${fw}</div></div>` : ''}
   </div>`;
 }
 
