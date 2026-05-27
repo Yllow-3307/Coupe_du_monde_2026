@@ -463,12 +463,10 @@ function updateMatchFilters(){
 function renderBracket() {
   const el = document.getElementById('bracket');
   
-  // Définit les phases (ici simplifiées pour la structure)
-  // Le côté gauche et droit traiteront les 32es, 16es, 8es, Quarts, Demies
   el.innerHTML = `
     <div class="bracket-wrapper">
-      <div class="b-side">
-        ${renderSide('L')}
+      <div class="b-side" style="flex-direction: column;">
+        ${renderSide('L', ['16', '8', 'QF', 'SF'])}
       </div>
 
       <div class="b-center">
@@ -479,35 +477,27 @@ function renderBracket() {
         </div>
       </div>
 
-      <div class="b-side">
-        ${renderSide('R')}
+      <div class="b-side" style="flex-direction: column;">
+        ${renderSide('R', ['SF', 'QF', '8', '16'])}
       </div>
     </div>
   `;
 }
 
-function renderSide(side) {
-  // Génère les colonnes pour un côté (32es -> Demies)
-  // Cela crée une structure miroir
-  return `
-    <div class="b-col"><div class="b-col-title">16es</div>${createMatches(side, 'SF')}</div>
-    <div class="b-col"><div class="b-col-title">8es</div>${createMatches(side, 'QF')}</div>
-    <div class="b-col"><div class="b-col-title">Quarts</div>${createMatches(side, '8es')}</div>
-    <div class="b-col"><div class="b-col-title">Demies</div>${createMatches(side, '16es')}</div>
-  `;
+function renderSide(side, phases) {
+  // Cette fonction génère maintenant les colonnes selon la liste "phases" passée en paramètre
+  return phases.map(p => `
+    <div class="b-col">
+      <div class="b-col-title">${getPhaseLabel(p)}</div>
+      ${createMatches(side, p)}
+    </div>
+  `).join('');
 }
 
-function createMatches(side, phase) {
-  // Ici, on génère les boîtes de match pour chaque phase
-  // En cliquant sur une équipe, tu peux ajouter une fonction qui remplit la case suivante
-  return `<div class="b-match" style="margin-bottom:10px;">
-            <div class="b-team">?</div>
-            <div class="b-team">?</div>
-          </div>`;
+function getPhaseLabel(p) {
+  const labels = { '16':'16es', '8':'8es', 'QF':'Quarts', 'SF':'Demies' };
+  return labels[p] || p;
 }
-
-function pickFinal(pos) { /* Logique pour désigner le vainqueur final */ }
-
 function renderPronos(){
   const el=document.getElementById('pronos');
   const lb=calcLB();
