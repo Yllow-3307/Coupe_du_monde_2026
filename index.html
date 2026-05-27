@@ -451,13 +451,12 @@ function renderMatchs(){
 
     return sectionHeader + `
     <div class="card" style="padding:10px 12px;margin-bottom:8px">
-      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">${m.day} · ${m.info}</div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">${m.day}</div>
       <div style="display:flex;align-items:center;gap:8px">
         <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)">${m.t1}</span>
         <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'a']!==undefined?D.scores[m.originalIdx+'a']:''}" oninput="D.scores['${m.originalIdx}a']=this.value;save();renderGroups();" style="width:32px">
-<input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'b']!==undefined?D.scores[m.originalIdx+'b']:''}" oninput="D.scores['${m.originalIdx}b']=this.value;save();renderGroups();" style="width:32px">
         <span style="color:var(--color-text-tertiary);font-size:12px">–</span>
-        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'b']!==undefined?D.scores[m.originalIdx+'b']:''}" oninput="D.scores[${m.originalIdx}+'b']=this.value;save()">
+        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'b']!==undefined?D.scores[m.originalIdx+'b']:''}" oninput="D.scores['${m.originalIdx}b']=this.value;save();renderGroups();" style="width:32px">
         <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right">${m.t2}</span>
       </div>
     </div>`;
