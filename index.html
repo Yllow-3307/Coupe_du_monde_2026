@@ -369,27 +369,37 @@ function save(){try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}}
 function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
 
 function getGroupeClassement(groupeLetter) {
-  let teamsInGroup = GROUPS[groupeLetter].teams.map(t => ({
-    nom: t[1], flag: t[0], pts: 0, diff: 0
+  // 1. Initialisation : on prend le nom directement sans modifier
+  let teamsInGroup = GROUPS[groupeLetter].teams.map(name => ({
+    nom: name, 
+    pts: 0,
+    diff: 0
   }));
 
+  // 2. Parcourir les matchs
   MATCHS_DATA.forEach((m, idx) => {
     if (m.g === groupeLetter) {
-      // Décommente cette ligne pour voir si tes matchs sont bien trouvés dans la console
-      // console.log("Match trouvé:", m.t1, "contre", m.t2);
-      
       const s1 = parseInt(D.scores[idx + 'a']);
       const s2 = parseInt(D.scores[idx + 'b']);
-      
-      // ... reste du code ...
+
+      if (!isNaN(s1) && !isNaN(s2)) {
+        // Recherche sans substring : on compare le nom complet
+        const team1 = teamsInGroup.find(t => t.nom === m.t1);
+        const team2 = teamsInGroup.find(t => t.nom === m.t2);
+
+        if (team1 && team2) {
+          team1.diff += (s1 - s2);
+          team2.diff += (s2 - s1);
+          if (s1 > s2) team1.pts += 3;
+          else if (s2 > s1) team2.pts += 3;
+          else { team1.pts += 1; team2.pts += 1; }
+        }
+      }
     }
   });
 
-  const sorted = teamsInGroup.sort((a, b) => b.pts - a.pts || b.diff - a.diff);
-  // Ajoute ceci pour voir le classement calculé dans la console
-  console.log("Classement groupe " + groupeLetter, sorted);
-  
-  return sorted;
+  // 3. Tri
+  return teamsInGroup.sort((a, b) => b.pts - a.pts || b.diff - a.diff);
 }
 
 function renderGroups(){
