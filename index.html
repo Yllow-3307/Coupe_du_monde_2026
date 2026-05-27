@@ -45,7 +45,7 @@
 /* BRACKET */
 .bracket-wrap{overflow-x:auto;padding-bottom:12px}
 .bracket-tree{display:flex;align-items:center;gap:0;min-width:1100px}
-.b-col{display:flex;flex-direction:column;justify-content:space-around;padding:0 4px}
+.b-col{display:flex;flex-direction:column;justify-content:flex-start;padding:0 4px}
 .b-col-title{font-size:10px;font-weight:500;color:var(--color-text-secondary);letter-spacing:0.05em;text-transform:uppercase;text-align:center;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:8px;white-space:nowrap}
 .b-match{display:flex;flex-direction:column;gap:1px;margin:4px 0}
 .b-team{font-size:11px;padding:5px 7px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);cursor:pointer;max-width:115px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--color-text-secondary);transition:background 0.1s}
@@ -323,7 +323,7 @@ function renderBracket(){
   }
 
   const champion = D.bracket['r5m0t1'] || null;
-  const colLabels = ["32es","16es","Quarts","Demies"];
+  const colLabels = ["16es","8es","Quarts","Demies"];
 
   let leftCols = '';
   for(let r=0;r<4;r++){
@@ -407,10 +407,19 @@ function setupBracketClick(ri, mi) {
   if(e2) e2.onclick = function() { pickW(ri, mi, e1 ? e1.textContent : '?', e2.textContent, 2); };
 }
 
-function pickW(ri,mi,t1,t2,tn){
-  const w=tn===1?t1:t2;
-  const nk=`r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
-  D.bracket[nk]=w; save(); renderBracket();
+function pickW(ri, mi, t1, t2, tn) {
+  const w = tn === 1 ? t1 : t2;
+  const nk = `r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
+  
+  // Si on reclique sur l'équipe déjà sélectionnée, on vide la case du tour suivant
+  if (D.bracket[nk] === w) {
+    D.bracket[nk] = '?';
+  } else {
+    D.bracket[nk] = w;
+  }
+  
+  save();
+  renderBracket();
 }
 
 function renderPronos(){
