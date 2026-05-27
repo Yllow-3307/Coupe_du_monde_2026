@@ -103,7 +103,24 @@
 <div id="equipes" class="sec"></div>
 <div id="rdv" class="sec"></div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Configuration Firebase (Met tes vrais identifiants ici sur GitHub)
+const firebaseConfig = {
+  apiKey: "TON_API_KEY",
+  authDomain: "TON_AUTH_DOMAIN",
+  projectId: "TON_PROJECT_ID",
+  storageBucket: "TON_STORAGE_BUCKET",
+  messagingSenderId: "TON_MESSAGING_SENDER_ID",
+  appId: "TON_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const docRef = doc(db, "coupe_du_monde", "partagee");
+
 const POTES = ["Alban","Lino","Louis","Maxime","Simon","Theo","Titouan","Victor"];
 const AV_BG = ["#CECBF6","#9FE1CB","#F5C4B3","#FAC775","#B5D4F4","#F4C0D1","#C0DD97","#D3D1C7"];
 const AV_TX = ["#3C3489","#085041","#712B13","#633806","#0C447C","#72243E","#27500A","#2C2C2A"];
@@ -126,7 +143,7 @@ const GROUPS = {
 const PRONO_MATCHES = [
   {id:"p1",label:"🇫🇷 France vs 🇸🇳 Sénégal",date:"16 juin",group:"Gr. I"},
   {id:"p2",label:"🇦🇷 Argentine vs 🇧🇷 Brésil",date:"Phase groupes",group:"Gr. D/E"},
-  {id:"p3",label:"🇪🇸 Espagne vs 🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre",date:"Phase groupes",group:"Gr. F/G"},
+  {id:"p3",label:"🇪🇸 Espagne vs 🏴󠁧󠁢󠁥󠁮阱󠁿 Angleterre",date:"Phase groupes",group:"Gr. F/G"},
   {id:"p4",label:"🇫🇷 France vs 🇳🇴 Norvège",date:"26 juin",group:"Gr. I"},
   {id:"p5",label:"🏆 Vainqueur du tournoi",date:"19 juillet",group:"Finale"},
 ];
@@ -198,7 +215,30 @@ D.pronos = D.pronos||{}; D.actual = D.actual||{};
 D.teamStats = D.teamStats||TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0}));
 D.rdvList = D.rdvList||[{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}];
 
-function save(){try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}}
+let currentTabId = 'groupes';
+
+// Écoute en temps réel des changements Firebase
+onSnapshot(docRef, (docSnap) => {
+  if (docSnap.exists()) {
+    D = docSnap.data();
+    // Sécurité fallback si champs manquants dans Firebase
+    D.pts = D.pts||{}; D.scores = D.scores||{}; D.bracket = D.bracket||{};
+    D.pronos = D.pronos||{}; D.actual = D.actual||{};
+    D.teamStats = D.teamStats||TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0}));
+    D.rdvList = D.rdvList||[{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}];
+    
+    // Sauvegarde en local par sécurité
+    try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}
+    
+    // Rafraîchit l'onglet courant
+    showTab(currentTabId);
+  }
+});
+
+function save(){
+  try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}
+  setDoc(docRef, D).catch(e => console.error("Erreur synchro Firebase:", e));
+}
 
 function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
 
@@ -209,7 +249,7 @@ function renderGroups(){
       <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#1D9E75;border-radius:2px;display:inline-block"></span>Qualifié direct</span>
       <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#EF9F27;border-radius:2px;display:inline-block"></span>Potentiel meilleur 3e</span>
     </div>
-    <button class="btn" onclick="saveG()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Sauvegarder</button>
+    <button class="btn" id="btn-saveg-cloud"><i class="ti ti-cloud-upload" aria-hidden="true"></i> Synchro Cloud</button>
   </div>
   <div class="grp-grid">${Object.entries(GROUPS).map(([g,d])=>{
     const sorted=[...d.teams].map((t,i)=>({t,i,p:getPts(g,i)})).sort((a,b)=>b.p-a.p);
@@ -217,30 +257,44 @@ function renderGroups(){
       const cls=rank<2?'team-row q1':rank===2?'team-row q3':'team-row qn';
       return`<div class="${cls}"><span style="font-size:15px;width:22px">${item.t[0]}</span><span style="flex:1;color:var(--color-text-primary)">${item.t[1]}</span><span class="pts-cell" onclick="editPts(this,'${g}',${item.i})">${item.p}</span></div>`;
     }).join('')}</div>`;}).join('')}</div>`;
+    
+    document.getElementById('btn-saveg-cloud').onclick = function() {
+      save();
+      const n=document.createElement('span');
+      n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';
+      n.textContent='✓ Synchronisé';
+      this.after(n);
+      setTimeout(()=>n.remove(),2000);
+    };
 }
-function saveG(){save();const b=document.querySelector('#groupes .btn');const n=document.createElement('span');n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';n.textContent='✓ Sauvegardé';b.after(n);setTimeout(()=>n.remove(),2000)}
+
 function editPts(el,g,i){
   const cur=getPts(g,i);const inp=document.createElement('input');
   inp.type='number';inp.value=cur;inp.min=0;inp.max=9;
   inp.style.cssText='width:28px;height:22px;text-align:center;font-size:12px;border:0.5px solid var(--color-border-info);border-radius:4px;background:var(--color-background-info);color:var(--color-text-info)';
   el.replaceWith(inp);inp.focus();inp.select();
-  const commit=()=>{D.pts[g+i]=Math.max(0,Math.min(9,parseInt(inp.value)||0));renderGroups()};
+  const commit=()=>{D.pts[g+i]=Math.max(0,Math.min(9,parseInt(inp.value)||0));save();renderGroups()};
   inp.addEventListener('blur',commit);inp.addEventListener('keydown',e=>{if(e.key==='Enter')commit()});
 }
 
 function renderMatchs(){
   const el=document.getElementById('matchs');
-  el.innerHTML=`<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Saisis les scores au fur et à mesure. Ils ne se mettent pas à jour automatiquement.</p>`+
+  el.innerHTML=`<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Saisis les scores au fur et à mesure. Ils se synchronisent automatiquement en direct.</p>`+
   MATCHS_DATA.map((m,idx)=>`<div class="card" style="padding:10px 12px;margin-bottom:8px">
     <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">${m.day}${m.g?' · Gr. '+m.g:''} · ${m.info}</div>
     <div style="display:flex;align-items:center;gap:8px">
       <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)">${m.t1}</span>
-      <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[idx+'a']!==undefined?D.scores[idx+'a']:''}" oninput="D.scores[${idx}+'a']=this.value;save()">
+      <input class="score-in" id="m-${idx}a" type="number" min="0" max="20" placeholder="—" value="${D.scores[idx+'a']!==undefined?D.scores[idx+'a']:''}">
       <span style="color:var(--color-text-tertiary);font-size:12px">–</span>
-      <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[idx+'b']!==undefined?D.scores[idx+'b']:''}" oninput="D.scores[${idx}+'b']=this.value;save()">
+      <input class="score-in" id="m-${idx}b" type="number" min="0" max="20" placeholder="—" value="${D.scores[idx+'b']!==undefined?D.scores[idx+'b']:''}">
       <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right">${m.t2}</span>
     </div>
   </div>`).join('');
+
+  MATCHS_DATA.forEach((_,idx)=>{
+    document.getElementById(`m-${idx}a`).oninput = function() { D.scores[idx+'a']=this.value; save(); };
+    document.getElementById(`m-${idx}b`).oninput = function() { D.scores[idx+'b']=this.value; save(); };
+  });
 }
 
 function renderBracket(){
@@ -259,8 +313,8 @@ function renderBracket(){
       const nk=`r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
       const w=D.bracket[nk];
       html+=`<div class="b-match">
-        <div class="b-team${w===t1?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',1)">${t1}</div>
-        <div class="b-team${w===t2?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',2)">${t2}</div>
+        <div class="b-team${w===t1?' winner':''}" id="b-click-${ri}-${mi}-1">${t1}</div>
+        <div class="b-team${w===t2?' winner':''}" id="b-click-${ri}-${mi}-2">${t2}</div>
       </div>`;
       if(i<slots-1) html+=`<div style="height:${spacer}px"></div>`;
     }
@@ -268,13 +322,11 @@ function renderBracket(){
   }
 
   const champion = D.bracket['r5m0t1'] || null;
-
   const colLabels = ["32es","16es","Quarts","Demies"];
 
   let leftCols = '';
   for(let r=0;r<4;r++){
     const slots = 8/Math.pow(2,r);
-    const offset = r===0?0 : 0;
     leftCols += `<div class="b-col" style="min-width:120px">
       <div class="b-col-title">${colLabels[r]}</div>
       <div style="display:flex;flex-direction:column">${bCol(slots,r,0,false)}</div>
@@ -301,8 +353,8 @@ function renderBracket(){
       const nk=`r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
       const w=D.bracket[nk];
       html+=`<div class="b-match">
-        <div class="b-team${w===t1?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',1)">${t1}</div>
-        <div class="b-team${w===t2?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',2)">${t2}</div>
+        <div class="b-team${w===t1?' winner':''}" id="b-click-${ri}-${mi}-1">${t1}</div>
+        <div class="b-team${w===t2?' winner':''}" id="b-click-${ri}-${mi}-2">${t2}</div>
       </div>`;
       if(i<slots-1) html+=`<div style="height:${spacer}px"></div>`;
     }
@@ -315,8 +367,8 @@ function renderBracket(){
   const finaleHtml=`<div class="b-col" style="min-width:120px;align-items:center">
     <div class="b-col-title" style="text-align:center">Finale</div>
     <div class="b-match">
-      <div class="b-team${fw===ft1?' winner':''}" onclick="pickW(4,0,'${ft1.replace(/'/g,"\\'")}','${ft2.replace(/'/g,"\\'")}',1)">${ft1}</div>
-      <div class="b-team${fw===ft2?' winner':''}" onclick="pickW(4,0,'${ft1.replace(/'/g,"\\'")}','${ft2.replace(/'/g,"\\'")}',2)">${ft2}</div>
+      <div class="b-team${fw===ft1?' winner':''}" id="b-click-4-0-1">${ft1}</div>
+      <div class="b-team${fw===ft2?' winner':''}" id="b-click-4-0-2">${ft2}</div>
     </div>
   </div>`;
 
@@ -331,12 +383,33 @@ function renderBracket(){
     </div>
     ${champion?`<div style="text-align:center;margin-top:16px"><div style="font-size:24px;margin-bottom:6px">🏆</div><div style="display:inline-block;padding:8px 20px;background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-lg);font-weight:500;color:var(--color-text-primary);font-size:14px">${champion}</div></div>`:''}
   </div>`;
+
+  // Attribution dynamique des clics sécurisés pour les colonnes gauches et droites
+  for(let r=0; r<4; r++) {
+    const leftSlots = 8/Math.pow(2,r);
+    for(let i=0; i<leftSlots; i++) {
+      setupBracketClick(r, i);
+    }
+    const rightSlots = 8/Math.pow(2,3-r);
+    for(let i=0; i<rightSlots; i++) {
+      const mi = Math.pow(2,3-r)*1 + i;
+      setupBracketClick(r, mi);
+    }
+  }
+  setupBracketClick(4, 0);
+}
+
+function setupBracketClick(ri, mi) {
+  const e1 = document.getElementById(`b-click-${ri}-${mi}-1`);
+  const e2 = document.getElementById(`b-click-${ri}-${mi}-2`);
+  if(e1) e1.onclick = function() { pickW(ri, mi, e1.textContent, e2 ? e2.textContent : '?', 1); };
+  if(e2) e2.onclick = function() { pickW(ri, mi, e1 ? e1.textContent : '?', e2.textContent, 2); };
 }
 
 function pickW(ri,mi,t1,t2,tn){
   const w=tn===1?t1:t2;
   const nk=`r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
-  D.bracket[nk]=w;save();renderBracket();
+  D.bracket[nk]=w; save(); renderBracket();
 }
 
 function renderPronos(){
@@ -364,10 +437,10 @@ function renderPronos(){
       <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
         <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Score réel :</div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s1}" oninput="setActual('${m.id}','s1',this.value)" style="width:32px;height:28px">
+          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s1}" id="act-${m.id}-s1" style="width:32px;height:28px">
           <span style="color:var(--color-text-tertiary)">–</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s2}" oninput="setActual('${m.id}','s2',this.value)" style="width:32px;height:28px">
-          <input class="inp-sm" placeholder="Top buteur..." value="${actual.top||''}" oninput="setActual('${m.id}','top',this.value)" style="width:130px">
+          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s2}" id="act-${m.id}-s2" style="width:32px;height:28px">
+          <input class="inp-sm" placeholder="Top buteur..." value="${actual.top||''}" id="act-${m.id}-top" style="width:130px">
         </div>
       </div>
       <div>${POTES.map((pote)=>{
@@ -375,14 +448,26 @@ function renderPronos(){
         const pts=calcPts(m.id,pote);
         return`<div class="prog-bet-row">
           <span style="min-width:65px;color:var(--color-text-secondary)">${pote}</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="setBet('${m.id}','${pote}','s1',this.value)" style="width:28px;height:24px;font-size:12px">
+          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" id="bet-${m.id}-${pote}-s1" style="width:28px;height:24px;font-size:12px">
           <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="setBet('${m.id}','${pote}','s2',this.value)" style="width:28px;height:24px;font-size:12px">
-          <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" oninput="setBet('${m.id}','${pote}','top',this.value)" style="width:90px;height:24px;font-size:12px">
+          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" id="bet-${m.id}-${pote}-s2" style="width:28px;height:24px;font-size:12px">
+          <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" id="bet-${m.id}-${pote}-top" style="width:90px;height:24px;font-size:12px">
           ${pts>0?`<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
         </div>`;}).join('')}</div>
     </div>`;}).join('')}`;
+
+  PRONO_MATCHES.forEach(m=>{
+    document.getElementById(`act-${m.id}-s1`).oninput = function() { setActual(m.id, 's1', this.value); };
+    document.getElementById(`act-${m.id}-s2`).oninput = function() { setActual(m.id, 's2', this.value); };
+    document.getElementById(`act-${m.id}-top`).oninput = function() { setActual(m.id, 'top', this.value); };
+    POTES.forEach(pote=>{
+      document.getElementById(`bet-${m.id}-${pote}-s1`).oninput = function() { setBet(m.id, pote, 's1', this.value); };
+      document.getElementById(`bet-${m.id}-${pote}-s2`).oninput = function() { setBet(m.id, pote, 's2', this.value); };
+      document.getElementById(`bet-${m.id}-${pote}-top`).oninput = function() { setBet(m.id, pote, 'top', this.value); };
+    });
+  });
 }
+
 function setActual(mid,f,v){if(!D.actual[mid])D.actual[mid]={};D.actual[mid][f]=v;save();renderPronos()}
 function setBet(mid,p,f,v){const k=mid+p;if(!D.pronos[k])D.pronos[k]={};D.pronos[k][f]=v;save();renderPronos()}
 function calcPts(mid,pote){
@@ -390,8 +475,7 @@ function calcPts(mid,pote){
   if(!bet||!actual||actual.s1===''||actual.s2==='')return 0;
   const bs1=parseInt(bet.s1),bs2=parseInt(bet.s2),as1=parseInt(actual.s1),as2=parseInt(actual.s2);
   if(isNaN(bs1)||isNaN(bs2)||isNaN(as1)||isNaN(as2))return 0;
-  let pts=0;
-  const res=(a,b)=>a>b?1:a<b?-1:0;
+  let pts=0;const res=(a,b)=>a>b?1:a<b?-1:0;
   if(res(bs1,bs2)===res(as1,as2))pts=1;
   if(bs1===as1&&bs2===as2)pts=2;
   if(pts>=1&&bet.top&&actual.top&&bet.top.trim().toLowerCase()===actual.top.trim().toLowerCase())pts=3;
@@ -419,13 +503,20 @@ function renderStats(){
     </div>
     ${D.teamStats.map((t,i)=>`<div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.7fr 1.4fr;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
       <span style="font-size:12px;display:flex;align-items:center;gap:4px"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
-      <span style="text-align:center"><input class="score-in" type="number" min="0" max="20" value="${t.played||0}" oninput="D.teamStats[${i}].played=parseInt(this.value)||0;save();renderStats()" style="width:32px;height:24px;font-size:12px"></span>
-      <span style="text-align:center"><input class="score-in" type="number" min="0" max="99" value="${t.goals||0}" oninput="D.teamStats[${i}].goals=parseInt(this.value)||0;save();renderStats()" style="width:32px;height:24px;font-size:12px"></span>
+      <span style="text-align:center"><input class="score-in" type="number" min="0" max="20" value="${t.played||0}" id="st-played-${i}" style="width:32px;height:24px;font-size:12px"></span>
+      <span style="text-align:center"><input class="score-in" type="number" min="0" max="99" value="${t.goals||0}" id="st-goals-${i}" style="width:32px;height:24px;font-size:12px"></span>
       <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${(parseInt(t.played)||0)>0?((parseInt(t.goals)||0)/(parseInt(t.played)||1)).toFixed(1):'—'}</span>
-      <span style="text-align:center"><input class="score-in" type="number" min="0" max="10" value="${t.cs||0}" oninput="D.teamStats[${i}].cs=parseInt(this.value)||0;save()" style="width:32px;height:24px;font-size:12px"></span>
-      <span><input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%"></span>
+      <span style="text-align:center"><input class="score-in" type="number" min="0" max="10" value="${t.cs||0}" id="st-cs-${i}" style="width:32px;height:24px;font-size:12px"></span>
+      <span><input class="inp-sm" value="${t.mvp||''}" id="st-mvp-${i}" style="height:24px;font-size:12px;width:100%"></span>
     </div>`).join('')}
   </div>`;
+
+  D.teamStats.map((t,i)=>{
+    document.getElementById(`st-played-${i}`).oninput = function() { D.teamStats[i].played=parseInt(this.value)||0; save(); renderStats(); };
+    document.getElementById(`st-goals-${i}`).oninput = function() { D.teamStats[i].goals=parseInt(this.value)||0; save(); renderStats(); };
+    document.getElementById(`st-cs-${i}`).oninput = function() { D.teamStats[i].cs=parseInt(this.value)||0; save(); };
+    document.getElementById(`st-mvp-${i}`).oninput = function() { D.teamStats[i].mvp=this.value; save(); };
+  });
 }
 
 function renderEquipes(){
@@ -434,7 +525,7 @@ function renderEquipes(){
   const posTxt={G:'#0C447C',D:'#27500A',M:'#633806',A:'#712B13'};
   el.innerHTML=`<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Clique sur une équipe pour voir l'effectif et l'entraîneur.</p>
   <div class="teams-grid">${TEAMS_DATA.map((t,ti)=>`<div class="team-card">
-    <div class="team-card-hdr" onclick="toggleTeam(${ti})">
+    <div class="team-card-hdr" id="t-hdr-${ti}">
       <span style="font-size:20px">${t.flag}</span>
       <div style="flex:1">
         <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">${t.name}</div>
@@ -455,6 +546,10 @@ function renderEquipes(){
       </div>`).join('')}
     </div>
   </div>`).join('')}`;
+
+  TEAMS_DATA.forEach((_,ti)=>{
+    document.getElementById(`t-hdr-${ti}`).onclick = function() { toggleTeam(ti); };
+  });
 }
 function toggleTeam(i){
   const body=document.getElementById('tbody'+i);
@@ -467,7 +562,7 @@ function renderRdv(){
   const el=document.getElementById('rdv');
   el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <p style="font-size:12px;color:var(--color-text-secondary)">Organise vos soirées matchs. Clique sur un avatar pour confirmer la présence.</p>
-    <button class="btn btn-primary" onclick="addRdv()"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button>
+    <button class="btn btn-primary" id="rdv-add-btn"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button>
   </div>
   ${D.rdvList.map((r,ri)=>{
     const pres=r.presents||{};
@@ -475,32 +570,47 @@ function renderRdv(){
     return`<div class="rdv-card">
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
         <div class="rdv-date-box">
-          <div class="rdv-date-d"><input type="text" value="${r.date||''}" oninput="D.rdvList[${ri}].date=this.value;save()" placeholder="?" style="width:36px;background:none;border:none;text-align:center;font-size:16px;font-weight:500;color:var(--color-text-info);outline:none"></div>
-          <div class="rdv-date-m"><input type="text" value="${r.mois||''}" oninput="D.rdvList[${ri}].mois=this.value;save()" placeholder="MOI" style="width:40px;background:none;border:none;text-align:center;font-size:10px;color:var(--color-text-info);outline:none;text-transform:uppercase"></div>
+          <div class="rdv-date-d"><input type="text" value="${r.date||''}" id="rd-date-${ri}" placeholder="?" style="width:36px;background:none;border:none;text-align:center;font-size:16px;font-weight:500;color:var(--color-text-info);outline:none"></div>
+          <div class="rdv-date-m"><input type="text" value="${r.mois||''}" id="rd-mois-${ri}" placeholder="MOI" style="width:40px;background:none;border:none;text-align:center;font-size:10px;color:var(--color-text-info);outline:none;text-transform:uppercase"></div>
         </div>
         <div style="flex:1">
-          <input class="inp-sm" value="${r.match||''}" oninput="D.rdvList[${ri}].match=this.value;save()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px">
+          <input class="inp-sm" value="${r.match||''}" id="rd-match-${ri}" placeholder="Quel match ?" style="width:100%;margin-bottom:5px">
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <input class="inp-sm" value="${r.heure||''}" oninput="D.rdvList[${ri}].heure=this.value;save()" placeholder="Heure" style="width:70px">
-            <input class="inp-sm" value="${r.where||''}" oninput="D.rdvList[${ri}].where=this.value;save()" placeholder="Où ? (bar, chez...)" style="flex:1">
+            <input class="inp-sm" value="${r.heure||''}" id="rd-heure-${ri}" placeholder="Heure" style="width:70px">
+            <input class="inp-sm" value="${r.where||''}" id="rd-where-${ri}" placeholder="Où ? (bar, chez...)" style="flex:1">
           </div>
         </div>
-        <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)"><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
+        <button class="btn" id="rd-del-${ri}" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)"><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
       </div>
       <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
         <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.map((p,pi)=>{
           const state=pres[p]||0;
-          return`<div onclick="toggleRdv(${ri},'${p}')" title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:pointer;background:${AV_BG[pi]};color:${AV_TX[pi]};opacity:${state?'1':'0.35'};border:${state?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
+          return`<div id="rd-pote-${ri}-${p}" title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:pointer;background:${AV_BG[pi]};color:${AV_TX[pi]};opacity:${state?'1':'0.35'};border:${state?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
         }).join('')}</div>
         <span style="font-size:12px;color:var(--color-text-secondary)">${count>0?count+' présent'+(count>1?'s':''):'Personne encore'}</span>
       </div>
     </div>`;}).join('')}`;
+
+  document.getElementById('rdv-add-btn').onclick = function() { addRdv(); };
+  
+  D.rdvList.forEach((r,ri)=>{
+    document.getElementById(`rd-date-${ri}`).oninput = function() { D.rdvList[ri].date=this.value; save(); };
+    document.getElementById(`rd-mois-${ri}`).oninput = function() { D.rdvList[ri].mois=this.value; save(); };
+    document.getElementById(`rd-match-${ri}`).oninput = function() { D.rdvList[ri].match=this.value; save(); };
+    document.getElementById(`rd-heure-${ri}`).oninput = function() { D.rdvList[ri].heure=this.value; save(); };
+    document.getElementById(`rd-where-${ri}`).oninput = function() { D.rdvList[ri].where=this.value; save(); };
+    document.getElementById(`rd-del-${ri}`).onclick = function() { removeRdv(ri); };
+    POTES.forEach(p=>{
+      document.getElementById(`rd-pote-${ri}-${p}`).onclick = function() { toggleRdv(ri, p); };
+    });
+  });
 }
 function toggleRdv(ri,p){if(!D.rdvList[ri].presents)D.rdvList[ri].presents={};D.rdvList[ri].presents[p]=(D.rdvList[ri].presents[p]||0)===1?0:1;save();renderRdv()}
 function addRdv(){D.rdvList.push({id:'rdv_'+Date.now(),date:'',mois:'',match:'',heure:'',where:'',presents:{}});save();renderRdv()}
 function removeRdv(ri){if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}}else{D.rdvList.splice(ri,1)}save();renderRdv()}
 
 function showTab(id){
+  currentTabId = id;
   const tabs=['groupes','matchs','bracket','pronos','stats','equipes','rdv'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===id));
   document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('active',s.id===id));
@@ -508,5 +618,9 @@ function showTab(id){
   if(renders[id])renders[id]();
 }
 
-renderGroups();
+// Rendre la fonction accessible aux clics sur les boutons d'onglets (HTML classique)
+window.showTab = showTab;
+
+// Premier rendu au chargement
+showTab('groupes');
 </script>
