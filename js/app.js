@@ -1,1 +1,1129 @@
+<script>
+const POTES = ["Alban","Lino","Louis","Maxime","Simon","Theo","Titouan","Victor"];
+const AV_BG = ["#CECBF6","#9FE1CB","#F5C4B3","#FAC775","#B5D4F4","#F4C0D1","#C0DD97","#D3D1C7"];
+const AV_TX = ["#3C3489","#085041","#712B13","#633806","#0C447C","#72243E","#27500A","#2C2C2A"];
 
+const GROUPS = {
+  A:{teams:[["🇲🇽","Mexique"],["🇿🇦","Afrique du Sud"],["🇰🇷","Corée du Sud"],["🇨🇿","Tchéquie"]]},
+  B:{teams:[["🇨🇦","Canada"],["🇧🇦","Bosnie-Herz."],["🇶🇦","Qatar"],["🇨🇭","Suisse"]]},
+  C:{teams:[["🇺🇸","États-Unis"],["🇵🇾","Paraguay"],["🇬🇭","Ghana"],["🇬🇪","Géorgie"]]},
+  D:{teams:[["🇦🇷","Argentine"],["🇵🇪","Pérou"],["🇨🇮","Côte d'Ivoire"],["🇸🇮","Slovénie"]]},
+  E:{teams:[["🇧🇷","Brésil"],["🇯🇵","Japon"],["🇨🇴","Colombie"],["🇲🇦","Maroc"]]},
+  F:{teams:[["🇪🇸","Espagne"],["🇩🇰","Danemark"],["🇷🇸","Serbie"],["🇹🇳","Tunisie"]]},
+  G:{teams:[["🏴󠁧󠁢󠁥󠁮󠁧󠁿","Angleterre"],["🇸🇰","Slovaquie"],["🇺🇾","Uruguay"],["🇮🇷","Iran"]]},
+  H:{teams:[["🇵🇹","Portugal"],["🇰🇪","Kenya"],["🇭🇷","Croatie"],["🇺🇿","Ouzbékistan"]]},
+  I:{teams:[["🇫🇷","France"],["🇸🇳","Sénégal"],["🇳🇴","Norvège"],["🇮🇶","Irak"]]},
+  J:{teams:[["🇩🇪","Allemagne"],["🇦🇺","Australie"],["🇺🇦","Ukraine"],["🇯🇴","Jordanie"]]},
+  K:{teams:[["🇳🇱","Pays-Bas"],["🇲🇾","Malaisie"],["🇨🇱","Chili"],["🇸🇦","Arabie Saoudite"]]},
+  L:{teams:[["🇧🇪","Belgique"],["🇨🇺","Cuba"],["🇷🇴","Roumanie"],["🇨🇻","Cap-Vert"]]}
+};
+
+const PRONO_MATCHES = [
+  // --- GROUPE A ---
+  {id:"p1",label:"🇲🇽 Mexique vs 🇿🇦 Afrique du Sud",date:"11 Juin",group:"Gr. A"},
+  {id:"p2",label:"🇰🇷 Corée du Sud vs 🇨🇿 Tchéquie",date:"12 Juin",group:"Gr. A"},
+  {id:"p3",label:"🇨🇿 Tchéquie vs 🇿🇦 Afrique du Sud",date:"19 Juin",group:"Gr. A"},
+  {id:"p4",label:"🇲🇽 Mexique vs 🇰🇷 Corée du Sud",date:"19 Juin",group:"Gr. A"},
+  {id:"p5",label:"🇨🇿 Tchéquie vs 🇲🇽 Mexique",date:"24 Juin",group:"Gr. A"},
+  {id:"p6",label:"🇿🇦 Afrique du Sud vs 🇰🇷 Corée du Sud",date:"24 Juin",group:"Gr. A"},
+
+  // --- GROUPE B ---
+  {id:"p7",label:"🇨🇦 Canada vs 🇧🇦 Bosnie-Herz.",date:"12 Juin",group:"Gr. B"},
+  {id:"p8",label:"🇶🇦 Qatar vs 🇨🇭 Suisse",date:"13 Juin",group:"Gr. B"},
+  {id:"p9",label:"🇨🇦 Canada vs 🇶🇦 Qatar",date:"18 Juin",group:"Gr. B"},
+  {id:"p10",label:"🇨🇭 Suisse vs 🇧🇦 Bosnie-Herz.",date:"18 Juin",group:"Gr. B"},
+  {id:"p11",label:"🇨🇭 Suisse vs 🇨🇦 Canada",date:"24 Juin",group:"Gr. B"},
+  {id:"p12",label:"🇧🇦 Bosnie-Herz. vs 🇶🇦 Qatar",date:"24 Juin",group:"Gr. B"},
+
+  // --- GROUPE C ---
+  {id:"p13",label:"🇺🇸 États-Unis vs 🇵🇾 Paraguay",date:"13 Juin",group:"Gr. C"},
+  {id:"p14",label:"🇬🇭 Ghana vs 🇬🇪 Géorgie",date:"13 Juin",group:"Gr. C"},
+  {id:"p15",label:"🇺🇸 États-Unis vs 🇬🇭 Ghana",date:"19 Juin",group:"Gr. C"},
+  {id:"p16",label:"🇬🇪 Géorgie vs 🇵🇾 Paraguay",date:"19 Juin",group:"Gr. C"},
+  {id:"p17",label:"🇬🇪 Géorgie vs 🇺🇸 États-Unis",date:"25 Juin",group:"Gr. C"},
+  {id:"p18",label:"🇵🇾 Paraguay vs 🇬🇭 Ghana",date:"25 Juin",group:"Gr. C"},
+
+  // --- GROUPE D ---
+  {id:"p19",label:"🇦🇷 Argentine vs 🇵🇪 Pérou",date:"14 Juin",group:"Gr. D"},
+  {id:"p20",label:"🇨🇮 Côte d'Ivoire vs 🇸🇮 Slovénie",date:"14 Juin",group:"Gr. D"},
+  {id:"p21",label:"🇦🇷 Argentine vs 🇨🇮 Côte d'Ivoire",date:"20 Juin",group:"Gr. D"},
+  {id:"p22",label:"🇸🇮 Slovénie vs 🇵🇪 Pérou",date:"20 Juin",group:"Gr. D"},
+  {id:"p23",label:"🇸🇮 Slovénie vs 🇦🇷 Argentine",date:"25 Juin",group:"Gr. D"},
+  {id:"p24",label:"🇵🇪 Pérou vs 🇨🇮 Côte d'Ivoire",date:"25 Juin",group:"Gr. D"},
+
+  // --- GROUPE E ---
+  {id:"p25",label:"🇧🇷 Brésil vs 🇯🇵 Japon",date:"14 Juin",group:"Gr. E"},
+  {id:"p26",label:"🇨🇴 Colombie vs 🇲🇦 Maroc",date:"15 Juin",group:"Gr. E"},
+  {id:"p27",label:"🇧🇷 Brésil vs 🇨🇴 Colombie",date:"20 Juin",group:"Gr. E"},
+  {id:"p28",label:"🇲🇦 Maroc vs 🇯🇵 Japon",date:"20 Juin",group:"Gr. E"},
+  {id:"p29",label:"🇲🇦 Maroc vs 🇧🇷 Brésil",date:"25 Juin",group:"Gr. E"},
+  {id:"p30",label:"🇯🇵 Japon vs 🇨🇴 Colombie",date:"25 Juin",group:"Gr. E"},
+
+  // --- GROUPE F ---
+  {id:"p31",label:"🇪🇸 Espagne vs 🇩🇰 Danemark",date:"15 Juin",group:"Gr. F"},
+  {id:"p32",label:"🇷🇸 Serbie vs 🇹🇳 Tunisie",date:"15 Juin",group:"Gr. F"},
+  {id:"p33",label:"🇪🇸 Espagne vs 🇷🇸 Serbie",date:"21 Juin",group:"Gr. F"},
+  {id:"p34",label:"🇹🇳 Tunisie vs 🇩🇰 Danemark",date:"21 Juin",group:"Gr. F"},
+  {id:"p35",label:"🇹🇳 Tunisie vs 🇪🇸 Espagne",date:"26 Juin",group:"Gr. F"},
+  {id:"p36",label:"🇩🇰 Danemark vs 🇷🇸 Serbie",date:"26 Juin",group:"Gr. F"},
+
+  // --- GROUPE G ---
+  {id:"p37",label:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre vs 🇸🇰 Slovaquie",date:"15 Juin",group:"Gr. G"},
+  {id:"p38",label:"🇺🇾 Uruguay vs 🇮🇷 Iran",date:"16 Juin",group:"Gr. G"},
+  {id:"p39",label:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre vs 🇺🇾 Uruguay",date:"21 Juin",group:"Gr. G"},
+  {id:"p40",label:"🇮🇷 Iran vs 🇸🇰 Slovaquie",date:"21 Juin",group:"Gr. G"},
+  {id:"p41",label:"🇮🇷 Iran vs 🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre",date:"26 Juin",group:"Gr. G"},
+  {id:"p42",label:"🇸🇰 Slovaquie vs 🇺🇾 Uruguay",date:"26 Juin",group:"Gr. G"},
+
+  // --- GROUPE H ---
+  {id:"p43",label:"🇵🇹 Portugal vs 🇰🇪 Kenya",date:"16 Juin",group:"Gr. H"},
+  {id:"p44",label:"🇭🇷 Croatie vs 🇺🇿 Ouzbékistan",date:"16 Juin",group:"Gr. H"},
+  {id:"p45",label:"🇵🇹 Portugal vs 🇭🇷 Croatie",date:"22 Juin",group:"Gr. H"},
+  {id:"p46",label:"🇺🇿 Ouzbékistan vs 🇰🇪 Kenya",date:"22 Juin",group:"Gr. H"},
+  {id:"p47",label:"🇺🇿 Ouzbékistan vs 🇵🇹 Portugal",date:"26 Juin",group:"Gr. H"},
+  {id:"p48",label:"🇰🇪 Kenya vs 🇭🇷 Croatie",date:"26 Juin",group:"Gr. H"},
+
+  // --- GROUPE I ---
+  {id:"p49",label:"🇫🇷 France vs 🇸🇳 Sénégal",date:"16 Juin",group:"Gr. I"},
+  {id:"p50",label:"🇳🇴 Norvège vs 🇮🇶 Irak",date:"17 Juin",group:"Gr. I"},
+  {id:"p51",label:"🇫🇷 France vs 🇳🇴 Norvège",date:"22 Juin",group:"Gr. I"},
+  {id:"p52",label:"🇮🇶 Irak vs 🇸🇳 Sénégal",date:"22 Juin",group:"Gr. I"},
+  {id:"p53",label:"🇮🇶 Irak vs 🇫🇷 France",date:"27 Juin",group:"Gr. I"},
+  {id:"p54",label:"🇸🇳 Sénégal vs 🇳🇴 Norvège",date:"27 Juin",group:"Gr. I"},
+
+  // --- GROUPE J ---
+  {id:"p55",label:"🇩🇪 Allemagne vs 🇦🇺 Australie",date:"17 Juin",group:"Gr. J"},
+  {id:"p56",label:"🇺🇦 Ukraine vs 🇯🇴 Jordanie",date:"18 Juin",group:"Gr. J"},
+  {id:"p57",label:"🇩🇪 Allemagne vs 🇺🇦 Ukraine",date:"23 Juin",group:"Gr. J"},
+  {id:"p58",label:"🇯🇴 Jordanie vs 🇦🇺 Australie",date:"23 Juin",group:"Gr. J"},
+  {id:"p59",label:"🇯🇴 Jordanie vs 🇩🇪 Allemagne",date:"27 Juin",group:"Gr. J"},
+  {id:"p60",label:"🇦🇺 Australie vs 🇺🇦 Ukraine",date:"27 Juin",group:"Gr. J"},
+
+  // --- GROUPE K ---
+  {id:"p61",label:"🇳🇱 Pays-Bas vs 🇲🇾 Malaisie",date:"18 Juin",group:"Gr. K"},
+  {id:"p62",label:"🇨🇱 Chili vs 🇸🇦 Arabie Saoudite",date:"18 Juin",group:"Gr. K"},
+  {id:"p63",label:"🇳🇱 Pays-Bas vs 🇨🇱 Chili",date:"23 Juin",group:"Gr. K"},
+  {id:"p64",label:"🇸🇦 Arabie Saoudite vs 🇲🇾 Malaisie",date:"23 Juin",group:"Gr. K"},
+  {id:"p65",label:"🇸🇦 Arabie Saoudite vs 🇳🇱 Pays-Bas",date:"27 Juin",group:"Gr. K"},
+  {id:"p66",label:"🇲🇾 Malaisie vs 🇨🇱 Chili",date:"27 Juin",group:"Gr. K"},
+
+  // --- GROUPE L ---
+  {id:"p67",label:"🇧🇪 Belgique vs 🇨🇺 Cuba",date:"19 Juin",group:"Gr. L"},
+  {id:"p68",label:"🇷🇴 Roumanie vs 🇨🇻 Cap-Vert",date:"19 Juin",group:"Gr. L"},
+  {id:"p69",label:"🇧🇪 Belgique vs 🇷🇴 Roumanie",date:"23 Juin",group:"Gr. L"},
+  {id:"p70",label:"🇨🇻 Cap-Vert vs 🇨🇺 Cuba",date:"23 Juin",group:"Gr. L"},
+  {id:"p71",label:"🇨🇻 Cap-Vert vs 🇧🇪 Belgique",date:"27 Juin",group:"Gr. L"},
+  {id:"p72",label:"🇨🇺 Cuba vs 🇷🇴 Roumanie",date:"27 Juin",group:"Gr. L"},
+
+  // --- PHASES ÉLIMINATOIRES ---
+  {id:"p73",label:"16es de Finale 1",date:"28-30 Juin",group:"Élim."},
+  {id:"p74",label:"16es de Finale 2",date:"01-03 Juillet",group:"Élim."},
+  {id:"p75",label:"8es de Finale 1",date:"04-06 Juillet",group:"Élim."},
+  {id:"p76",label:"8es de Finale 2",date:"07 Juillet",group:"Élim."},
+  {id:"p77",label:"Quarts de Finale 1",date:"09-10 Juillet",group:"Élim."},
+  {id:"p78",label:"Quarts de Finale 2",date:"11 Juillet",group:"Élim."},
+  {id:"p79",label:"Demi-Finale 1",date:"14 Juillet",group:"Élim."},
+  {id:"p80",label:"Demi-Finale 2",date:"15 Juillet",group:"Élim."},
+  {id:"p81",label:"Petite Finale (3e place)",date:"18 Juillet",group:"Élim."},
+  {id:"p82",label:"Finale",date:"19 Juillet",group:"Élim."},
+];
+
+// Base complète de données de tous les matchs
+const MATCHS_DATA = [
+  // --- GROUPE A ---
+  {day:"11 Juin", stage:"Phase de Groupes", g:"A", t1:"🇲🇽 Mexique", t2:"🇿🇦 Afrique du Sud"},
+  {day:"12 Juin", stage:"Phase de Groupes", g:"A", t1:"🇰🇷 Corée du Sud", t2:"🇨🇿 Tchéquie"},
+  {day:"19 Juin", stage:"Phase de Groupes", g:"A", t1:"cz Tchéquie", t2:"za Afrique du Sud"},
+  {day:"19 Juin", stage:"Phase de Groupes", g:"A", t1:"🇲🇽 Mexique", t2:"🇰🇷 Corée du Sud"},
+  {day:"24 Juin", stage:"Phase de Groupes", g:"A", t1:"🇨🇿 Tchéquie", t2:"🇲🇽 Mexique"},
+  {day:"24 Juin", stage:"Phase de Groupes", g:"A", t1:"🇿🇦 Afrique du Sud", t2:"🇰🇷 Corée du Sud"},
+
+  // --- GROUPE B ---
+  {day:"12 Juin", stage:"Phase de Groupes", g:"B", t1:"🇨🇦 Canada", t2:"🇧🇦 Bosnie-Herz."},
+  {day:"13 Juin", stage:"Phase de Groupes", g:"B", t1:"🇶🇦 Qatar", t2:"🇨🇭 Suisse"},
+  {day:"18 Juin", stage:"Phase de Groupes", g:"B", t1:"🇨🇦 Canada", t2:"🇶🇦 Qatar"},
+  {day:"18 Juin", stage:"Phase de Groupes", g:"B", t1:"🇨🇭 Suisse", t2:"🇧🇦 Bosnie-Herz."},
+  {day:"24 Juin", stage:"Phase de Groupes", g:"B", t1:"🇨🇭 Suisse", t2:"🇨🇦 Canada"},
+  {day:"24 Juin", stage:"Phase de Groupes", g:"B", t1:"🇧🇦 Bosnie-Herz.", t2:"🇶🇦 Qatar"},
+
+  // --- GROUPE C ---
+  {day:"13 Juin", stage:"Phase de Groupes", g:"C", t1:"🇺🇸 États-Unis", t2:"🇵🇾 Paraguay"},
+  {day:"13 Juin", stage:"Phase de Groupes", g:"C", t1:"🇬🇭 Ghana", t2:"🇬🇪 Géorgie"},
+  {day:"19 Juin", stage:"Phase de Groupes", g:"C", t1:"🇺🇸 États-Unis", t2:"🇬🇭 Ghana"},
+  {day:"19 Juin", stage:"Phase de Groupes", g:"C", t1:"🇬🇪 Géorgie", t2:"🇵🇾 Paraguay"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"C", t1:"🇬🇪 Géorgie", t2:"🇺🇸 États-Unis"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"C", t1:"🇵🇾 Paraguay", t2:"🇬🇭 Ghana"},
+
+  // --- GROUPE D ---
+  {day:"14 Juin", stage:"Phase de Groupes", g:"D", t1:"🇦🇷 Argentine", t2:"🇵🇪 Pérou"},
+  {day:"14 Juin", stage:"Phase de Groupes", g:"D", t1:"🇨🇮 Côte d'Ivoire", t2:"🇸🇮 Slovénie"},
+  {day:"20 Juin", stage:"Phase de Groupes", g:"D", t1:"🇦🇷 Argentine", t2:"🇨🇮 Côte d'Ivoire"},
+  {day:"20 Juin", stage:"Phase de Groupes", g:"D", t1:"🇸🇮 Slovénie", t2:"🇵🇪 Pérou"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"D", t1:"🇸🇮 Slovénie", t2:"🇦🇷 Argentine"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"D", t1:"🇵🇪 Pérou", t2:"🇨🇮 Côte d'Ivoire"},
+
+  // --- GROUPE E ---
+  {day:"14 Juin", stage:"Phase de Groupes", g:"E", t1:"🇧🇷 Brésil", t2:"🇯🇵 Japon"},
+  {day:"15 Juin", stage:"Phase de Groupes", g:"E", t1:"🇨🇴 Colombie", t2:"🇲🇦 Maroc"},
+  {day:"20 Juin", stage:"Phase de Groupes", g:"E", t1:"🇧🇷 Brésil", t2:"🇨🇴 Colombie"},
+  {day:"20 Juin", stage:"Phase de Groupes", g:"E", t1:"🇲🇦 Maroc", t2:"🇯🇵 Japon"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"E", t1:"🇲🇦 Maroc", t2:"🇧🇷 Brésil"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"E", t1:"🇯🇵 Japon", t2:"🇨🇴 Colombie"},
+
+  // --- GROUPE F ---
+  {day:"15 Juin", stage:"Phase de Groupes", g:"F", t1:"🇪🇸 Espagne", t2:"🇩🇰 Danemark"},
+  {day:"15 Juin", stage:"Phase de Groupes", g:"F", t1:"🇷🇸 Serbie", t2:"🇹🇳 Tunisie"},
+  {day:"21 Juin", stage:"Phase de Groupes", g:"F", t1:"🇪🇸 Espagne", t2:"🇷🇸 Serbie"},
+  {day:"21 Juin", stage:"Phase de Groupes", g:"F", t1:"🇹🇳 Tunisie", t2:"🇩🇰 Danemark"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"F", t1:"🇹🇳 Tunisie", t2:"🇪🇸 Espagne"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"F", t1:"🇩🇰 Danemark", t2:"🇷🇸 Serbie"},
+
+  // --- GROUPE G ---
+  {day:"15 Juin", stage:"Phase de Groupes", g:"G", t1:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", t2:"🇸🇰 Slovaquie"},
+  {day:"16 Juin", stage:"Phase de Groupes", g:"G", t1:"🇺🇾 Uruguay", t2:"🇮🇷 Iran"},
+  {day:"21 Juin", stage:"Phase de Groupes", g:"G", t1:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", t2:"🇺🇾 Uruguay"},
+  {day:"21 Juin", stage:"Phase de Groupes", g:"G", t1:"🇮🇷 Iran", t2:"🇸🇰 Slovaquie"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"G", t1:"🇮🇷 Iran", t2:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"G", t1:"🇸🇰 Slovaquie", t2:"🇺🇾 Uruguay"},
+
+  // --- GROUPE H ---
+  {day:"16 Juin", stage:"Phase de Groupes", g:"H", t1:"🇵🇹 Portugal", t2:"🇰🇪 Kenya"},
+  {day:"16 Juin", stage:"Phase de Groupes", g:"H", t1:"🇭🇷 Croatie", t2:"🇺🇿 Ouzbékistan"},
+  {day:"22 Juin", stage:"Phase de Groupes", g:"H", t1:"🇵🇹 Portugal", t2:"🇭🇷 Croatie"},
+  {day:"22 Juin", stage:"Phase de Groupes", g:"H", t1:"🇺🇿 Ouzbékistan", t2:"🇰🇪 Kenya"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"H", t1:"🇺🇿 Ouzbékistan", t2:"🇵🇹 Portugal"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"H", t1:"🇰🇪 Kenya", t2:"🇭🇷 Croatie"},
+
+  // --- GROUPE I ---
+  {day:"16 Juin", stage:"Phase de Groupes", g:"I", t1:"🇫🇷 France", t2:"🇸🇳 Sénégal"},
+  {day:"17 Juin", stage:"Phase de Groupes", g:"I", t1:"🇳🇴 Norvège", t2:"🇮🇶 Irak"},
+  {day:"22 Juin", stage:"Phase de Groupes", g:"I", t1:"🇫🇷 France", t2:"🇳🇴 Norvège"},
+  {day:"22 Juin", stage:"Phase de Groupes", g:"I", t1:"🇮🇶 Irak", t2:"🇸🇳 Sénégal"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"I", t1:"🇮🇶 Irak", t2:"🇫🇷 France"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"I", t1:"🇸🇳 Sénégal", t2:"🇳🇴 Norvège"},
+
+  // --- GROUPE J ---
+  {day:"17 Juin", stage:"Phase de Groupes", g:"J", t1:"🇩🇪 Allemagne", t2:"🇦🇺 Australie"},
+  {day:"18 Juin", stage:"Phase de Groupes", g:"J", t1:"🇺🇦 Ukraine", t2:"🇯🇴 Jordanie"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"J", t1:"🇩🇪 Allemagne", t2:"🇺🇦 Ukraine"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"J", t1:"🇯🇴 Jordanie", t2:"🇦🇺 Australie"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"J", t1:"🇯🇴 Jordanie", t2:"🇩🇪 Allemagne"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"J", t1:"🇦🇺 Australie", t2:"🇺🇦 Ukraine"},
+
+  // --- GROUPE K ---
+  {day:"18 Juin", stage:"Phase de Groupes", g:"K", t1:"🇳🇱 Pays-Bas", t2:"🇲🇾 Malaisie"},
+  {day:"18 Juin", stage:"Phase de Groupes", g:"K", t1:"🇨🇱 Chili", t2:"🇸🇦 Arabie Saoudite"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"K", t1:"🇳🇱 Pays-Bas", t2:"🇨🇱 Chili"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"K", t1:"🇸🇦 Arabie Saoudite", t2:"🇲🇾 Malaisie"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"K", t1:"🇸🇦 Arabie Saoudite", t2:"🇳🇱 Pays-Bas"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"K", t1:"🇲🇾 Malaisie", t2:"🇨🇱 Chili"},
+
+  // --- GROUPE L ---
+  {day:"19 Juin", stage:"Phase de Groupes", g:"L", t1:"🇧🇪 Belgique", t2:"🇨🇺 Cuba"},
+  {day:"19 Juin", stage:"Phase de Groupes", g:"L", t1:"🇷🇴 Roumanie", t2:"🇨🇻 Cap-Vert"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"L", t1:"🇧🇪 Belgique", t2:"🇷🇴 Roumanie"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"L", t1:"🇨🇻 Cap-Vert", t2:"🇨🇺 Cuba"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"L", t1:"🇨🇻 Cap-Vert", t2:"🇧🇪 Belgique"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"L", t1:"🇨🇺 Cuba", t2:"🇷🇴 Roumanie"},
+
+  // --- PHASES ÉLIMINATOIRES ---
+  {day:"28 Juin - 03 Juillet", stage:"16es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 16e"},
+  {day:"04 - 07 Juillet", stage:"16es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 8e"},
+  {day:"09 - 11 Juillet", stage:"Quarts de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Top 8 mondial"},
+  {day:"14 Juillet", stage:"Demi-Finale 1", g:"", t1:"Qualifié", t2:"Qualifié"},
+  {day:"15 Juillet", stage:"Demi-Finale 2", g:"", t1:"Qualifié", t2:"Qualifié"},
+  {day:"18 Juillet", stage:"Petite Finale (3e place)", g:"", t1:"Perdant DF1", t2:"Perdant DF2"},
+  {day:"19 Juillet", stage:"Finale", g:"", t1:"Vainqueur DF1", t2:"Vainqueur DF2"}
+];
+
+const TEAMS_DATA = [
+  // Groupe A
+  {flag:"🇲🇽",name:"Mexique",group:"A",coach:"Javier Aguirre",players:[
+    {n:1,pos:"G",name:"G. Ochoa"},{n:23,pos:"G",name:"A. Talavera"},
+    {n:2,pos:"D",name:"H. Moreno"},{n:5,pos:"D",name:"C. Salcedo"},{n:4,pos:"D",name:"G. Arteaga"},
+    {n:15,pos:"M",name:"E. Álvarez"},{n:8,pos:"M",name:"H. Herrera"},{n:14,pos:"M",name:"R. Jiménez"},
+    {n:10,pos:"A",name:"H. Lozano"},{n:7,pos:"A",name:"A. Vela"},{n:11,pos:"A",name:"R. Alvarado"},
+  ]},
+  {flag:"🇿🇦",name:"Afrique du Sud",group:"A",coach:"Hugo Broos",players:[
+    {n:1,pos:"G",name:"R. Williams"},{n:23,pos:"G",name:"V. Arrey"},
+    {n:2,pos:"D",name:"A. Nyatsanga"},{n:5,pos:"D",name:"R. Gumede"},{n:4,pos:"D",name:"T. Letsoaka"},
+    {n:15,pos:"M",name:"M. Lerma"},{n:8,pos:"M",name:"A. Modiba"},{n:14,pos:"M",name:"P. Nkosi"},
+    {n:10,pos:"A",name:"P. Sikhosana"},{n:7,pos:"A",name:"K. Sowe"},{n:11,pos:"A",name:"T. Mokoena"},
+  ]},
+  {flag:"🇰🇷",name:"Corée du Sud",group:"A",coach:"Hong Myung-bo",players:[
+    {n:1,pos:"G",name:"S. Jo"},{n:23,pos:"G",name:"K. Lee"},
+    {n:2,pos:"D",name:"Y. Kim"},{n:5,pos:"D",name:"M. Park"},{n:4,pos:"D",name:"H. Lim"},
+    {n:15,pos:"M",name:"S. Hwang"},{n:8,pos:"M",name:"J. Koo"},{n:14,pos:"M",name:"W. Jeong"},
+    {n:10,pos:"A",name:"S. Son"},{n:7,pos:"A",name:"H. Cho"},{n:11,pos:"A",name:"I. Lee"},
+  ]},
+  {flag:"🇨🇿",name:"Tchéquie",group:"A",coach:"Ivan Hašek",players:[
+    {n:1,pos:"G",name:"T. Vaclík"},{n:23,pos:"G",name:"J. Pavlenka"},
+    {n:2,pos:"D",name:"O. Çetin"},{n:5,pos:"D",name:"D. Kudela"},{n:4,pos:"D",name:"J. Coufal"},
+    {n:15,pos:"M",name:"T. Souček"},{n:8,pos:"M",name:"V. Hromada"},{n:14,pos:"M",name:"J. Jankto"},
+    {n:10,pos:"A",name:"P. Schick"},{n:7,pos:"A",name:"V. Krejčí"},{n:11,pos:"A",name:"D. Krejčí"},
+  ]},
+  
+  // Groupe B
+  {flag:"🇨🇦",name:"Canada",group:"B",coach:"Jesse Marsch",players:[
+    {n:1,pos:"G",name:"M. Diop"},{n:23,pos:"G",name:"J. Borjan"},
+    {n:2,pos:"D",name:"A. Sands"},{n:5,pos:"D",name:"E. Cavallini"},{n:4,pos:"D",name:"M. Bombito"},
+    {n:15,pos:"M",name:"I. Kaye"},{n:8,pos:"M",name:"A. Eustáquio"},{n:14,pos:"M",name:"M. Piette"},
+    {n:10,pos:"A",name:"A. David"},{n:7,pos:"A",name:"C. Buchanan"},{n:11,pos:"A",name:"T. Leal"},
+  ]},
+  {flag:"🇧🇦",name:"Bosnie-Herzégovine",group:"B",coach:"Sergei Barbarez",players:[
+    {n:1,pos:"G",name:"I. Begović"},{n:23,pos:"G",name:"O. Ćerimagić"},
+    {n:2,pos:"D",name:"S. Kolarov"},{n:5,pos:"D",name:"A. Šaranović"},{n:4,pos:"D",name:"B. Vidović"},
+    {n:15,pos:"M",name:"M. Osman"},{n:8,pos:"M",name:"M. Pjanić"},{n:14,pos:"M",name:"E. Čorluka"},
+    {n:10,pos:"A",name:"E. Dzeko"},{n:7,pos:"A",name:"M. Tadic"},{n:11,pos:"A",name:"S. Mitrovic"},
+  ]},
+  {flag:"🇶🇦",name:"Qatar",group:"B",coach:"Félix Sánchez",players:[
+    {n:1,pos:"G",name:"S. Al-Sheeb"},{n:23,pos:"G",name:"M. Al-Bakri"},
+    {n:2,pos:"D",name:"R. Al-Harqan"},{n:5,pos:"D",name:"T. Ramsamy"},{n:4,pos:"D",name:"K. Khoukhi"},
+    {n:15,pos:"M",name:"M. Al-Haydos"},{n:8,pos:"M",name:"A. Al-Marri"},{n:14,pos:"M",name:"P. Couturier"},
+    {n:10,pos:"A",name:"A. Al-Doha"},{n:7,pos:"A",name:"A. Assadalla"},{n:11,pos:"A",name:"N. Afif"},
+  ]},
+  {flag:"🇨🇭",name:"Suisse",group:"B",coach:"Murat Yakin",players:[
+    {n:1,pos:"G",name:"Y. Sommer"},{n:23,pos:"G",name:"J. Mvogo"},
+    {n:2,pos:"D",name:"S. Lichtsteiner"},{n:5,pos:"D",name:"F. Schär"},{n:4,pos:"D",name:"M. Elvedi"},
+    {n:15,pos:"M",name:"G. Xhaka"},{n:8,pos:"M",name:"D. de Ligt"},{n:14,pos:"M",name:"R. Freuler"},
+    {n:10,pos:"A",name:"B. Seferović"},{n:7,pos:"A",name:"D. Shaqiri"},{n:11,pos:"A",name:"B. Embolo"},
+  ]},
+
+  // Groupe C
+  {flag:"🇺🇸",name:"États-Unis",group:"C",coach:"Gregg Berhalter",players:[
+    {n:1,pos:"G",name:"M. Turner"},{n:23,pos:"G",name:"E. Horvath"},
+    {n:2,pos:"D",name:"J. Robinson"},{n:5,pos:"D",name:"W. McKenzie"},{n:4,pos:"D",name:"S. Dest"},
+    {n:15,pos:"M",name:"T. Adams"},{n:8,pos:"M",name:"Y. Musah"},{n:14,pos:"M",name:"S. Reyna"},
+    {n:10,pos:"A",name:"C. Pulisic"},{n:7,pos:"A",name:"S. Weah"},{n:11,pos:"A",name:"F. Pepi"},
+  ]},
+  {flag:"🇵🇾",name:"Paraguay",group:"C",coach:"Daniel Garnero",players:[
+    {n:1,pos:"G",name:"S. Villar"},{n:23,pos:"G",name:"C. Coronel"},
+    {n:2,pos:"D",name:"I. Balbuena"},{n:5,pos:"D",name:"J. Gómez"},{n:4,pos:"D",name:"O. Aldrete"},
+    {n:15,pos:"M",name:"R. Martínez"},{n:8,pos:"M",name:"C. Rojas"},{n:14,pos:"M",name:"M. Cubas"},
+    {n:10,pos:"A",name:"A. Almirón"},{n:7,pos:"A",name:"M. Enciso"},{n:11,pos:"A",name:"J. Acuña"},
+  ]},
+  {flag:"🇬🇭",name:"Ghana",group:"C",coach:"Otto Addo",players:[
+    {n:1,pos:"G",name:"J. Wollacott"},{n:23,pos:"G",name:"R. Manaf"},
+    {n:2,pos:"D",name:"S. Vinicius"},{n:5,pos:"D",name:"A. Guehi"},{n:4,pos:"D",name:"D. Lamptey"},
+    {n:15,pos:"M",name:"T. Partey"},{n:8,pos:"M",name:"J. Iwobi"},{n:14,pos:"M",name:"M. Salisu"},
+    {n:10,pos:"A",name:"I. Boateng"},{n:7,pos:"A",name:"A. Bukari"},{n:11,pos:"A",name:"O. Opoku"},
+  ]},
+  {flag:"🇬🇪",name:"Géorgie",group:"C",coach:"Willy Sagnol",players:[
+    {n:1,pos:"G",name:"G. Mamardashvili"},{n:23,pos:"G",name:"L. Loria"},
+    {n:2,pos:"D",name:"S. Kverkvelia"},{n:5,pos:"D",name:"L. Lishja"},{n:4,pos:"D",name:"G. Gvelesiani"},
+    {n:15,pos:"M",name:"W. Kankava"},{n:8,pos:"M",name:"O. Dvalishvili"},{n:14,pos:"M",name:"K. Kiteishvili"},
+    {n:10,pos:"A",name:"K. Kvaratskhelia"},{n:7,pos:"A",name:"B. Oniangué"},{n:11,pos:"A",name:"I. Lobzhanidze"},
+  ]},
+
+  // Groupe D
+  {flag:"🇦🇷",name:"Argentine",group:"D",coach:"Lionel Scaloni",players:[
+    {n:23,pos:"G",name:"E. Martínez"},{n:1,pos:"G",name:"F. Armani"},
+    {n:13,pos:"D",name:"C. Romero"},{n:6,pos:"D",name:"G. Pezzella"},{n:3,pos:"D",name:"N. Tagliafico"},
+    {n:7,pos:"M",name:"R. De Paul"},{n:24,pos:"M",name:"E. Fernández"},{n:20,pos:"M",name:"A. Mac Allister"},
+    {n:10,pos:"A",name:"L. Messi"},{n:11,pos:"A",name:"Á. Di María"},{n:9,pos:"A",name:"J. Álvarez"},
+  ]},
+  {flag:"🇵🇪",name:"Pérou",group:"D",coach:"Jorge Fossati",players:[
+    {n:1,pos:"G",name:"P. Gallese"},{n:23,pos:"G",name:"C. Campos"},
+    {n:2,pos:"D",name:"L. Abram"},{n:5,pos:"D",name:"C. Santamaría"},{n:4,pos:"D",name:"A. Trauco"},
+    {n:15,pos:"M",name:"E. Flores"},{n:8,pos:"M",name:"J. Yotún"},{n:14,pos:"M",name:"C. Cueva"},
+    {n:10,pos:"A",name:"C. Benavente"},{n:7,pos:"A",name:"A. Guerrero"},{n:11,pos:"A",name:"R. Ramos"},
+  ]},
+  {flag:"🇨🇮",name:"Côte d'Ivoire",group:"D",coach:"Emerse Faé",players:[
+    {n:1,pos:"G",name:"S. Sangaré"},{n:23,pos:"G",name:"A. Coco"},
+    {n:2,pos:"D",name:"A. Touré"},{n:5,pos:"D",name:"G. Kossounou"},{n:4,pos:"D",name:"J. Cissé"},
+    {n:15,pos:"M",name:"F. Fofana"},{n:8,pos:"M",name:"J. Seri"},{n:14,pos:"M",name:"V. Pépé"},
+    {n:10,pos:"A",name:"S. Haller"},{n:7,pos:"A",name:"N. Zaha"},{n:11,pos:"A",name:"M. Boly"},
+  ]},
+  {flag:"🇸🇮",name:"Slovénie",group:"D",coach:"Matjaž Kek",players:[
+    {n:1,pos:"G",name:"J. Oblak"},{n:23,pos:"G",name:"A. Handanović"},
+    {n:2,pos:"D",name:"B. Bizjak"},{n:5,pos:"D",name:"J. Bijol"},{n:4,pos:"D",name:"J. Gotovac"},
+    {n:15,pos:"M",name:"J. Veratout"},{n:8,pos:"M",name:"K. Stojnić"},{n:14,pos:"M",name:"B. Begić"},
+    {n:10,pos:"A",name:"J. Milikević"},{n:7,pos:"A",name:"R. Stojanović"},{n:11,pos:"A",name:"M. Todorović"},
+  ]},
+
+  // Groupe E
+  {flag:"🇧🇷",name:"Brésil",group:"E",coach:"Dorival Júnior",players:[
+    {n:1,pos:"G",name:"Alisson"},{n:23,pos:"G",name:"Ederson"},
+    {n:2,pos:"D",name:"Danilo"},{n:3,pos:"D",name:"Marquinhos"},{n:14,pos:"D",name:"E. Militão"},
+    {n:5,pos:"M",name:"Casemiro"},{n:8,pos:"M",name:"Guimarães"},{n:21,pos:"M",name:"Lucas Paquetá"},
+    {n:7,pos:"A",name:"Vinícius Jr"},{n:9,pos:"A",name:"Gabriel Jesus"},{n:10,pos:"A",name:"Neymar"},
+  ]},
+  {flag:"🇯🇵",name:"Japon",group:"E",coach:"Hajime Moriyasu",players:[
+    {n:1,pos:"G",name:"S. Gonda"},{n:23,pos:"G",name:"K. Kobayashi"},
+    {n:2,pos:"D",name:"H. Nagatomo"},{n:5,pos:"D",name:"Y. Tomiyasu"},{n:4,pos:"D",name:"M. Sakai"},
+    {n:15,pos:"M",name:"M. Itakura"},{n:8,pos:"M",name:"T. Endo"},{n:14,pos:"M",name:"H. Kamada"},
+    {n:10,pos:"A",name:"K. Havertz"},{n:7,pos:"A",name:"T. Kubo"},{n:11,pos:"A",name:"M. Riku"},
+  ]},
+  {flag:"🇨🇴",name:"Colombie",group:"E",coach:"Néstor Lorenzo",players:[
+    {n:1,pos:"G",name:"D. Ospina"},{n:23,pos:"G",name:"C. Vargas"},
+    {n:2,pos:"D",name:"S. Arias"},{n:5,pos:"D",name:"D. Sánchez"},{n:4,pos:"D",name:"J. Cuesta"},
+    {n:15,pos:"M",name:"H. Rodríguez"},{n:8,pos:"M",name:"M. Lerma"},{n:14,pos:"M",name:"H. Herrera"},
+    {n:10,pos:"A",name:"J. Rodríguez"},{n:7,pos:"A",name:"D. Muriel"},{n:11,pos:"A",name:"L. Sinisterra"},
+  ]},
+  {flag:"🇲🇦",name:"Maroc",group:"E",coach:"Walid Regragui",players:[
+    {n:1,pos:"G",name:"Y. Bounou"},{n:23,pos:"G",name:"M. Reda"},
+    {n:2,pos:"D",name:"A. Hakimi"},{n:5,pos:"D",name:"R. Saïss"},{n:4,pos:"D",name:"N. Mendy"},
+    {n:15,pos:"M",name:"S. Amallah"},{n:8,pos:"M",name:"Y. Tielemans"},{n:14,pos:"M",name:"S. Mazaoui"},
+    {n:10,pos:"A",name:"H. Ziyech"},{n:7,pos:"A",name:"S. En-Nesyri"},{n:11,pos:"A",name:"A. Bahahhim"},
+  ]},
+
+  // Groupe F
+  {flag:"🇪🇸",name:"Espagne",group:"F",coach:"Luis de la Fuente",players:[
+    {n:1,pos:"G",name:"U. Simón"},{n:23,pos:"G",name:"D. Remiro"},
+    {n:2,pos:"D",name:"D. Carvajal"},{n:24,pos:"D",name:"A. García"},{n:14,pos:"D",name:"A. Laporte"},
+    {n:5,pos:"M",name:"S. Busquets"},{n:16,pos:"M",name:"R. Rodri"},{n:26,pos:"M",name:"P. Zubimendi"},
+    {n:11,pos:"A",name:"F. Torres"},{n:19,pos:"A",name:"D. Olmo"},{n:9,pos:"A",name:"A. Morata"},
+  ]},
+  {flag:"🇩🇰",name:"Danemark",group:"F",coach:"Kasper Hjulmand",players:[
+    {n:1,pos:"G",name:"K. Patrício"},{n:23,pos:"G",name:"F. Ramsdale"},
+    {n:2,pos:"D",name:"J. Andersen"},{n:5,pos:"D",name:"S. Kjaer"},{n:4,pos:"D",name:"D. Dalot"},
+    {n:15,pos:"M",name:"C. Nkunku"},{n:8,pos:"M",name:"C. Skov Olsen"},{n:14,pos:"M",name:"P. Højbjerg"},
+    {n:10,pos:"A",name:"Y. Poulsen"},{n:7,pos:"A",name:"A. Sanna Christensen"},{n:11,pos:"A",name:"M. Dolberg"},
+  ]},
+  {flag:"🇷🇸",name:"Serbie",group:"F",coach:"Dragan Stojković",players:[
+    {n:1,pos:"G",name:"V. Milojević"},{n:23,pos:"G",name:"P. Stojnić"},
+    {n:2,pos:"D",name:"N. Milenković"},{n:5,pos:"D",name:"S. Veljković"},{n:4,pos:"D",name:"M. Pavlović"},
+    {n:15,pos:"M",name:"D. Tadić"},{n:8,pos:"M",name:"S. Milinković-Savić"},{n:14,pos:"M",name:"F. Kostić"},
+    {n:10,pos:"A",name:"A. Mitrović"},{n:7,pos:"A",name:"D. Vlahović"},{n:11,pos:"A",name:"N. Radonjić"},
+  ]},
+  {flag:"🇹🇳",name:"Tunisie",group:"F",coach:"Jalel Kadri",players:[
+    {n:1,pos:"G",name:"A. Ben Said"},{n:23,pos:"G",name:"M. Mathlouthi"},
+    {n:2,pos:"D",name:"Y. Meriah"},{n:5,pos:"D",name:"N. Talbi"},{n:4,pos:"D",name:"B. Sassi"},
+    {n:15,pos:"M",name:"M. Skhiri"},{n:8,pos:"M",name:"Y. Dhaouadi"},{n:14,pos:"M",name:"K. Bennedine"},
+    {n:10,pos:"A",name:"Y. Sliti"},{n:7,pos:"A",name:"S. Jaziri"},{n:11,pos:"A",name:"A. Al-Hadi"},
+  ]},
+
+  // Groupe G
+  {flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",name:"Angleterre",group:"G",coach:"Gareth Southgate",players:[
+    {n:1,pos:"G",name:"J. Pickford"},{n:23,pos:"G",name:"D. Ramsdale"},
+    {n:2,pos:"D",name:"K. Walker"},{n:5,pos:"D",name:"J. Stones"},{n:6,pos:"D",name:"H. Maguire"},
+    {n:4,pos:"M",name:"D. Rice"},{n:22,pos:"M",name:"J. Bellingham"},{n:8,pos:"M",name:"T. Alexander-Arnold"},
+    {n:10,pos:"A",name:"R. Sterling"},{n:11,pos:"A",name:"B. Saka"},{n:9,pos:"A",name:"H. Kane"},
+  ]},
+  {flag:"🇸🇰",name:"Slovaquie",group:"G",coach:"Francesco Calzona",players:[
+    {n:1,pos:"G",name:"D. Duda"},{n:23,pos:"G",name:"M. Čech"},
+    {n:2,pos:"D",name:"P. Pekarík"},{n:5,pos:"D",name:"D. Vavro"},{n:4,pos:"D",name:"J. Hancko"},
+    {n:15,pos:"M",name:"J. Kucka"},{n:8,pos:"M",name:"V. Lobotka"},{n:14,pos:"M",name:"S. Stojka"},
+    {n:10,pos:"A",name:"R. Mak"},{n:7,pos:"A",name:"L. Haraslín"},{n:11,pos:"A",name:"D. Bozenik"},
+  ]},
+  {flag:"🇺🇾",name:"Uruguay",group:"G",coach:"Marcelo Bielsa",players:[
+    {n:1,pos:"G",name:"S. Rochet"},{n:23,pos:"G",name:"F. Muslera"},
+    {n:2,pos:"D",name:"D. Godín"},{n:5,pos:"D",name:"J. Giménez"},{n:4,pos:"D",name:"M. Cáceres"},
+    {n:15,pos:"M",name:"M. Valverde"},{n:8,pos:"M",name:"D. Núñez"},{n:14,pos:"M",name:"M. Vecino"},
+    {n:10,pos:"A",name:"L. Suárez"},{n:7,pos:"A",name:"N. Cavani"},{n:11,pos:"A",name:"B. Rodríguez"},
+  ]},
+  {flag:"🇮🇷",name:"Iran",group:"G",coach:"Carlos Queiroz",players:[
+    {n:1,pos:"G",name:"S. Hosseini"},{n:23,pos:"G",name:"P. Beiranvand"},
+    {n:2,pos:"D",name:"R. Rekavandi"},{n:5,pos:"D",name:"M. Piroozi"},{n:4,pos:"D",name:"R. Naderi"},
+    {n:15,pos:"M",name:"M. Jahanbakhsh"},{n:8,pos:"M",name:"A. Hajisafi"},{n:14,pos:"M",name:"O. Nezhad"},
+    {n:10,pos:"A",name:"S. Azmoun"},{n:7,pos:"A",name:"A. Taremi"},{n:11,pos:"A",name:"S. Shojaei"},
+  ]},
+
+  // Groupe H
+  {flag:"🇵🇹",name:"Portugal",group:"H",coach:"Roberto Martínez",players:[
+    {n:1,pos:"G",name:"R. Patrício"},{n:23,pos:"G",name:"J. Sá"},
+    {n:2,pos:"D",name:"J. Cancelo"},{n:4,pos:"D",name:"R. Dias"},{n:6,pos:"D",name:"P. Pereira"},
+    {n:23,pos:"M",name:"V. Horta"},{n:8,pos:"M",name:"B. Silva"},{n:16,pos:"M",name:"R. Neves"},
+    {n:7,pos:"A",name:"C. Ronaldo"},{n:10,pos:"A",name:"B. Fernandes"},{n:11,pos:"A",name:"R. Leão"},
+  ]},
+  {flag:"🇰🇪",name:"Kenya",group:"H",coach:"Engin Firat",players:[
+    {n:1,pos:"G",name:"I. Owuor"},{n:23,pos:"G",name:"B. Nyarko"},
+    {n:2,pos:"D",name:"D. Nyundo"},{n:5,pos:"D",name:"J. Matboli"},{n:4,pos:"D",name:"P. Wanjala"},
+    {n:15,pos:"M",name:"A. Onyango"},{n:8,pos:"M",name:"I. Kipchoge"},{n:14,pos:"M",name:"D. Omala"},
+    {n:10,pos:"A",name:"M. Omala"},{n:7,pos:"A",name:"J. Kapkoba"},{n:11,pos:"A",name:"R. Otieno"},
+  ]},
+  {flag:"🇭🇷",name:"Croatie",group:"H",coach:"Zlatko Dalić",players:[
+    {n:1,pos:"G",name:"D. Livaković"},{n:23,pos:"G",name:"I. Nevistić"},
+    {n:2,pos:"D",name:"J. Stanišić"},{n:5,pos:"D",name:"D. Vida"},{n:4,pos:"D",name:"S. Lovrić"},
+    {n:15,pos:"M",name:"L. Modrić"},{n:8,pos:"M",name:"M. Brozović"},{n:14,pos:"M",name:"I. Rakitić"},
+    {n:10,pos:"A",name:"B. Petković"},{n:7,pos:"A",name:"M. Olmo"},{n:11,pos:"A",name:"A. Kramarić"},
+  ]},
+  {flag:"🇺🇿",name:"Ouzbékistan",group:"H",coach:"Srecko Mitrović",players:[
+    {n:1,pos:"G",name:"S. Shcherbatenko"},{n:23,pos:"G",name:"M. Musaev"},
+    {n:2,pos:"D",name:"J. Khusanov"},{n:5,pos:"D",name:"A. Khodjamov"},{n:4,pos:"D",name:"A. Umarbayev"},
+    {n:15,pos:"M",name:"D. Dzhuraev"},{n:8,pos:"M",name:"Y. Yusupov"},{n:14,pos:"M",name:"A. Miranchuk"},
+    {n:10,pos:"A",name:"J. Alikulov"},{n:7,pos:"A",name:"S. Hrustic"},{n:11,pos:"A",name:"A. Umarbayev"},
+  ]},
+
+  // Groupe I
+  {flag:"🇫🇷",name:"France",group:"I",coach:"Didier Deschamps",players:[
+    {n:1,pos:"G",name:"M. Maignan"},{n:23,pos:"G",name:"A. Areola"},
+    {n:2,pos:"D",name:"B. Pavard"},{n:5,pos:"D",name:"J. Konaté"},{n:4,pos:"D",name:"D. Upamecano"},
+    {n:13,pos:"M",name:"N. Kanté"},{n:8,pos:"M",name:"A. Tchouaméni"},{n:14,pos:"M",name:"A. Rabiot"},
+    {n:10,pos:"A",name:"K. Mbappé"},{n:7,pos:"A",name:"A. Griezmann"},{n:9,pos:"A",name:"O. Giroud"},
+  ]},
+  {flag:"🇸🇳",name:"Sénégal",group:"I",coach:"Aliou Cissé",players:[
+    {n:1,pos:"G",name:"E. Mendy"},{n:23,pos:"G",name:"S. Diouf"},
+    {n:2,pos:"D",name:"A. Sarr"},{n:5,pos:"D",name:"K. Coulibaly"},{n:4,pos:"D",name:"S. Koulibaly"},
+    {n:15,pos:"M",name:"I. Ndiaye"},{n:8,pos:"M",name:"C. Sarr"},{n:14,pos:"M",name:"P. Dybala"},
+    {n:10,pos:"A",name:"S. Mané"},{n:7,pos:"A",name:"I. Sarr"},{n:11,pos:"A",name:"B. Diallo"},
+  ]},
+  {flag:"🇳🇴",name:"Norvège",group:"I",coach:"Stale Solbakken",players:[
+    {n:1,pos:"G",name:"R. Nyland"},{n:23,pos:"G",name:"J. Johnsen"},
+    {n:2,pos:"D",name:"O. Elabdellaoui"},{n:5,pos:"D",name:"B. Hellas"},{n:4,pos:"D",name:"R. Ajer"},
+    {n:15,pos:"M",name:"O. Normann"},{n:8,pos:"M",name:"M. Elyounoussi"},{n:14,pos:"M",name:"K. Holm"},
+    {n:10,pos:"A",name:"E. Haaland"},{n:7,pos:"A",name:"A. Sørloth"},{n:11,pos:"A",name:"G. Neres"},
+  ]},
+  {flag:"🇮🇶",name:"Irak",group:"I",coach:"Shaheen Sorouri",players:[
+    {n:1,pos:"G",name:"M. Allawi"},{n:23,pos:"G",name:"A. Sabah"},
+    {n:2,pos:"D",name:"A. Hani"},{n:5,pos:"D",name:"R. Malallah"},{n:4,pos:"D",name:"M. Karim"},
+    {n:15,pos:"M",name:"M. Adel"},{n:8,pos:"M",name:"W. Al-Alwan"},{n:14,pos:"M",name:"S. Qaradagh"},
+    {n:10,pos:"A",name:"A. Al-Fathi"},{n:7,pos:"A",name:"O. Madeed"},{n:11,pos:"A",name:"D. Ali"},
+  ]},
+
+  // Groupe J
+  {flag:"🇩🇪",name:"Allemagne",group:"J",coach:"Julian Nagelsmann",players:[
+    {n:1,pos:"G",name:"M. Neuer"},{n:23,pos:"G",name:"K. Trapp"},
+    {n:4,pos:"D",name:"J. Tah"},{n:21,pos:"D",name:"A. Rüdiger"},{n:18,pos:"D",name:"D. Raum"},
+    {n:6,pos:"M",name:"J. Kimmich"},{n:8,pos:"M",name:"L. Goretzka"},{n:10,pos:"M",name:"J. Wirtz"},
+    {n:7,pos:"A",name:"K. Havertz"},{n:9,pos:"A",name:"N. Füllkrug"},{n:14,pos:"A",name:"J. Musiala"},
+  ]},
+  {flag:"🇦🇺",name:"Australie",group:"J",coach:"Graham Arnold",players:[
+    {n:1,pos:"G",name:"M. Ryan"},{n:23,pos:"G",name:"A. Redmayne"},
+    {n:2,pos:"D",name:"N. Athanasiadis"},{n:5,pos:"D",name:"M. Degenek"},{n:4,pos:"D",name:"J. Souttar"},
+    {n:15,pos:"M",name:"A. Behich"},{n:8,pos:"M",name:"M. Rogic"},{n:14,pos:"M",name:"A. Irvine"},
+    {n:10,pos:"A",name:"A. Mooy"},{n:7,pos:"A",name:"J. Leckie"},{n:11,pos:"A",name:"M. Juric"},
+  ]},
+  {flag:"🇺🇦",name:"Ukraine",group:"J",coach:"Sergei Rebrov",players:[
+    {n:1,pos:"G",name:"A. Trubin"},{n:23,pos:"G",name:"H. Lunin"},
+    {n:2,pos:"D",name:"O. Zinchenko"},{n:5,pos:"D",name:"I. Mykolenko"},{n:4,pos:"D",name:"M. Matvienko"},
+    {n:15,pos:"M",name:"T. Stepanenko"},{n:8,pos:"M",name:"R. Malinovskyi"},{n:14,pos:"M",name:"V. Tsygankov"},
+    {n:10,pos:"A",name:"R. Yaremchuk"},{n:7,pos:"A",name:"O. Yarmolenko"},{n:11,pos:"A",name:"M. Dovbyk"},
+  ]},
+  {flag:"🇯🇴",name:"Jordanie",group:"J",coach:"Interim",players:[
+    {n:1,pos:"G",name:"A. Khalili"},{n:23,pos:"G",name:"A. Al-Tal"},
+    {n:2,pos:"D",name:"C. Natkho"},{n:5,pos:"D",name:"R. Al-Dardour"},{n:4,pos:"D",name:"K. Mazed"},
+    {n:15,pos:"M",name:"A. Samarah"},{n:8,pos:"M",name:"K. Owda"},{n:14,pos:"M",name:"N. Tahhan"},
+    {n:10,pos:"A",name:"T. Al-Wer"},{n:7,pos:"A",name:"A. Abdelrazaq"},{n:11,pos:"A",name:"A. Jabbar"},
+  ]},
+
+  // Groupe K
+  {flag:"🇳🇱",name:"Pays-Bas",group:"K",coach:"Ronald Koeman",players:[
+    {n:1,pos:"G",name:"B. Flekken"},{n:23,pos:"G",name:"J. Bijlow"},
+    {n:2,pos:"D",name:"D. Dumfries"},{n:4,pos:"D",name:"V. van Dijk"},{n:5,pos:"D",name:"N. de Ligt"},
+    {n:6,pos:"M",name:"F. de Jong"},{n:8,pos:"M",name:"T. Koopmeiners"},{n:21,pos:"M",name:"S. Berghuis"},
+    {n:10,pos:"A",name:"M. Depay"},{n:11,pos:"A",name:"S. Bergwijn"},{n:9,pos:"A",name:"W. Weghorst"},
+  ]},
+  {flag:"🇲🇾",name:"Malaisie",group:"K",coach:"Kim Pan-gon",players:[
+    {n:1,pos:"G",name:"F. Karim"},{n:23,pos:"G",name:"A. Hassan"},
+    {n:2,pos:"D",name:"S. Akram"},{n:5,pos:"D",name:"J. Kamaruddin"},{n:4,pos:"D",name:"C. Tatsuma"},
+    {n:15,pos:"M",name:"A. Zaharin"},{n:8,pos:"M",name:"T. Syamsul"},{n:14,pos:"M",name:"A. Rahman"},
+    {n:10,pos:"A",name:"A. Hanapi"},{n:7,pos:"A",name:"S. Salleh"},{n:11,pos:"A",name:"A. Saat"},
+  ]},
+  {flag:"🇨🇱",name:"Chili",group:"K",coach:"Ricardo Gareca",players:[
+    {n:1,pos:"G",name:"C. Bravo"},{n:23,pos:"G",name:"P. Tapia"},
+    {n:2,pos:"D",name:"M. Opazo"},{n:5,pos:"D",name:"P. Maripán"},{n:4,pos:"D",name:"T. Moreno"},
+    {n:15,pos:"M",name:"A. Vidal"},{n:8,pos:"M",name:"C. Aránguiz"},{n:14,pos:"M",name:"D. Pulgar"},
+    {n:10,pos:"A",name:"A. Alexis"},{n:7,pos:"A",name:"B. Soto"},{n:11,pos:"A",name:"J. Echeverría"},
+  ]},
+  {flag:"🇸🇦",name:"Arabie Saoudite",group:"K",coach:"Hervé Renard",players:[
+    {n:1,pos:"G",name:"M. Al-Owais"},{n:23,pos:"G",name:"M. Al-Yami"},
+    {n:2,pos:"D",name:"Y. Al-Shehri"},{n:5,pos:"D",name:"A. Al-Bulayhi"},{n:4,pos:"D",name:"H. Al-Amri"},
+    {n:15,pos:"M",name:"M. Kanno"},{n:8,pos:"M",name:"A. Al-Faraj"},{n:14,pos:"M",name:"S. Al-Dawsari"},
+    {n:10,pos:"A",name:"K. Al-Dossary"},{n:7,pos:"A",name:"A. Al-Otaibi"},{n:11,pos:"A",name:"F. Al-Muwallad"},
+  ]},
+
+  // Groupe L
+  {flag:"🇧🇪",name:"Belgique",group:"L",coach:"Domenico Tedesco",players:[
+    {n:1,pos:"G",name:"T. Courtois"},{n:23,pos:"G",name:"S. Mignolet"},
+    {n:2,pos:"D",name:"T. Alderweireld"},{n:5,pos:"D",name:"J. Vertonghen"},{n:4,pos:"D",name:"J. Castagne"},
+    {n:15,pos:"M",name:"A. Witsel"},{n:8,pos:"M",name:"Y. Tielemans"},{n:14,pos:"M",name:"D. Praet"},
+    {n:10,pos:"A",name:"E. Hazard"},{n:7,pos:"A",name:"R. Lukaku"},{n:11,pos:"A",name:"T. Mertens"},
+  ]},
+  {flag:"🇨🇺",name:"Cuba",group:"L",coach:"Raúl González",players:[
+    {n:1,pos:"G",name:"J. Orozco"},{n:23,pos:"G",name:"F. Rodríguez"},
+    {n:2,pos:"D",name:"Y. Moreno"},{n:5,pos:"D",name:"A. Bravo"},{n:4,pos:"D",name:"D. Hernández"},
+    {n:15,pos:"M",name:"Y. Torres"},{n:8,pos:"M",name:"L. Fernández"},{n:14,pos:"M",name:"A. Avilés"},
+    {n:10,pos:"A",name:"J. Martínez"},{n:7,pos:"A",name:"A. Cristóbal"},{n:11,pos:"A",name:"P. Milán"},
+  ]},
+  {flag:"🇷🇴",name:"Roumanie",group:"L",coach:"Edward Iordănescu",players:[
+    {n:1,pos:"G",name:"F. Tătărușanu"},{n:23,pos:"G",name:"L. Bîrsan"},
+    {n:2,pos:"D",name:"R. Ceballos"},{n:5,pos:"D",name:"R. Chiricheș"},{n:4,pos:"D",name:"A. Radu"},
+    {n:15,pos:"M",name:"N. Stanciu"},{n:8,pos:"M",name:"G. Manu"},{n:14,pos:"M",name:"A. Mihaila"},
+    {n:10,pos:"A",name:"G. Ianis Hagi"},{n:7,pos:"A",name:"D. Alibec"},{n:11,pos:"A",name:"F. Coman"},
+  ]},
+  {flag:"🇨🇻",name:"Cap-Vert",group:"L",coach:"Bubista",players:[
+    {n:1,pos:"G",name:"K. Monteiro"},{n:23,pos:"G",name:"J. Rodrigues"},
+    {n:2,pos:"D",name:"Z. Duarte"},{n:5,pos:"D",name:"C. Lopes"},{n:4,pos:"D",name:"J. Augusto"},
+    {n:15,pos:"M",name:"L. Semedo"},{n:8,pos:"M",name:"B. Rodrigues"},{n:14,pos:"M",name:"J. Barros"},
+    {n:10,pos:"A",name:"W. Fortes"},{n:7,pos:"A",name:"L. Léo"},{n:11,pos:"A",name:"B. Veiga"},
+  ]},
+];
+
+// Variables globales de filtres pour les matchs
+let currentFilterPhase = "all";
+let currentFilterGroup = "all";
+
+let D = {};
+try { D = JSON.parse(localStorage.getItem('wc26v3')||'{}'); } catch(e) { D = {}; }
+D.pts = D.pts||{}; D.scores = D.scores||{}; D.bracket = D.bracket||{};
+D.pronos = D.pronos||{}; D.actual = D.actual||{};
+D.teamStats = D.teamStats||TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0}));
+D.rdvList = D.rdvList||[{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}];
+
+function save(){try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}}
+
+function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
+
+// Récupère les scores depuis Google Sheets
+async function syncScoresFromGoogle() {
+  try {
+    const url = "https://script.google.com/macros/d/AKfycbyg8hdAjUa4s-kL82fTjETUI6kOpZ37wYBvtLkWAJVD4Ze26qyqm1MGi0CJeeTLqT5GvA/useTrigger";
+    const response = await fetch(url);
+    const scores = await response.json();
+    
+    // Remplit D.scores avec les données du sheet
+    scores.forEach((score, idx) => {
+      D.scores[idx + 'a'] = score.score1.toString();
+      D.scores[idx + 'b'] = score.score2.toString();
+    });
+    
+    save();
+    renderGroups();
+    console.log("✅ Scores synchronisés depuis Google Sheets");
+  } catch (e) {
+    console.error("❌ Erreur sync:", e);
+  }
+}
+
+// Sync automatique toutes les 30 secondes
+setInterval(syncScoresFromGoogle, 30000);
+
+// Sync au démarrage
+syncScoresFromGoogle();
+  
+function renderGroups(){
+  const el=document.getElementById('groupes');
+  el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#1D9E75;border-radius:2px;display:inline-block"></span>Qualifié direct</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#EF9F27;border-radius:2px;display:inline-block"></span>Potentiel meilleur 3e</span>
+    </div>
+    <button class="btn" onclick="saveG()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Sauvegarder</button>
+  </div>
+  <div class="grp-grid">${Object.entries(GROUPS).map(([g,d])=>{
+    const sorted = getGroupeClassement(g); // On appelle notre nouvelle fonction
+    // ------------------------
+
+    return`<div class="grp-card"><div class="grp-title">Groupe ${g}</div>${sorted.map((item,rank)=>{
+      const cls=rank<2?'team-row q1':rank===2?'team-row q3':'team-row qn';
+      // On affiche les points calculés (item.pts)
+      return`<div class="${cls}"><span style="font-size:15px;width:22px">${item.flag}</span><span style="flex:1;color:var(--color-text-primary)">${item.nom}</span><span class="pts-cell" style="min-width:50px;text-align:right">${item.pt}pts (${item.bu}-${item.ec})</span></div>`;
+    }).join('')}</div>`;}).join('')}</div>`;
+}
+function saveG(){save();const b=document.querySelector('#groupes .btn');const n=document.createElement('span');n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';n.textContent='✓ Sauvegardé';b.after(n);setTimeout(()=>n.remove(),2000)}
+function editPts(el,g,i){
+  const cur=getPts(g,i);const inp=document.createElement('input');
+  inp.type='number';inp.value=cur;inp.min=0;inp.max=9;
+  inp.style.cssText='width:28px;height:22px;text-align:center;font-size:12px;border:0.5px solid var(--color-border-info);border-radius:4px;background:var(--color-background-info);color:var(--color-text-info)';
+  el.replaceWith(inp);inp.focus();inp.select();
+  const commit=()=>{D.pts[g+i]=Math.max(0,Math.min(9,parseInt(inp.value)||0));renderGroups()};
+  inp.addEventListener('blur',commit);inp.addEventListener('keydown',e=>{if(e.key==='Enter')commit()});
+}
+
+// Fonction de rendu de la section matchs avec ses filtres dynamiques de tri
+function renderMatchs(){
+  const el=document.getElementById('matchs');
+  
+  // Construction de l'interface des filtres
+  let htmlFilters = `
+  <div class="filter-container">
+    <div style="display:flex;align-items:center;gap:6px">
+      <label for="filter-phase" style="font-size:12px;color:var(--color-text-secondary);font-weight:500">Phase :</label>
+      <select id="filter-phase" class="select-sm" onchange="updateMatchFilters()">
+        <option value="all" ${currentFilterPhase === 'all' ? 'selected' : ''}>Tout voir</option>
+        <option value="groupes" ${currentFilterPhase === 'groupes' ? 'selected' : ''}>Phase de Groupes</option>
+        <option value="elim" ${currentFilterPhase === 'elim' ? 'selected' : ''}>Phases Éliminatoires</option>
+      </select>
+    </div>
+    
+    <div id="group-filter-wrapper" style="display:${currentFilterPhase === 'elim' ? 'none' : 'flex'};align-items:center;gap:6px">
+      <label for="filter-group" style="font-size:12px;color:var(--color-text-secondary);font-weight:500">Poule :</label>
+      <select id="filter-group" class="select-sm" onchange="updateMatchFilters()">
+        <option value="all" ${currentFilterGroup === 'all' ? 'selected' : ''}>Toutes les poules</option>
+        ${Object.keys(GROUPS).map(g => `<option value="${g}" ${currentFilterGroup === g ? 'selected' : ''}>Groupe ${g}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Saisis les scores au fur et à mesure. Ils se sauvegardent automatiquement.</p>
+  `;
+
+  // Filtrage des données tout en maintenant la référence à l'index global initial (idx)
+  let filteredMatches = MATCHS_DATA.map((m, idx) => ({...m, originalIdx: idx})).filter(m => {
+    if (currentFilterPhase === "groupes" && m.stage !== "Phase de Groupes") return false;
+    if (currentFilterPhase === "elim" && m.stage === "Phase de Groupes") return false;
+    if (currentFilterPhase !== "elim" && currentFilterGroup !== "all" && m.g !== currentFilterGroup) return false;
+    return true;
+  });
+
+  if(filteredMatches.length === 0) {
+    htmlFilters += `<p style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px;">Aucun match ne correspond aux critères sélectionnés.</p>`;
+    el.innerHTML = htmlFilters;
+    return;
+  }
+
+  // Rendu de la liste filtrée
+  let currentHeader = "";
+  let htmlList = filteredMatches.map(m => {
+    let sectionHeader = "";
+    let matchHeaderLabel = m.stage === "Phase de Groupes" ? `Groupe ${m.g}` : m.stage;
+    
+    if (matchHeaderLabel !== currentHeader) {
+      currentHeader = matchHeaderLabel;
+      sectionHeader = `<div class="section-title" style="margin:15px 0 8px">${currentHeader}</div>`;
+    }
+
+    return sectionHeader + `
+    <div class="card" style="padding:10px 12px;margin-bottom:8px">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">${m.day}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)">${m.t1}</span>
+        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'a']!==undefined?D.scores[m.originalIdx+'a']:''}" oninput="D.scores['${m.originalIdx}a']=this.value;save();renderGroups();" style="width:32px">
+        <span style="color:var(--color-text-tertiary);font-size:12px">–</span>
+        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'b']!==undefined?D.scores[m.originalIdx+'b']:''}" oninput="D.scores['${m.originalIdx}b']=this.value;save();renderGroups();" style="width:32px">
+        <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right">${m.t2}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = htmlFilters + htmlList;
+}
+
+// Fonction de déclenchement lors d'un changement de filtre
+function updateMatchFilters(){
+  currentFilterPhase = document.getElementById('filter-phase').value;
+  const groupWrapper = document.getElementById('group-filter-wrapper');
+  if(currentFilterPhase === "elim") {
+    groupWrapper.style.display = "none";
+    currentFilterGroup = "all";
+  } else {
+    groupWrapper.style.display = "flex";
+    currentFilterGroup = document.getElementById('filter-group').value;
+  }
+  renderMatchs();
+}
+
+function renderBracket() {
+  const el = document.getElementById('bracket');
+  if (!el) return;
+
+  // Hauteur totale du bracket (hors titres). Toutes les colonnes partagent cette même hauteur.
+  const TOTAL_H = 640; // px
+  const MATCH_H = 46;  // px — hauteur d'un b-match (2 équipes × 23px)
+
+  // Génère les matchs d'une colonne avec margin-top calculé pour centrer chaque match
+  // à cheval sur les deux matchs parents du round précédent.
+  // n = nombre de matchs dans cette colonne
+  // La formule : slot = TOTAL_H / n, premier match centré dans son slot
+  function colMatches(side, phase, n, startIdx) {
+    const slotH = TOTAL_H / n;
+    const firstTop = (slotH - MATCH_H) / 2;
+    const gap = slotH - MATCH_H;
+    let html = '';
+    for (let i = 0; i < n; i++) {
+      const mi = startIdx + i;
+      const k = `${side}_${phase}_${mi}`;
+      const t1 = D.bracket[k+'_t1'] || '?';
+      const t2 = D.bracket[k+'_t2'] || '?';
+      const winner = D.bracket[k+'_w'];
+      const mt = i === 0 ? firstTop : gap;
+      html += `<div class="b-match" style="margin-top:${mt}px" data-key="${k}">
+        <div class="b-team${winner===t1&&t1!=='?'?' winner':''}" onclick="pickWinner('${k}',1)">${t1}</div>
+        <div class="b-team${winner===t2&&t2!=='?'?' winner':''}" onclick="pickWinner('${k}',2)">${t2}</div>
+      </div>`;
+    }
+    return html;
+  }
+
+  function col(side, phase, label, n, startIdx=0) {
+    return `<div class="b-col" style="min-width:120px;padding:0 4px">
+      <div class="b-col-title" style="height:28px;display:flex;align-items:center;justify-content:center">${label}</div>
+      <div style="height:${TOTAL_H}px;display:flex;flex-direction:column">
+        ${colMatches(side, phase, n, startIdx)}
+      </div>
+    </div>`;
+  }
+
+  // Finale au centre
+  const fk = 'finale';
+  const ft1 = D.bracket[fk+'_t1'] || '?';
+  const ft2 = D.bracket[fk+'_t2'] || '?';
+  const fw  = D.bracket[fk+'_w'];
+  const finaleCol = `<div class="b-col" style="min-width:120px;padding:0 4px">
+    <div class="b-col-title" style="height:28px;display:flex;align-items:center;justify-content:center">Finale</div>
+    <div style="height:${TOTAL_H}px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px">
+      <div class="b-match">
+        <div class="b-team${fw===ft1&&ft1!=='?'?' winner':''}" onclick="pickWinner('${fk}',1)">${ft1}</div>
+        <div class="b-team${fw===ft2&&ft2!=='?'?' winner':''}" onclick="pickWinner('${fk}',2)">${ft2}</div>
+      </div>
+      ${fw && fw !== '?' ? `<div style="text-align:center;margin-top:8px"><div style="font-size:20px">🏆</div><div style="font-size:11px;font-weight:500;color:var(--color-text-primary);padding:4px 8px;background:var(--color-background-warning);border-radius:6px;margin-top:4px">${fw}</div></div>` : ''}
+    </div>
+  </div>`;
+
+  el.innerHTML = `
+    <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">
+      Renseigne les équipes dans les cases des 16es, puis clique sur le vainqueur de chaque match pour faire avancer le bracket.
+    </p>
+    <div style="overflow-x:auto;padding-bottom:12px">
+      <div style="display:flex;align-items:flex-start;gap:0;min-width:1400px">
+        <div style="display:flex">
+          ${col('L','16','16es',8,0)}
+          ${col('L','8','8es',4,0)}
+          ${col('L','QF','Quarts',2,0)}
+          ${col('L','SF','Demies',1,0)}
+        </div>
+        <div style="width:8px"></div>
+        ${finaleCol}
+        <div style="width:8px"></div>
+        <div style="display:flex">
+          ${col('R','SF','Demies',1,0)}
+          ${col('R','QF','Quarts',2,0)}
+          ${col('R','8','8es',4,0)}
+          ${col('R','16','16es',8,0)}
+        </div>
+      </div>
+    </div>`;
+}
+
+function pickWinner(key, teamNum) {
+  const t1 = D.bracket[key+'_t1'] || '?';
+  const t2 = D.bracket[key+'_t2'] || '?';
+  const winner = teamNum === 1 ? t1 : t2;
+  if (winner === '?') return;
+  D.bracket[key+'_w'] = winner;
+
+  // Propager le vainqueur dans le match suivant
+  const parts = key.split('_'); // side, phase, idx
+  const side = parts[0];
+  const phase = parts[1];
+  const idx = parseInt(parts[2]) || 0;
+
+  const nextPhase = {
+    '16':'8','8':'QF','QF':'SF','SF':'finale'
+  }[phase];
+  if (!nextPhase) { save(); renderBracket(); return; }
+
+  if (nextPhase === 'finale') {
+    const slot = side === 'L' ? '_t1' : '_t2';
+    D.bracket['finale'+slot] = winner;
+  } else {
+    const nextIdx = Math.floor(idx / 2);
+    const slot = idx % 2 === 0 ? '_t1' : '_t2';
+    D.bracket[`${side}_${nextPhase}_${nextIdx}${slot}`] = winner;
+  }
+  save();
+  renderBracket();
+}
+  
+function renderPronos(){
+  const el=document.getElementById('pronos');
+  const lb=calcLB();
+  
+  // Interface des filtres
+  let htmlFilters = `
+  <div class="filter-container">
+    <div style="display:flex;align-items:center;gap:6px">
+      <label for="filter-pronos-pote" style="font-size:12px;color:var(--color-text-secondary);font-weight:500">Pronostiqueur :</label>
+      <select id="filter-pronos-pote" class="select-sm" onchange="updatePronosFilters()">
+        <option value="all">Tous les pronos</option>
+        ${POTES.map(p => `<option value="${p}">${p}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  `;
+  
+  el.innerHTML=`<div style="margin-bottom:16px">
+    <div class="section-title">Classement</div>
+    <div class="leaderboard">${lb.map((p,i)=>{
+      const pi=POTES.indexOf(p.name);const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+      return`<div class="lb-row${i===0?' lb-winner':''}">
+        <span style="font-size:15px;font-weight:500;min-width:24px;color:var(--color-text-secondary)">${medal||'#'+(i+1)}</span>
+        <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;background:${AV_BG[pi]};color:${AV_TX[pi]}">${p.name.charAt(0)}</div>
+        <span style="flex:1;font-size:14px;font-weight:500;color:var(--color-text-primary)">${p.name}</span>
+        <span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">${p.pts}</span>
+        <span style="font-size:11px;color:var(--color-text-secondary);margin-left:3px">pts</span>
+      </div>`;}).join('')}
+    </div>
+  </div>
+  <div class="section-title" style="margin-top:1.5rem">Pronos par match</div>
+  ${htmlFilters}
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">2 pts</span> score exact &nbsp;<span class="pts-chip pts-3">3 pts</span> + buteur</div>
+  ${PRONO_MATCHES.map(m=>{
+    const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
+    return`<div class="prog-match">
+      <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
+      <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Score réel :</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s1}" oninput="setActual('${m.id}','s1',this.value)" style="width:32px;height:28px">
+          <span style="color:var(--color-text-tertiary)">–</span>
+          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s2}" oninput="setActual('${m.id}','s2',this.value)" style="width:32px;height:28px">
+          <input class="inp-sm" placeholder="Top buteur..." value="${actual.top||''}" oninput="setActual('${m.id}','top',this.value)" style="width:130px">
+        </div>
+      </div>
+      <div>${POTES.map((pote)=>{
+        const bet=D.pronos[m.id+pote]||{s1:'',s2:'',top:''};
+        const pts=calcPts(m.id,pote);
+        return`<div class="prog-bet-row">
+          <span style="min-width:65px;color:var(--color-text-secondary)">${pote}</span>
+          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="setBet('${m.id}','${pote}','s1',this.value)" style="width:28px;height:24px;font-size:12px">
+          <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
+          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="setBet('${m.id}','${pote}','s2',this.value)" style="width:28px;height:24px;font-size:12px">
+          <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" oninput="setBet('${m.id}','${pote}','top',this.value)" style="width:90px;height:24px;font-size:12px">
+          ${pts>0?`<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
+        </div>`;}).join('')}</div>
+    </div>`;}).join('')}`;
+}
+
+// Fonction de filtre pour les pronos
+function updatePronosFilters(){
+  const selectedPote = document.getElementById('filter-pronos-pote').value;
+  
+  if (selectedPote === 'all') {
+    renderPronos();
+  } else {
+    // Affiche juste les pronos du pote sélectionné
+    const el = document.getElementById('pronos');
+    const lb = calcLB();
+    
+    el.innerHTML = `<div style="margin-bottom:16px">
+      <div class="section-title">Classement</div>
+      <div class="leaderboard">${lb.map((p,i)=>{
+        const pi=POTES.indexOf(p.name);
+        const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+        return`<div class="lb-row${i===0?' lb-winner':''}">
+          <span style="font-size:15px;font-weight:500;min-width:24px;color:var(--color-text-secondary)">${medal||'#'+(i+1)}</span>
+          <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;background:${AV_BG[pi]};color:${AV_TX[pi]}">${p.name.charAt(0)}</div>
+          <span style="flex:1;font-size:14px;font-weight:500;color:var(--color-text-primary)">${p.name}</span>
+          <span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">${p.pts}</span>
+          <span style="font-size:11px;color:var(--color-text-secondary);margin-left:3px">pts</span>
+        </div>`;}).join('')}
+      </div>
+    </div>
+    <div class="section-title" style="margin-top:1.5rem">Pronos de ${selectedPote}</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px">
+      <label for="filter-pronos-pote" style="font-size:12px;color:var(--color-text-secondary);font-weight:500">Pronostiqueur :</label>
+      <select id="filter-pronos-pote" class="select-sm" onchange="updatePronosFilters()">
+        <option value="all">Tous les pronos</option>
+        ${POTES.map(p => `<option value="${p}" ${p === selectedPote ? 'selected' : ''}>${p}</option>`).join('')}
+      </select>
+    </div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">2 pts</span> score exact &nbsp;<span class="pts-chip pts-3">3 pts</span> + buteur</div>
+    ${PRONO_MATCHES.map(m=>{
+      const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
+      const bet=D.pronos[m.id+selectedPote]||{s1:'',s2:'',top:''};
+      const pts=calcPts(m.id,selectedPote);
+      return`<div class="prog-match">
+        <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
+        <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Score réel :</div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s1}" oninput="setActual('${m.id}','s1',this.value)" style="width:32px;height:28px">
+            <span style="color:var(--color-text-tertiary)">–</span>
+            <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s2}" oninput="setActual('${m.id}','s2',this.value)" style="width:32px;height:28px">
+            <input class="inp-sm" placeholder="Top buteur..." value="${actual.top||''}" oninput="setActual('${m.id}','top',this.value)" style="width:130px">
+          </div>
+        </div>
+        <div style="padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary)">
+          <span style="min-width:65px;color:var(--color-text-secondary);font-weight:500">${selectedPote}</span>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px">
+            <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="setBet('${m.id}','${selectedPote}','s1',this.value)" style="width:28px;height:24px;font-size:12px">
+            <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
+            <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="setBet('${m.id}','${selectedPote}','s2',this.value)" style="width:28px;height:24px;font-size:12px">
+            <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" oninput="setBet('${m.id}','${selectedPote}','top',this.value)" style="width:90px;height:24px;font-size:12px">
+            ${pts>0?`<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
+          </div>
+        </div>
+      </div>`;}).join('')}`;
+  }
+}
+function setActual(mid,f,v){if(!D.actual[mid])D.actual[mid]={};D.actual[mid][f]=v;save();renderPronos()}
+function setBet(mid,p,f,v){const k=mid+p;if(!D.pronos[k])D.pronos[k]={};D.pronos[k][f]=v;save();renderPronos()}
+function calcPts(mid,pote){
+  const bet=D.pronos[mid+pote];const actual=D.actual[mid];
+  if(!bet||!actual||actual.s1===''||actual.s2==='')return 0;
+  const bs1=parseInt(bet.s1),bs2=parseInt(bet.s2),as1=parseInt(actual.s1),as2=parseInt(actual.s2);
+  if(isNaN(bs1)||isNaN(bs2)||isNaN(as1)||isNaN(as2))return 0;
+  let pts=0;
+  const res=(a,b)=>a>b?1:a<b?-1:0;
+  if(res(bs1,bs2)===res(as1,as2))pts=1;
+  if(bs1===as1&&bs2===as2)pts=2;
+  if(pts>=1&&bet.top&&actual.top&&bet.top.trim().toLowerCase()===actual.top.trim().toLowerCase())pts=3;
+  return pts;
+}
+function calcLB(){
+  return POTES.map(p=>({name:p,pts:PRONO_MATCHES.reduce((s,m)=>s+calcPts(m.id,p),0)})).sort((a,b)=>b.pts-a.pts);
+}
+
+function renderStats(){
+  const el=document.getElementById('stats');
+  const total=D.teamStats.reduce((s,t)=>s+(parseInt(t.goals)||0),0);
+  const totalP=D.teamStats.reduce((s,t)=>s+(parseInt(t.played)||0),0);
+  const avgGpg=totalP>0?(total/totalP).toFixed(1):'—';
+  const top=D.teamStats.reduce((a,b)=>(parseInt(b.goals)||0)>(parseInt(a.goals)||0)?b:a,D.teamStats[0]);
+  el.innerHTML=`<div class="stat-grid">
+    <div class="stat-card"><div class="stat-lbl">Buts au total</div><div class="stat-val">${total}</div><div class="stat-sub">toutes équipes</div></div>
+    <div class="stat-card"><div class="stat-lbl">Moy. buts/match</div><div class="stat-val">${avgGpg}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Top buteur</div><div class="stat-val" style="font-size:14px">${top&&(parseInt(top.goals)||0)>0?top.mvp||top.name:'—'}</div><div class="stat-sub">${top&&(parseInt(top.goals)||0)>0?top.flag+' '+top.goals+' buts':''}</div></div>
+  </div>
+  <div class="section-title">Stats par équipe</div>
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.7fr 1.4fr;gap:4px;font-size:11px;color:var(--color-text-secondary);padding:4px 0 8px;border-bottom:0.5px solid var(--color-border-tertiary);font-weight:500">
+      <span>Équipe</span><span style="text-align:center">J</span><span style="text-align:center">Buts</span><span style="text-align:center">Moy.</span><span style="text-align:center">CS</span><span>MVP</span>
+    </div>
+    ${D.teamStats.map((t,i)=>`<div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.7fr 1.4fr;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+      <span style="font-size:12px;display:flex;align-items:center;gap:4px"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
+      <span style="text-align:center"><input class="score-in" type="number" min="0" max="20" value="${t.played||0}" oninput="D.teamStats[${i}].played=parseInt(this.value)||0;save();renderStats()" style="width:32px;height:24px;font-size:12px"></span>
+      <span style="text-align:center"><input class="score-in" type="number" min="0" max="99" value="${t.goals||0}" oninput="D.teamStats[${i}].goals=parseInt(this.value)||0;save();renderStats()" style="width:32px;height:24px;font-size:12px"></span>
+      <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${(parseInt(t.played)||0)>0?((parseInt(t.goals)||0)/(parseInt(t.played)||1)).toFixed(1):'—'}</span>
+      <span style="text-align:center"><input class="score-in" type="number" min="0" max="10" value="${t.cs||0}" oninput="D.teamStats[${i}].cs=parseInt(this.value)||0;save()" style="width:32px;height:24px;font-size:12px"></span>
+      <span><input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%"></span>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderEquipes(){
+  const el=document.getElementById('equipes');
+  const posColors={G:'#E6F1FB',D:'#EAF3DE',M:'#FAEEDA',A:'#FAECE7'};
+  const posTxt={G:'#0C447C',D:'#27500A',M:'#633806',A:'#712B13'};
+  el.innerHTML=`<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Clique sur une équipe pour voir l'effectif et l'entraîneur.</p>
+  <div class="teams-grid">${TEAMS_DATA.map((t,ti)=>`<div class="team-card">
+    <div class="team-card-hdr" onclick="toggleTeam(${ti})">
+      <span style="font-size:20px">${t.flag}</span>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">${t.name}</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">Gr. ${t.group} · ${t.coach}</div>
+      </div>
+      <i class="ti ti-chevron-down" id="chev${ti}" style="font-size:14px;color:var(--color-text-tertiary);transition:transform 0.2s" aria-hidden="true"></i>
+    </div>
+    <div class="team-card-body" id="tbody${ti}">
+      <div style="font-size:11px;color:var(--color-text-secondary);padding:6px 0 8px;display:flex;align-items:center;gap:6px">
+        <i class="ti ti-user" style="font-size:14px" aria-hidden="true"></i>
+        <span style="font-weight:500;color:var(--color-text-primary)">${t.coach}</span>
+        <span>· Entraîneur</span>
+      </div>
+      ${t.players.map(p=>`<div class="player-row">
+        <span class="player-num">${p.n}</span>
+        <span style="flex:1;color:var(--color-text-primary)">${p.name}</span>
+        <span class="player-pos" style="background:${posColors[p.pos]||'#F1EFE8'};color:${posTxt[p.pos]||'#2C2C2A'}">${p.pos}</span>
+      </div>`).join('')}
+    </div>
+  </div>`).join('')}`;
+}
+function toggleTeam(i){
+  const body=document.getElementById('tbody'+i);
+  const chev=document.getElementById('chev'+i);
+  const open=body.classList.toggle('open');
+  chev.style.transform=open?'rotate(180deg)':'rotate(0deg)';
+}
+
+function getGroupeClassement(groupe) {
+  // Récupère les équipes du groupe
+  const equipes = GROUPS[groupe].teams.map(t => ({
+    flag: t[0],
+    nom: t[1],
+    pt: 0,
+    bu: 0,
+    ec: 0,
+    diff: 0
+  }));
+  
+  // Cherche tous les matchs de ce groupe
+  MATCHS_DATA.forEach((m, idx) => {
+    if (m.g !== groupe) return;
+    
+    const s1 = D.scores[idx + 'a'];
+    const s2 = D.scores[idx + 'b'];
+    
+    // Si pas de scores rentrés, ignore
+    if (s1 === undefined || s2 === undefined || s1 === '' || s2 === '') return;
+    
+    const score1 = parseInt(s1);
+    const score2 = parseInt(s2);
+    
+    // Trouve les deux équipes dans le groupe
+    const team1 = equipes.find(t => m.t1.includes(t.nom));
+    const team2 = equipes.find(t => m.t2.includes(t.nom));
+    
+    if (!team1 || !team2) return;
+    
+    // Compte les buts
+    team1.bu += score1;
+    team1.ec += score2;
+    team2.bu += score2;
+    team2.ec += score1;
+    
+    // Compte les points
+    if (score1 > score2) {
+      team1.pt += 3; // Victoire
+    } else if (score1 < score2) {
+      team2.pt += 3; // Victoire
+    } else {
+      team1.pt += 1; // Nul
+      team2.pt += 1; // Nul
+    }
+  });
+  
+  // Calcule la différence de buts
+  equipes.forEach(t => {
+    t.diff = t.bu - t.ec;
+  });
+  
+  // Trie par : points (DESC), différence de buts (DESC), buts marqués (DESC)
+  return equipes.sort((a, b) => {
+    if (b.pt !== a.pt) return b.pt - a.pt;
+    if (b.diff !== a.diff) return b.diff - a.diff;
+    return b.bu - a.bu;
+  });
+}
+
+function renderRdv(){
+  const el=document.getElementById('rdv');
+  el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <p style="font-size:12px;color:var(--color-text-secondary)">Organise vos soirées matchs. Clique sur un avatar pour confirmer la présence.</p>
+    <button class="btn btn-primary" onclick="addRdv()"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button>
+  </div>
+  ${D.rdvList.map((r,ri)=>{
+    const pres=r.presents||{};
+    const count=Object.values(pres).filter(v=>v===1).length;
+    return`<div class="rdv-card">
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
+        <div class="rdv-date-box">
+          <div class="rdv-date-d"><input type="text" value="${r.date||''}" oninput="D.rdvList[${ri}].date=this.value;save()" placeholder="?" style="width:36px;background:none;border:none;text-align:center;font-size:16px;font-weight:500;color:var(--color-text-info);outline:none"></div>
+          <div class="rdv-date-m"><input type="text" value="${r.mois||''}" oninput="D.rdvList[${ri}].mois=this.value;save()" placeholder="MOI" style="width:40px;background:none;border:none;text-align:center;font-size:10px;color:var(--color-text-info);outline:none;text-transform:uppercase"></div>
+        </div>
+        <div style="flex:1">
+          <input class="inp-sm" value="${r.match||''}" oninput="D.rdvList[${ri}].match=this.value;save()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <input class="inp-sm" value="${r.heure||''}" oninput="D.rdvList[${ri}].heure=this.value;save()" placeholder="Heure" style="width:70px">
+            <input class="inp-sm" value="${r.where||''}" oninput="D.rdvList[${ri}].where=this.value;save()" placeholder="Où ? (bar, chez...)" style="flex:1">
+          </div>
+        </div>
+        <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)"><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
+      </div>
+      <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.map((p,pi)=>{
+          const state=pres[p]||0;
+          return`<div onclick="toggleRdv(${ri},'${p}')" title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:pointer;background:${AV_BG[pi]};color:${AV_TX[pi]};opacity:${state?'1':'0.35'};border:${state?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
+        }).join('')}</div>
+        <span style="font-size:12px;color:var(--color-text-secondary)">${count>0?count+' présent'+(count>1?'s':''):'Personne encore'}</span>
+      </div>
+    </div>`;}).join('')}`;
+}
+function toggleRdv(ri,p){if(!D.rdvList[ri].presents)D.rdvList[ri].presents={};D.rdvList[ri].presents[p]=(D.rdvList[ri].presents[p]||0)===1?0:1;save();renderRdv()}
+function addRdv(){D.rdvList.push({id:'rdv_'+Date.now(),date:'',mois:'',match:'',heure:'',where:'',presents:{}});save();renderRdv()}
+function removeRdv(ri){if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}}else{D.rdvList.splice(ri,1)}save();renderRdv()}
+
+function showTab(id){
+  const tabs=['groupes','matchs','bracket','pronos','stats','equipes','rdv'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===id));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('active',s.id===id));
+  const renders={groupes:renderGroups,matchs:renderMatchs,bracket:renderBracket,pronos:renderPronos,stats:renderStats,equipes:renderEquipes,rdv:renderRdv};
+  if(renders[id])renders[id]();
+}
+  if (id === 'bracket') {
+    renderBracket(); // Ceci va déclencher l'affichage quand on clique sur l'onglet
+  }
+
+renderGroups();
+</script>
