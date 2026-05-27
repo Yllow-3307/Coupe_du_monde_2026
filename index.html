@@ -110,20 +110,23 @@
     .bracket-wrapper {
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      gap: 15px;
-      padding: 20px;
-      overflow-x: auto;
+      gap: 10px;
     }
-    .b-side { display: flex; gap: 5px; }
-    .b-col { display: flex; flex-direction: column; gap: 10px; width: 100px; }
-    .b-col-title { font-size: 10px; text-transform: uppercase; text-align: center; font-weight: bold; margin-bottom: 5px; color: #666; }
-    .b-match { background: white; border: 1px solid #ddd; padding: 5px; border-radius: 4px; font-size: 11px; }
-    .b-team { cursor: pointer; padding: 2px; border-bottom: 1px solid #eee; }
-    .b-team:hover { background: #f0f0f0; }
-
-    .b-match { padding: 2px !important; font-size: 10px !important; }
-    .b-col { gap: 4px !important; }
+    .b-side { 
+      display: flex; 
+      flex-direction: row; /* Aligne les colonnes côte à côte */
+    }
+    .b-col { 
+      display: flex; 
+      flex-direction: column; 
+      justify-content: space-around; /* C'est la clé : force l'espacement égal */
+      height: 600px; /* Donne une hauteur fixe à ton bracket */
+    }
+    .b-match { 
+      margin: 5px 0; 
+      border: 1px solid #ddd; 
+      padding: 5px; 
+    }
     
   </style>
 </head>
@@ -480,7 +483,7 @@ function renderBracket() {
         ${renderCol('L', 'SF', 'Demies', 1)}
       </div>
 
-      <div class="b-col" style="justify-content:center; min-width:500px;">
+      <div class="b-col" style="justify-content:center; min-width:100px;">
         <div class="b-col-title">FINALE</div>
         <div class="b-match"><div class="b-team">Vainqueur A</div><div class="b-team">Vainqueur B</div></div>
       </div>
