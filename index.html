@@ -715,6 +715,66 @@ function toggleTeam(i){
   chev.style.transform=open?'rotate(180deg)':'rotate(0deg)';
 }
 
+function getGroupeClassement(groupe) {
+  // Récupère les équipes du groupe
+  const equipes = GROUPS[groupe].teams.map(t => ({
+    flag: t[0],
+    nom: t[1],
+    pt: 0,
+    bu: 0,
+    ec: 0,
+    diff: 0
+  }));
+  
+  // Cherche tous les matchs de ce groupe
+  MATCHS_DATA.forEach((m, idx) => {
+    if (m.g !== groupe) return;
+    
+    const s1 = D.scores[idx + 'a'];
+    const s2 = D.scores[idx + 'b'];
+    
+    // Si pas de scores rentrés, ignore
+    if (s1 === undefined || s2 === undefined || s1 === '' || s2 === '') return;
+    
+    const score1 = parseInt(s1);
+    const score2 = parseInt(s2);
+    
+    // Trouve les deux équipes dans le groupe
+    const team1 = equipes.find(t => m.t1.includes(t.nom));
+    const team2 = equipes.find(t => m.t2.includes(t.nom));
+    
+    if (!team1 || !team2) return;
+    
+    // Compte les buts
+    team1.bu += score1;
+    team1.ec += score2;
+    team2.bu += score2;
+    team2.ec += score1;
+    
+    // Compte les points
+    if (score1 > score2) {
+      team1.pt += 3; // Victoire
+    } else if (score1 < score2) {
+      team2.pt += 3; // Victoire
+    } else {
+      team1.pt += 1; // Nul
+      team2.pt += 1; // Nul
+    }
+  });
+  
+  // Calcule la différence de buts
+  equipes.forEach(t => {
+    t.diff = t.bu - t.ec;
+  });
+  
+  // Trie par : points (DESC), différence de buts (DESC), buts marqués (DESC)
+  return equipes.sort((a, b) => {
+    if (b.pt !== a.pt) return b.pt - a.pt;
+    if (b.diff !== a.diff) return b.diff - a.diff;
+    return b.bu - a.bu;
+  });
+}
+
 function renderRdv(){
   const el=document.getElementById('rdv');
   el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -767,3 +827,4 @@ renderGroups();
 </script>
 </body>
 </html>
+
