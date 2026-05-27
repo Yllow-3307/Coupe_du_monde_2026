@@ -466,47 +466,23 @@ function updateMatchFilters(){
 
 function renderBracket() {
   const el = document.getElementById('bracket');
-  if (!el) return; // Sécurité
+  
+  if (!el) {
+    console.error("Erreur : L'élément avec l'ID 'bracket' n'est pas trouvé dans la page !");
+    return;
+  }
 
+  // On injecte un test simple pour vérifier si le JS communique avec le HTML
   el.innerHTML = `
-    <div class="bracket-wrapper">
-      <div class="b-side">
-        ${renderCol('L', '16', '16es')}
-        ${renderCol('L', '8', '8es')}
-        ${renderCol('L', 'QF', 'Quarts')}
-        ${renderCol('L', 'SF', 'Demies')}
-      </div>
-
-      <div class="b-col" style="justify-content:center;">
-        <div class="b-col-title">FINALE</div>
-        <div class="b-match">
-          <div class="b-team" onclick="alert('Finale')">Vainqueur A</div>
-          <div class="b-team" onclick="alert('Finale')">Vainqueur B</div>
-        </div>
-      </div>
-
-      <div class="b-side">
-        ${renderCol('R', 'SF', 'Demies')}
-        ${renderCol('R', 'QF', 'Quarts')}
-        ${renderCol('R', '8', '8es')}
-        ${renderCol('R', '16', '16es')}
-      </div>
+    <div style="padding: 50px; text-align: center; border: 2px dashed red;">
+      <h3>Si tu vois ce message, le JavaScript fonctionne !</h3>
+      <p>Le problème vient peut-être du contenu généré.</p>
     </div>
   `;
 }
 
-// Fonction utilitaire pour générer une colonne
-function renderCol(side, phase, label) {
-  return `
-    <div class="b-col">
-      <div class="b-col-title">${label}</div>
-      <div class="b-match">
-        <div class="b-team">Équipe 1</div>
-        <div class="b-team">Équipe 2</div>
-      </div>
-    </div>
-  `;
-}
+// Appelle la fonction au chargement pour tester
+renderBracket();
 function renderPronos(){
   const el=document.getElementById('pronos');
   const lb=calcLB();
