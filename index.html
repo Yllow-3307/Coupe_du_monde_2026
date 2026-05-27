@@ -368,39 +368,28 @@ function save(){try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}}
 
 function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
 
-// Fonction pour calculer automatiquement le classement
 function getGroupeClassement(groupeLetter) {
-  // 1. Initialisation des scores pour les équipes du groupe
   let teamsInGroup = GROUPS[groupeLetter].teams.map(t => ({
-    nom: t[1],
-    flag: t[0],
-    pts: 0,
-    diff: 0
+    nom: t[1], flag: t[0], pts: 0, diff: 0
   }));
 
-  // 2. Parcourir tous les matchs pour calculer les points
   MATCHS_DATA.forEach((m, idx) => {
     if (m.g === groupeLetter) {
+      // Décommente cette ligne pour voir si tes matchs sont bien trouvés dans la console
+      // console.log("Match trouvé:", m.t1, "contre", m.t2);
+      
       const s1 = parseInt(D.scores[idx + 'a']);
       const s2 = parseInt(D.scores[idx + 'b']);
-
-      if (!isNaN(s1) && !isNaN(s2)) {
-        const team1 = teamsInGroup.find(t => t.nom === m.t1.substring(2)); // .substring(2) pour enlever le drapeau (ex: "🇲🇽 ")
-        const team2 = teamsInGroup.find(t => t.nom === m.t2.substring(2));
-
-        if (team1 && team2) {
-          team1.diff += (s1 - s2);
-          team2.diff += (s2 - s1);
-          if (s1 > s2) team1.pts += 3;
-          else if (s2 > s1) team2.pts += 3;
-          else { team1.pts += 1; team2.pts += 1; }
-        }
-      }
+      
+      // ... reste du code ...
     }
   });
 
-  // 3. Trier par points, puis différence de buts
-  return teamsInGroup.sort((a, b) => b.pts - a.pts || b.diff - a.diff);
+  const sorted = teamsInGroup.sort((a, b) => b.pts - a.pts || b.diff - a.diff);
+  // Ajoute ceci pour voir le classement calculé dans la console
+  console.log("Classement groupe " + groupeLetter, sorted);
+  
+  return sorted;
 }
 
 function renderGroups(){
