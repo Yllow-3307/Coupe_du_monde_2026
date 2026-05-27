@@ -107,7 +107,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBUragXBJrQ2XcdaJ-m30KI2JoZ7Eie5Tk",
   authDomain: "cdm-2026-eda50.firebaseapp.com",
@@ -138,25 +137,8 @@ const GROUPS = {
   I:{teams:[["🇫🇷","France"],["🇸🇳","Sénégal"],["🇳🇴","Norvège"],["🇮🇶","Irak"]]},
   J:{teams:[["🇩🇪","Allemagne"],["🇦🇺","Australie"],["🇺🇦","Ukraine"],["🇯🇴","Jordanie"]]},
   K:{teams:[["🇳🇱","Pays-Bas"],["🇲🇾","Malaisie"],["🇨🇱","Chili"],["🇸🇦","Arabie Saoudite"]]},
-  L:{teams:[["🇧🇪","Belgique"],["🇨🇺","Cuba"],["🇷🇴","Roumanie"],["🇨🇻","Cap-Vert"]]}
+  L:{teams:[["🇧ֶ","Belgique"],["🇨🇺","Cuba"],["🇷🇴","Roumanie"],["🇨🇻","Cap-Vert"]]}
 };
-
-const PRONO_MATCHES = [
-  {id:"p1",label:"🇫🇷 France vs 🇸🇳 Sénégal",date:"16 juin",group:"Gr. I"},
-  {id:"p2",label:"🇦🇷 Argentine vs 🇧🇷 Brésil",date:"Phase groupes",group:"Gr. D/E"},
-  {id:"p3",label:"🇪🇸 Espagne vs 🏴󠁧󠁢󠁥󠁮阱󠁿 Angleterre",date:"Phase groupes",group:"Gr. F/G"},
-  {id:"p4",label:"🇫🇷 France vs 🇳🇴 Norvège",date:"26 juin",group:"Gr. I"},
-  {id:"p5",label:"🏆 Vainqueur du tournoi",date:"19 juillet",group:"Finale"},
-];
-
-const MATCHS_DATA = [
-  {day:"11 juin",g:"A",t1:"🇲🇽 Mexique",t2:"🇿🇦 Afrique du Sud",info:"Azteca, Mexico"},
-  {day:"16 juin",g:"I",t1:"🇫🇷 France",t2:"🇸🇳 Sénégal",info:"New York/NJ"},
-  {day:"22 juin",g:"I",t1:"🇫🇷 France",t2:"⚽ Barragiste",info:"Philadelphie"},
-  {day:"26 juin",g:"I",t1:"🇫🇷 France",t2:"🇳🇴 Norvège",info:"Boston"},
-  {day:"Phase groupes",g:"D",t1:"🇦🇷 Argentine",t2:"🇧🇷 Brésil",info:"Gr. D"},
-  {day:"19 juillet",g:"",t1:"🏆 Finaliste 1",t2:"🏆 Finaliste 2",info:"MetLife, New York"},
-];
 
 const TEAMS_DATA = [
   // GROUPE A
@@ -164,73 +146,63 @@ const TEAMS_DATA = [
   {flag:"🇿🇦", name:"Afrique du Sud", group:"A", coach:"Hugo Broos", players:[{n:1,pos:"G",name:"R. Williams"},{n:20,pos:"D",name:"K. Mudau"},{n:4,pos:"M",name:"T. Mokoena"},{n:11,pos:"A",name:"P. Tau"}]},
   {flag:"🇰🇷", name:"Corée du Sud", group:"A", coach:"Hong Myung-bo", players:[{n:21,pos:"G",name:"Jo Hyeon-woo"},{n:4,pos:"D",name:"Kim Min-jae"},{n:6,pos:"M",name:"Hwang In-beom"},{n:7,pos:"A",name:"Son Heung-min"}]},
   {flag:"🇨🇿", name:"Tchéquie", group:"A", coach:"Ivan Hašek", players:[{n:1,pos:"G",name:"J. Staněk"},{n:4,pos:"D",name:"R. Hranáč"},{n:22,pos:"M",name:"T. Souček"},{n:10,pos:"A",name:"P. Schick"}]},
-
   // GROUPE B
   {flag:"🇨🇦", name:"Canada", group:"B", coach:"Jesse Marsch", players:[{n:1,pos:"G",name:"M. Crépeau"},{n:19,pos:"D",name:"A. Davies"},{n:7,pos:"M",name:"S. Eustáquio"},{n:9,pos:"A",name:"J. David"}]},
   {flag:"🇧🇦", name:"Bosnie-Herz.", group:"B", coach:"Sergej Barbarez", players:[{n:12,pos:"G",name:"N. Vasilj"},{n:4,pos:"D",name:"N. Katić"},{n:8,pos:"M",name:"B. Tahirović"},{n:11,pos:"A",name:"E. Džeko"}]},
   {flag:"🇶🇦", name:"Qatar", group:"B", coach:"Tintín Márquez", players:[{n:22,pos:"G",name:"Meshaal Barsham"},{n:5,pos:"D",name:"Tarek Salman"},{n:10,pos:"M",name:"Hassan Al-Haydos"},{n:11,pos:"A",name:"Akram Afif"}]},
   {flag:"🇨🇭", name:"Suisse", group:"B", coach:"Murat Yakin", players:[{n:1,pos:"G",name:"Y. Sommer"},{n:5,pos:"D",name:"M. Akanji"},{n:10,pos:"M",name:"G. Xhaka"},{n:7,pos:"A",name:"B. Embolo"}]},
-
   // GROUPE C
   {flag:"🇺🇸", name:"États-Unis", group:"C", coach:"Mauricio Pochettino", players:[{n:1,pos:"G",name:"M. Turner"},{n:4,pos:"D",name:"T. Ream"},{n:8,pos:"M",name:"W. McKennie"},{n:10,pos:"A",name:"C. Pulisic"}]},
   {flag:"🇵🇾", name:"Paraguay", group:"C", coach:"Gustavo Alfaro", players:[{n:1,pos:"G",name:"G. Fernández"},{n:15,pos:"D",name:"G. Gómez"},{n:23,pos:"M",name:"M. Almirón"},{n:19,pos:"A",name:"J. Enciso"}]},
   {flag:"🇬🇭", name:"Ghana", group:"C", coach:"Otto Addo", players:[{n:1,pos:"G",name:"L. Ati-Zigi"},{n:4,pos:"D",name:"M. Salisu"},{n:14,pos:"M",name:"M. Kudus"},{n:9,pos:"A",name:"J. Ayew"}]},
   {flag:"🇬🇪", name:"Géorgie", group:"C", coach:"Willy Sagnol", players:[{n:25,pos:"G",name:"G. Mamardashvili"},{n:4,pos:"D",name:"G. Kashia"},{n:6,pos:"M",name:"G. Kochorashvili"},{n:7,pos:"A",name:"K. Kvaratskhelia"}]},
-
   // GROUPE D
   {flag:"🇦🇷", name:"Argentine", group:"D", coach:"Lionel Scaloni", players:[{n:23,pos:"G",name:"E. Martínez"},{n:13,pos:"D",name:"C. Romero"},{n:20,pos:"M",name:"A. Mac Allister"},{n:10,pos:"A",name:"L. Messi"}]},
   {flag:"🇵🇪", name:"Pérou", group:"D", coach:"Jorge Fossati", players:[{n:1,pos:"G",name:"P. Gallese"},{n:5,pos:"D",name:"C. Zambrano"},{n:8,pos:"M",name:"P. Quispe"},{n:9,pos:"A",name:"G. Lapadula"}]},
   {flag:"🇨🇮", name:"Côte d'Ivoire", group:"D", coach:"Emerse Faé", players:[{n:1,pos:"G",name:"Y. Fofana"},{n:21,pos:"D",name:"E. Ndicka"},{n:4,pos:"M",name:"F. Kessié"},{n:24,pos:"A",name:"S. Adingra"}]},
   {flag:"🇸🇮", name:"Slovénie", group:"D", coach:"Matjaž Kek", players:[{n:1,pos:"G",name:"J. Oblak"},{n:6,pos:"D",name:"J. Bijol"},{n:22,pos:"M",name:"A. Čerin"},{n:11,pos:"A",name:"B. Šeško"}]},
-
   // GROUPE E
   {flag:"🇧🇷", name:"Brésil", group:"E", coach:"Dorival Júnior", players:[{n:1,pos:"G",name:"Alisson"},{n:4,pos:"D",name:"Marquinhos"},{n:8,pos:"M",name:"B. Guimarães"},{n:7,pos:"A",name:"Vinícius Jr"}]},
   {flag:"🇯🇵", name:"Japon", group:"E", coach:"Hajime Moriyasu", players:[{n:1,pos:"G",name:"Z. Suzuki"},{n:4,pos:"D",name:"K. Itakura"},{n:6,pos:"M",name:"W. Endo"},{n:10,pos:"A",name:"T. Minamino"}]},
   {flag:"🇨🇴", name:"Colombie", group:"E", coach:"Néstor Lorenzo", players:[{n:12,pos:"G",name:"C. Vargas"},{n:23,pos:"D",name:"D. Sánchez"},{n:10,pos:"M",name:"J. Rodríguez"},{n:7,pos:"A",name:"L. Díaz"}]},
   {flag:"🇲🇦", name:"Maroc", group:"E", coach:"Walid Regragui", players:[{n:1,pos:"G",name:"Y. Bounou"},{n:2,pos:"D",name:"A. Hakimi"},{n:4,pos:"M",name:"S. Amrabat"},{n:10,pos:"A",name:"B. Díaz"}]},
-
   // GROUPE F
   {flag:"🇪🇸", name:"Espagne", group:"F", coach:"Luis de la Fuente", players:[{n:1,pos:"G",name:"U. Simón"},{n:14,pos:"D",name:"A. Laporte"},{n:16,pos:"M",name:"R. Rodri"},{n:17,pos:"A",name:"N. Williams"}]},
   {flag:"🇩🇰", name:"Danemark", group:"F", coach:"Brian Riemer", players:[{n:1,pos:"G",name:"K. Schmeichel"},{n:3,pos:"D",name:"J. Vestergaard"},{n:10,pos:"M",name:"C. Eriksen"},{n:9,pos:"A",name:"R. Højlund"}]},
   {flag:"🇷🇸", name:"Serbie", group:"F", coach:"Dragan Stojković", players:[{n:1,pos:"G",name:"V. Milinković-Savić"},{n:4,pos:"D",name:"N. Milenković"},{n:10,pos:"M",name:"D. Tadić"},{n:9,pos:"A",name:"A. Mitrović"}]},
   {flag:"🇹🇳", name:"Tunisie", group:"F", coach:"Kais Yaâkoubi", players:[{n:22,pos:"G",name:"B. Ben Saïd"},{n:4,pos:"D",name:"Y. Meriah"},{n:10,pos:"M",name:"H. Mejbri"},{n:11,pos:"A",name:"E. Achouri"}]},
-
   // GROUPE G
   {flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", name:"Angleterre", group:"G", coach:"Thomas Tuchel", players:[{n:1,pos:"G",name:"J. Pickford"},{n:5,pos:"D",name:"J. Stones"},{n:10,pos:"M",name:"J. Bellingham"},{n:9,pos:"A",name:"H. Kane"}]},
   {flag:"🇸🇰", name:"Slovaquie", group:"G", coach:"Francesco Calzona", players:[{n:1,pos:"G",name:"M. Dúbravka"},{n:3,pos:"D",name:"M. Škriniar"},{n:22,pos:"M",name:"S. Lobotka"},{n:18,pos:"A",name:"D. Strelec"}]},
   {flag:"🇺🇾", name:"Uruguay", group:"G", coach:"Marcelo Bielsa", players:[{n:1,pos:"G",name:"S. Rochet"},{n:2,pos:"D",name:"J. Giménez"},{n:15,pos:"M",name:"F. Valverde"},{n:19,pos:"A",name:"D. Núñez"}]},
   {flag:"🇮🇷", name:"Iran", group:"G", coach:"Amir Ghalenoei", players:[{n:1,pos:"G",name:"A. Beiranvand"},{n:4,pos:"D",name:"S. Khalilzadeh"},{n:7,pos:"M",name:"A. Jahanbakhsh"},{n:9,pos:"A",name:"M. Taremi"}]},
-
   // GROUPE H
   {flag:"🇵🇹", name:"Portugal", group:"H", coach:"Roberto Martínez", players:[{n:22,pos:"G",name:"Diogo Costa"},{n:4,pos:"D",name:"Rúben Dias"},{n:8,pos:"M",name:"B. Fernandes"},{n:7,pos:"A",name:"C. Ronaldo"}]},
   {flag:"🇰🇪", name:"Kenya", group:"H", coach:"Engin Fırat", players:[{n:1,pos:"G",name:"P. Matasi"},{n:2,pos:"D",name:"J. Onyango"},{n:10,pos:"M",name:"E. Omondi"},{n:14,pos:"A",name:"M. Olunga"}]},
   {flag:"🇭🇷", name:"Croatie", group:"H", coach:"Zlatko Dalić", players:[{n:1,pos:"G",name:"D. Livaković"},{n:4,pos:"D",name:"J. Gvardiol"},{n:10,pos:"M",name:"L. Modrić"},{n:9,pos:"A",name:"A. Kramarić"}]},
   {flag:"🇺🇿", name:"Ouzbékistan", group:"H", coach:"Srečko Katanec", players:[{n:1,pos:"G",name:"U. Yusupov"},{n:5,pos:"D",name:"R. Ashurmatov"},{n:9,pos:"M",name:"O. Shukurov"},{n:14,pos:"A",name:"E. Shomurodov"}]},
-
   // GROUPE I
   {flag:"🇫🇷", name:"France", group:"I", coach:"Didier Deschamps", players:[{n:1,pos:"G",name:"M. Maignan"},{n:4,pos:"D",name:"D. Upamecano"},{n:13,pos:"M",name:"N. Kanté"},{n:10,pos:"A",name:"K. Mbappé"}]},
   {flag:"🇸🇳", name:"Sénégal", group:"I", coach:"Pape Thiaw", players:[{n:16,pos:"G",name:"É. Mendy"},{n:3,pos:"D",name:"K. Koulibaly"},{n:5,pos:"M",name:"I. Gueye"},{n:10,pos:"A",name:"S. Mané"}]},
   {flag:"🇳🇴", name:"Norvège", group:"I", coach:"Ståle Solbakken", players:[{n:1,pos:"G",name:"Ø. Nyland"},{n:4,pos:"D",name:"L. Østigård"},{n:10,pos:"M",name:"M. Ødegaard"},{n:9,pos:"A",name:"E. Haaland"}]},
   {flag:"🇮🇶", name:"Irak", group:"I", coach:"Jesús Casas", players:[{n:12,pos:"G",name:"Jalal Hassan"},{n:4,pos:"D",name:"Saad Natiq"},{n:8,pos:"M",name:"Ibrahim Bayesh"},{n:18,pos:"A",name:"Aymen Hussein"}]},
-
   // GROUPE J
   {flag:"🇩🇪", name:"Allemagne", group:"J", coach:"Julian Nagelsmann", players:[{n:1,pos:"G",name:"M. ter Stegen"},{n:22,pos:"D",name:"A. Rüdiger"},{n:10,pos:"M",name:"J. Musiala"},{n:17,pos:"A",name:"F. Wirtz"}]},
   {flag:"🇦🇺", name:"Australie", group:"J", coach:"Tony Popovic", players:[{n:1,pos:"G",name:"M. Ryan"},{n:19,pos:"D",name:"H. Souttar"},{n:22,pos:"M",name:"J. Irvine"},{n:9,pos:"A",name:"M. Boyle"}]},
   {flag:"🇺🇦", name:"Ukraine", group:"J", coach:"Serhiy Rebrov", players:[{n:13,pos:"G",name:"A. Lunin"},{n:22,pos:"D",name:"I. Zabarnyi"},{n:10,pos:"M",name:"M. Mudryk"},{n:11,pos:"A",name:"A. Dovbyk"}]},
   {flag:"🇯🇴", name:"Jordanie", group:"J", coach:"Jamal Sellami", players:[{n:1,pos:"G",name:"Y. Abu Layla"},{n:3,pos:"D",name:"A. Nasib"},{n:10,pos:"M",name:"M. Al-Taamari"},{n:11,pos:"A",name:"Y. Al-Naimat"}]},
-
   // GROUPE K
-  {flag:"🇳🇱", name:"Pays-Bas", group:"K", coach:"Ronald Koeman", players:[{n:1,pos:"G",name:"B. Verbruggen"},{n:4,pos:"D",name:"V. van Dijk"},{n:14,pos:"M",name:"T. Reijnders"},{n:7,pos:"A",name:"X. Simons"}]},
+  {flag:"🇳🇱", name:"Pays-Bas", group:"K", coach:"Ronald Koeman", players:[{n:1,pos:"G",name:"B. Verbruggen"},{n:4,pos:"D",name:"V. van Dijk"},{n:14,pos:"M",name:"T. Reijnders"},{n:7,pos:"X",name:"X. Simons"}]},
   {flag:"🇲🇾", name:"Malaisie", group:"K", coach:"Pau Martí Vicente", players:[{n:16,pos:"G",name:"Syihan Hazmi"},{n:6,pos:"D",name:"Dominic Tan"},{n:14,pos:"M",name:"Syamer Kutty"},{n:7,pos:"A",name:"Faisal Halim"}]},
   {flag:"🇨🇱", name:"Chili", group:"K", coach:"Ricardo Gareca", players:[{n:1,pos:"G",name:"B. Cortés"},{n:5,pos:"D",name:"P. Díaz"},{n:18,pos:"M",name:"R. Echeverría"},{n:11,pos:"A",name:"E. Vargas"}]},
   {flag:"🇸🇦", name:"Arabie Saoudite", group:"K", coach:"Hervé Renard", players:[{n:22,pos:"G",name:"Ahmed Al-Kassar"},{n:5,pos:"D",name:"Ali Al-Bulaihi"},{n:10,pos:"M",name:"Salem Al-Dawsari"},{n:11,pos:"A",name:"Firas Al-Buraikan"}]},
-
   // GROUPE L
-  {flag:"🇧🇪", name:"Belgique", group:"L", coach:"Domenico Tedesco", players:[{n:1,pos:"G",name:"K. Casteels"},{n:4,pos:"D",name:"W. Faes"},{n:7,pos:"M",name:"K. De Bruyne"},{n:10,pos:"A",name:"J. Doku"}]},
+  {flag:"🇧ֶ", name:"Belgique", group:"L", coach:"Domenico Tedesco", players:[{n:1,pos:"G",name:"K. Casteels"},{n:4,pos:"D",name:"W. Faes"},{n:7,pos:"M",name:"K. De Bruyne"},{n:10,pos:"A",name:"J. Doku"}]},
   {flag:"🇨🇺", name:"Cuba", group:"L", coach:"Yunielys Castillo", players:[{n:1,pos:"G",name:"I. Johnston"},{n:5,pos:"D",name:"C. Vázquez"},{n:10,pos:"M",name:"A. Hernández"},{n:9,pos:"A",name:"M. Reyes"}]},
   {flag:"🇷🇴", name:"Roumanie", group:"L", coach:"Mircea Lucescu", players:[{n:1,pos:"G",name:"F. Niță"},{n:3,pos:"D",name:"R. Drăgușin"},{n:10,pos:"M",name:"N. Stanciu"},{n:19,pos:"A",name:"D. Drăguș"}]},
   {flag:"🇨🇻", name:"Cap-Vert", group:"L", coach:"Bubista", players:[{n:1,pos:"G",name:"Vozinha"},{n:4,pos:"D",name:"Picard"},{n:10,pos:"M",name:"Jamiro Monteiro"},{n:7,pos:"A",name:"Ryan Mendes"}]}
 ];
+
 let D = {};
 try { D = JSON.parse(localStorage.getItem('wc26v3')||'{}'); } catch(e) { D = {}; }
 D.pts = D.pts||{}; D.scores = D.scores||{}; D.bracket = D.bracket||{};
@@ -248,20 +220,15 @@ D.rdvList = D.rdvList||[{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',p
 
 let currentTabId = 'groupes';
 
-// Écoute en temps réel des changements Firebase
 onSnapshot(docRef, (docSnap) => {
   if (docSnap.exists()) {
     D = docSnap.data();
-    // Sécurité fallback si champs manquants dans Firebase
     D.pts = D.pts||{}; D.scores = D.scores||{}; D.bracket = D.bracket||{};
     D.pronos = D.pronos||{}; D.actual = D.actual||{};
+    D.matchsList = D.matchsList||[];
     D.teamStats = D.teamStats||TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0}));
     D.rdvList = D.rdvList||[{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}];
-    
-    // Sauvegarde en local par sécurité
     try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}
-    
-    // Rafraîchit l'onglet courant
     showTab(currentTabId);
   }
 });
@@ -269,6 +236,26 @@ onSnapshot(docRef, (docSnap) => {
 function save(){
   try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}
   setDoc(docRef, D).catch(e => console.error("Erreur synchro Firebase:", e));
+}
+
+window.showTab = function(tabId) {
+  currentTabId = tabId;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  
+  const activeBtn = Array.from(document.querySelectorAll('.tab')).find(t => t.getAttribute('onclick').includes(tabId));
+  if(activeBtn) activeBtn.classList.add('active');
+  
+  const secEl = document.getElementById(tabId);
+  if(secEl) secEl.classList.add('active');
+  
+  if(tabId === 'groupes') renderGroups();
+  else if(tabId === 'matchs') renderMatchs();
+  else if(tabId === 'bracket') renderBracket();
+  else if(tabId === 'pronos') renderPronos();
+  else if(tabId === 'stats') renderStats();
+  else if(tabId === 'equipes') renderTeams();
+  else if(tabId === 'rdv') renderRdv();
 }
 
 function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
@@ -286,17 +273,24 @@ function renderGroups(){
     const sorted=[...d.teams].map((t,i)=>({t,i,p:getPts(g,i)})).sort((a,b)=>b.p-a.p);
     return`<div class="grp-card"><div class="grp-title">Groupe ${g}</div>${sorted.map((item,rank)=>{
       const cls=rank<2?'team-row q1':rank===2?'team-row q3':'team-row qn';
-      return`<div class="${cls}"><span style="font-size:15px;width:22px">${item.t[0]}</span><span style="flex:1;color:var(--color-text-primary)">${item.t[1]}</span><span class="pts-cell" onclick="editPts(this,'${g}',${item.i})">${item.p}</span></div>`;
+      return`<div class="${cls}"><span style="font-size:15px;width:22px">${item.t[0]}</span><span style="flex:1;color:var(--color-text-primary)">${item.t[1]}</span><span class="pts-cell" id="pts-c-${g}-${item.i}">${item.p}</span></div>`;
     }).join('')}</div>`;}).join('')}</div>`;
     
-    document.getElementById('btn-saveg-cloud').onclick = function() {
-      save();
-      const n=document.createElement('span');
-      n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';
-      n.textContent='✓ Synchronisé';
-      this.after(n);
-      setTimeout(()=>n.remove(),2000);
-    };
+  Object.entries(GROUPS).forEach(([g,d])=>{
+    d.teams.forEach((_,i)=>{
+      const cell = document.getElementById(`pts-c-${g}-${i}`);
+      if(cell) cell.onclick = function() { editPts(this, g, i); };
+    });
+  });
+
+  document.getElementById('btn-saveg-cloud').onclick = function() {
+    save();
+    const n=document.createElement('span');
+    n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';
+    n.textContent='✓ Synchronisé';
+    this.after(n);
+    setTimeout(()=>n.remove(),2000);
+  };
 }
 
 function editPts(el,g,i){
@@ -310,46 +304,53 @@ function editPts(el,g,i){
 
 function renderMatchs(){
   const el=document.getElementById('matchs');
-  el.innerHTML=`<div style="display:flex;justify-content:between;margin-bottom:12px;gap:10px">
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:12px;gap:10px;align-items:center">
     <p style="font-size:12px;color:var(--color-text-secondary)">Saisis les scores. Cochez "Prono" pour l'envoyer dans l'onglet Pronos.</p>
-    <button class="btn btn-primary" onclick="addMatch()">+ Ajouter un Match</button>
+    <button class="btn btn-primary" id="btn-add-m">+ Ajouter un Match</button>
   </div>`+
   D.matchsList.map((m, idx)=>`<div class="card" style="padding:10px 12px;margin-bottom:8px">
     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">
       <div>
-        <input type="text" value="${m.day}" oninput="D.matchsList[${idx}].day=this.value;save()" style="width:50px;background:none;border:none;color:inherit"> · 
-        Gr. <input type="text" value="${m.g}" oninput="D.matchsList[${idx}].g=this.value;save()" style="width:20px;background:none;border:none;color:inherit"> · 
-        <input type="text" value="${m.info}" oninput="D.matchsList[${idx}].info=this.value;save()" style="width:120px;background:none;border:none;color:inherit">
+        <input type="text" value="${m.day}" id="m-day-${idx}" style="width:75px;background:none;border:none;color:inherit;outline:none"> · 
+        Gr. <input type="text" value="${m.g}" id="m-g-${idx}" style="width:25px;background:none;border:none;color:inherit;outline:none"> · 
+        <input type="text" value="${m.info}" id="m-info-${idx}" style="width:140px;background:none;border:none;color:inherit;outline:none">
       </div>
-      <label style="cursor:pointer"><input type="checkbox" ${m.isProno?'checked':''} onchange="D.matchsList[${idx}].isProno=this.checked;save();"> Prono ?</label>
+      <label style="cursor:pointer"><input type="checkbox" id="m-prono-${idx}" ${m.isProno?'checked':''}> Prono ?</label>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <input type="text" value="${m.t1}" oninput="D.matchsList[${idx}].t1=this.value;save()" style="flex:1;font-size:13px;font-weight:500;background:none;border:none;color:var(--color-text-primary)">
-      <input class="score-in" type="number" min="0" placeholder="—" value="${D.scores[m.id+'a']||''}" oninput="D.scores['${m.id}a']=this.value;save();updateStatsAutomatique()">
+      <input type="text" value="${m.t1}" id="m-t1-${idx}" style="flex:1;font-size:13px;font-weight:500;background:none;border:none;color:var(--color-text-primary);outline:none">
+      <input class="score-in" type="number" min="0" placeholder="—" value="${D.scores[m.id+'a']||''}" id="m-sca-${idx}">
       <span style="color:var(--color-text-tertiary)">–</span>
-      <input class="score-in" type="number" min="0" placeholder="—" value="${D.scores[m.id+'b']||''}" oninput="D.scores['${m.id}b']=this.value;save();updateStatsAutomatique()">
-      <input type="text" value="${m.t2}" oninput="D.matchsList[${idx}].t2=this.value;save()" style="flex:1;font-size:13px;font-weight:500;background:none;border:none;color:var(--color-text-primary);text-align:right">
-      <button onclick="D.matchsList.splice(${idx},1);save();renderMatchs()" style="background:none;border:none;color:var(--color-text-danger);cursor:pointer;margin-left:5px">🗑️</button>
+      <input class="score-in" type="number" min="0" placeholder="—" value="${D.scores[m.id+'b']||''}" id="m-scb-${idx}">
+      <input type="text" value="${m.t2}" id="m-t2-${idx}" style="flex:1;font-size:13px;font-weight:500;background:none;border:none;color:var(--color-text-primary);text-align:right;outline:none">
+      <button id="m-del-${idx}" style="background:none;border:none;color:var(--color-text-danger);cursor:pointer;margin-left:5px">🗑️</button>
     </div>
   </div>`).join('');
+
+  document.getElementById('btn-add-m').onclick = addMatch;
+
+  D.matchsList.forEach((m, idx) => {
+    document.getElementById(`m-day-${idx}`).onchange = function() { D.matchsList[idx].day = this.value; save(); };
+    document.getElementById(`m-g-${idx}`).onchange = function() { D.matchsList[idx].g = this.value; save(); };
+    document.getElementById(`m-info-${idx}`).onchange = function() { D.matchsList[idx].info = this.value; save(); };
+    document.getElementById(`m-t1-${idx}`).onchange = function() { D.matchsList[idx].t1 = this.value; save(); };
+    document.getElementById(`m-t2-${idx}`).onchange = function() { D.matchsList[idx].t2 = this.value; save(); };
+    document.getElementById(`m-prono-${idx}`).onchange = function() { D.matchsList[idx].isProno = this.checked; save(); };
+    document.getElementById(`m-sca-${idx}`).oninput = function() { D.scores[m.id+'a'] = this.value; save(); updateStatsAutomatique(); };
+    document.getElementById(`m-scb-${idx}`).oninput = function() { D.scores[m.id+'b'] = this.value; save(); updateStatsAutomatique(); };
+    document.getElementById(`m-del-${idx}`).onclick = function() { D.matchsList.splice(idx, 1); save(); renderMatchs(); };
+  });
 }
+
 function addMatch(){
   D.matchsList.push({id:'m_'+Date.now(), day:"Date", g:"A", t1:"Équipe A", t2:"Équipe B", info:"Lieu", isProno:false});
   save(); renderMatchs();
 }
 
-  MATCHS_DATA.forEach((_,idx)=>{
-    document.getElementById(`m-${idx}a`).oninput = function() { D.scores[idx+'a']=this.value; save(); };
-    document.getElementById(`m-${idx}b`).oninput = function() { D.scores[idx+'b']=this.value; save(); };
-  });
-}
-
 function renderBracket(){
   const el=document.getElementById('bracket');
-  const R0_LEFT = Array.from({length:8},(_,i)=>({k1:`r0m${i}t1`,k2:`r0m${i}t2`}));
-  const R0_RIGHT = Array.from({length:8},(_,i)=>({k1:`r0m${i+8}t1`,k2:`r0m${i+8}t2`}));
-
-  function bCol(slots, ri, offset, flip){
+  
+  function bCol(slots, ri, offset){
     const spacer = Math.pow(2,ri)*6;
     let html = '';
     for(let i=0;i<slots;i++){
@@ -359,37 +360,30 @@ function renderBracket(){
       const t2=D.bracket[k2]||(ri===0?`Éq.${mi*2+2}`:'?');
       const nk=`r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
       const w=D.bracket[nk];
-      html+=`<div class="b-match">
-        <div class="b-team${w===t1?' winner':''}" id="b-click-${ri}-${mi}-1">${t1}</div>
-        <div class="b-team${w===t2?' winner':''}" id="b-click-${ri}-${mi}-2">${t2}</div>
-      </div>`;
+      
+      if(ri === 0) {
+        html+=`<div class="b-match">
+          <div style="display:flex;align-items:center;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:6px 6px 0 0" class="${w===t1?'winner':''}">
+            <input type="text" value="${t1.startsWith('Éq.') ? '' : t1}" placeholder="${t1}" id="inp-bL-${mi}-1" style="flex:1;width:75px;font-size:11px;background:none;border:none;padding:5px 4px;color:inherit;outline:none">
+            <span id="btn-bL-${mi}-1" style="padding:4px;cursor:pointer;font-size:10px">✅</span>
+          </div>
+          <div style="display:flex;align-items:center;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-top:none;border-radius:0 0 6px 6px" class="${w===t2?'winner':''}">
+            <input type="text" value="${t2.startsWith('Éq.') ? '' : t2}" placeholder="${t2}" id="inp-bL-${mi}-2" style="flex:1;width:75px;font-size:11px;background:none;border:none;padding:5px 4px;color:inherit;outline:none">
+            <span id="btn-bL-${mi}-2" style="padding:4px;cursor:pointer;font-size:10px">✅</span>
+          </div>
+        </div>`;
+      } else {
+        html+=`<div class="b-match">
+          <div class="b-team${w===t1?' winner':''}" id="b-click-${ri}-${mi}-1">${t1}</div>
+          <div class="b-team${w===t2?' winner':''}" id="b-click-${ri}-${mi}-2">${t2}</div>
+        </div>`;
+      }
       if(i<slots-1) html+=`<div style="height:${spacer}px"></div>`;
     }
     return html;
   }
 
-  const champion = D.bracket['r5m0t1'] || null;
-  const colLabels = ["16es","8es","Quarts","Demies"];
-
-  let leftCols = '';
-  for(let r=0;r<4;r++){
-    const slots = 8/Math.pow(2,r);
-    leftCols += `<div class="b-col" style="min-width:120px">
-      <div class="b-col-title">${colLabels[r]}</div>
-      <div style="display:flex;flex-direction:column">${bCol(slots,r,0,false)}</div>
-    </div>`;
-  }
-
-  let rightCols = '';
-  for(let r=3;r>=0;r--){
-    const slots = 8/Math.pow(2,3-r);
-    rightCols += `<div class="b-col" style="min-width:120px">
-      <div class="b-col-title">${colLabels[r]}</div>
-      <div style="display:flex;flex-direction:column">${bColRight(slots,r)}</div>
-    </div>`;
-  }
-
-function bColRight(slots, ri){
+  function bColRight(slots, ri){
     const spacer = Math.pow(2,ri)*6;
     let html='';
     for(let i=0;i<slots;i++){
@@ -403,18 +397,18 @@ function bColRight(slots, ri){
       if (ri === 0) {
         html+=`<div class="b-match">
           <div style="display:flex;align-items:center;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:6px 6px 0 0" class="${w===t1?'winner':''}">
-            <input type="text" value="${t1.startsWith('Éq.') ? '' : t1}" placeholder="${t1}" onchange="D.bracket['${k1}']=this.value;save();renderBracket()" style="flex:1;width:80px;font-size:11px;background:none;border:none;padding:5px 7px;color:inherit;outline:none">
-            <span onclick="pickW(0,${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',1)" style="padding:5px;cursor:pointer;font-size:10px">✅</span>
+            <input type="text" value="${t1.startsWith('Éq.') ? '' : t1}" placeholder="${t1}" id="inp-bR-${mi}-1" style="flex:1;width:75px;font-size:11px;background:none;border:none;padding:5px 4px;color:inherit;outline:none">
+            <span id="btn-bR-${mi}-1" style="padding:4px;cursor:pointer;font-size:10px">✅</span>
           </div>
           <div style="display:flex;align-items:center;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-top:none;border-radius:0 0 6px 6px" class="${w===t2?'winner':''}">
-            <input type="text" value="${t2.startsWith('Éq.') ? '' : t2}" placeholder="${t2}" onchange="D.bracket['${k2}']=this.value;save();renderBracket()" style="flex:1;width:80px;font-size:11px;background:none;border:none;padding:5px 7px;color:inherit;outline:none">
-            <span onclick="pickW(0,${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',2)" style="padding:5px;cursor:pointer;font-size:10px">✅</span>
+            <input type="text" value="${t2.startsWith('Éq.') ? '' : t2}" placeholder="${t2}" id="inp-bR-${mi}-2" style="flex:1;width:75px;font-size:11px;background:none;border:none;padding:5px 4px;color:inherit;outline:none">
+            <span id="btn-bR-${mi}-2" style="padding:4px;cursor:pointer;font-size:10px">✅</span>
           </div>
         </div>`;
       } else {
         html+=`<div class="b-match">
-          <div class="b-team${w===t1?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',1)">${t1}</div>
-          <div class="b-team${w===t2?' winner':''}" onclick="pickW(${ri},${mi},'${t1.replace(/'/g,"\\'")}','${t2.replace(/'/g,"\\'")}',2)">${t2}</div>
+          <div class="b-team${w===t1?' winner':''}" id="b-click-${ri}-${mi}-1">${t1}</div>
+          <div class="b-team${w===t2?' winner':''}" id="b-click-${ri}-${mi}-2">${t2}</div>
         </div>`;
       }
       if(i<slots-1) html+=`<div style="height:${spacer}px"></div>`;
@@ -422,64 +416,94 @@ function bColRight(slots, ri){
     return html;
   }
 
-  const fk1='r4m0t1', fk2='r4m0t2';
-  const ft1=D.bracket[fk1]||'?'; const ft2=D.bracket[fk2]||'?';
-  const fw=D.bracket['r5m0t1'];
-  const finaleHtml=`<div class="b-col" style="min-width:120px;align-items:center">
-    <div class="b-col-title" style="text-align:center">Finale</div>
-    <div class="b-match">
-      <div class="b-team${fw===ft1?' winner':''}" id="b-click-4-0-1">${ft1}</div>
-      <div class="b-team${fw===ft2?' winner':''}" id="b-click-4-0-2">${ft2}</div>
-    </div>
-  </div>`;
+  const champion = D.bracket['r5m0t1'] || null;
+  const colLabels = ["16es","8es","Quarts","Demies"];
 
-  el.innerHTML=`<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Renseigne les équipes qualifiées après les groupes, puis clique sur le vainqueur de chaque match pour faire avancer le bracket.</p>
-  <div class="bracket-wrap">
-    <div class="bracket-tree" style="align-items:center">
+  let leftCols = '';
+  for(let r=0;r<4;r++){
+    const slots = 8/Math.pow(2,r);
+    leftCols += `<div class="b-col" style="min-width:120px">
+      <div class="b-col-title">${colLabels[r]}</div>
+      <div style="display:flex;flex-direction:column">${bCol(slots,r,0)}</div>
+    </div>`;
+  }
+
+  let rightCols = '';
+  for(let r=3;r>=0;r--){
+    const slots = 8/Math.pow(2,3-r);
+    rightCols += `<div class="b-col" style="min-width:120px">
+      <div class="b-col-title">${colLabels[r]}</div>
+      <div style="display:flex;flex-direction:column">${bColRight(slots,r)}</div>
+    </div>`;
+  }
+
+  el.innerHTML = `<div class="bracket-wrap">
+    <div class="bracket-tree">
       ${leftCols}
-      <div style="width:8px"></div>
-      ${finaleHtml}
-      <div style="width:8px"></div>
+      <div class="b-center">
+        <div class="b-trophy">🏆</div>
+        <div class="b-champion" id="b-champ-box">${champion || 'Vainqueur ?'}</div>
+      </div>
       ${rightCols}
     </div>
-    ${champion?`<div style="text-align:center;margin-top:16px"><div style="font-size:24px;margin-bottom:6px">🏆</div><div style="display:inline-block;padding:8px 20px;background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-lg);font-weight:500;color:var(--color-text-primary);font-size:14px">${champion}</div></div>`:''}
   </div>`;
 
-  // Attribution dynamique des clics sécurisés pour les colonnes gauches et droites
-  for(let r=0; r<4; r++) {
-    const leftSlots = 8/Math.pow(2,r);
-    for(let i=0; i<leftSlots; i++) {
-      setupBracketClick(r, i);
-    }
-    const rightSlots = 8/Math.pow(2,3-r);
-    for(let i=0; i<rightSlots; i++) {
-      const mi = Math.pow(2,3-r)*1 + i;
-      setupBracketClick(r, mi);
+  // Écouteurs de clics et changements à gauche
+  for(let r=0;r<4;r++){
+    const slots = 8/Math.pow(2,r);
+    for(let i=0;i<slots;i++){
+      const mi = i;
+      const k1=`r${r}m${mi}t1`, k2=`r${r}m${mi}t2`;
+      const t1=D.bracket[k1]||(r===0?`Éq.${mi*2+1}`:'?');
+      const t2=D.bracket[k2]||(r===0?`Éq.${mi*2+2}`:'?');
+      if(r===0){
+        document.getElementById(`inp-bL-${mi}-1`).onchange = function() { D.bracket[k1]=this.value; save(); };
+        document.getElementById(`inp-bL-${mi}-2`).onchange = function() { D.bracket[k2]=this.value; save(); };
+        document.getElementById(`btn-bL-${mi}-1`).onclick = function() { pickW(0, mi, D.bracket[k1]||`Éq.${mi*2+1}`, D.bracket[k2]||`Éq.${mi*2+2}`, 1); };
+        document.getElementById(`btn-bL-${mi}-2`).onclick = function() { pickW(0, mi, D.bracket[k1]||`Éq.${mi*2+1}`, D.bracket[k2]||`Éq.${mi*2+2}`, 2); };
+      } else {
+        document.getElementById(`b-click-${r}-${mi}-1`).onclick = function() { pickW(r, mi, t1, t2, 1); };
+        document.getElementById(`b-click-${r}-${mi}-2`).onclick = function() { pickW(r, mi, t1, t2, 2); };
+      }
     }
   }
-  setupBracketClick(4, 0);
+
+  // Écouteurs de clics et changements à droite
+  for(let r=0;r<4;r++){
+    const slots = 8/Math.pow(2,3-r);
+    for(let i=0;i<slots;i++){
+      const mi = (r === 0) ? (8 + i) : (Math.pow(2, 3-r)*2 + i);
+      const k1=`r${r}m${mi}t1`, k2=`r${r}m${mi}t2`;
+      const t1=D.bracket[k1]||(r===0?`Éq.${mi*2+1}`:'?');
+      const t2=D.bracket[k2]||(r===0?`Éq.${mi*2+2}`:'?');
+      if(r===0){
+        document.getElementById(`inp-bR-${mi}-1`).onchange = function() { D.bracket[k1]=this.value; save(); };
+        document.getElementById(`inp-bR-${mi}-2`).onchange = function() { D.bracket[k2]=this.value; save(); };
+        document.getElementById(`btn-bR-${mi}-1`).onclick = function() { pickW(0, mi, D.bracket[k1]||`Éq.${mi*2+1}`, D.bracket[k2]||`Éq.${mi*2+2}`, 1); };
+        document.getElementById(`btn-bR-${mi}-2`).onclick = function() { pickW(0, mi, D.bracket[k1]||`Éq.${mi*2+1}`, D.bracket[k2]||`Éq.${mi*2+2}`, 2); };
+      } else {
+        const el1 = document.getElementById(`b-click-${r}-${mi}-1`);
+        const el2 = document.getElementById(`b-click-${r}-${mi}-2`);
+        if(el1) el1.onclick = function() { pickW(r, mi, t1, t2, 1); };
+        if(el2) el2.onclick = function() { pickW(r, mi, t1, t2, 2); };
+      }
+    }
+  }
+
+  document.getElementById('b-champ-box').onclick = function() {
+    const finalw = D.bracket['r4m0t1'] || '?';
+    if(finalw !== '?') {
+      D.bracket['r5m0t1'] = D.bracket['r5m0t1'] === finalw ? '?' : finalw;
+      save(); renderBracket();
+    }
+  };
 }
 
-function setupBracketClick(ri, mi) {
-  const e1 = document.getElementById(`b-click-${ri}-${mi}-1`);
-  const e2 = document.getElementById(`b-click-${ri}-${mi}-2`);
-  if(e1) e1.onclick = function() { pickW(ri, mi, e1.textContent, e2 ? e2.textContent : '?', 1); };
-  if(e2) e2.onclick = function() { pickW(ri, mi, e1 ? e1.textContent : '?', e2.textContent, 2); };
-}
-
-function pickW(ri, mi, t1, t2, tn) {
+window.pickW = function(ri, mi, t1, t2, tn) {
   const w = tn === 1 ? t1 : t2;
   const nk = `r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`;
-  
-  // Si on reclique sur l'équipe déjà sélectionnée, on vide la case du tour suivant
-  if (D.bracket[nk] === w) {
-    D.bracket[nk] = '?';
-  } else {
-    D.bracket[nk] = w;
-  }
-  
-  save();
-  renderBracket();
+  if (D.bracket[nk] === w) { D.bracket[nk] = '?'; } else { D.bracket[nk] = w; }
+  save(); renderBracket();
 }
 
 function renderPronos(){
@@ -488,7 +512,7 @@ function renderPronos(){
   const pronoMatchs = D.matchsList.filter(m => m.isProno);
   
   el.innerHTML=`<div style="margin-bottom:16px">
-    <div class="section-title">Classement</div>
+    <div class="section-title">Classement Pronos</div>
     <div class="leaderboard">${lb.map((p,i)=>{
       const pi=POTES.indexOf(p.name);const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
       return`<div class="lb-row${i===0?' lb-winner':''}">
@@ -498,7 +522,7 @@ function renderPronos(){
         <span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">${p.pts}</span>
       </div>`;}).join('')}</div>
   </div>
-  <div class="section-title" style="margin-top:1.5rem">Pronos par match (Cochés dans l'onglet Matchs)</div>
+  <div class="section-title" style="margin-top:1.5rem">Pronos par match (Gérés dynamiquement)</div>
   ${pronoMatchs.map(m=>{
     const s1 = D.scores[m.id+'a'] || '';
     const s2 = D.scores[m.id+'b'] || '';
@@ -507,23 +531,36 @@ function renderPronos(){
       <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.t1} vs ${m.t2}</span><span>${m.day} · Gr. ${m.g}</span></div>
       <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
         <div style="font-size:11px;color:var(--color-text-secondary)">Score Réel : <b>${s1 !== '' ? s1 + ' - ' + s2 : 'Pas encore joué'}</b></div>
-        <input class="inp-sm" placeholder="Top buteur du match..." value="${topButeur}" oninput="if(!D.actual['${m.id}'])D.actual['${m.id}']={};D.actual['${m.id}'].top=this.value;save();" style="width:100%;margin-top:5px;height:24px;font-size:11px">
+        <input class="inp-sm" placeholder="Top buteur du match..." value="${topButeur}" id="act-top-${m.id}" style="width:100%;margin-top:5px;height:24px;font-size:11px">
       </div>
       <div>${POTES.map((pote)=>{
         const bet=D.pronos[m.id+pote]||{s1:'',s2:'',top:''};
         const pts=calcPts(m.id,pote);
         return`<div class="prog-bet-row">
           <span style="min-width:65px;color:var(--color-text-secondary)">${pote}</span>
-          <input class="score-in" type="number" placeholder="?" value="${bet.s1}" oninput="setBet('${m.id}','${pote}','s1',this.value)" style="width:28px;height:24px;font-size:12px">
+          <input class="score-in" type="number" placeholder="?" value="${bet.s1}" id="bet-s1-${m.id}-${pote}" style="width:28px;height:24px;font-size:12px">
           <span style="color:var(--color-text-tertiary)">–</span>
-          <input class="score-in" type="number" placeholder="?" value="${bet.s2}" oninput="setBet('${m.id}','${pote}','s2',this.value)" style="width:28px;height:24px;font-size:12px">
-          <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" oninput="setBet('${m.id}','${pote}','top',this.value)" style="width:90px;height:24px;font-size:12px">
+          <input class="score-in" type="number" placeholder="?" value="${bet.s2}" id="bet-s2-${m.id}-${pote}" style="width:28px;height:24px;font-size:12px">
+          <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" id="bet-top-${m.id}-${pote}" style="width:90px;height:24px;font-size:12px">
           ${pts>0?`<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
         </div>`;}).join('')}</div>
     </div>`;}).join('')}`;
+
+  pronoMatchs.forEach(m => {
+    document.getElementById(`act-top-${m.id}`).oninput = function() { if(!D.actual[m.id])D.actual[m.id]={}; D.actual[m.id].top=this.value; save(); };
+    POTES.forEach(pote => {
+      document.getElementById(`bet-s1-${m.id}-${pote}`).oninput = function() { setBet(m.id, pote, 's1', this.value); };
+      document.getElementById(`bet-s2-${m.id}-${pote}`).oninput = function() { setBet(m.id, pote, 's2', this.value); };
+      document.getElementById(`bet-top-${m.id}-${pote}`).oninput = function() { setBet(m.id, pote, 'top', this.value); };
+    });
+  });
 }
 
-// Mettre à jour aussi la fonction calcPts pour s'aligner sur les nouveaux IDs de scores :
+function setBet(mid,pote,key,val){
+  if(!D.pronos[mid+pote]) D.pronos[mid+pote]={s1:'',s2:'',top:''};
+  D.pronos[mid+pote][key]=val; save();
+}
+
 function calcPts(mid,pote){
   const bet=D.pronos[mid+pote];
   const as1=D.scores[mid+'a']; const as2=D.scores[mid+'b'];
@@ -533,182 +570,134 @@ function calcPts(mid,pote){
   let pts=0; const res=(a,b)=>a>b?1:a<b?-1:0;
   if(res(bs1,bs2)===res(nas1,nas2))pts=1;
   if(bs1===nas1&&bs2===nas2)pts=2;
-  if(pts>=1&&bet.top&&D.actual[mid]?.top&&bet.top.trim().toLowerCase()===D.actual[mid].top.trim().toLowerCase())pts=3;
+  if(pts^^0 && bet.top && D.actual[mid]?.top && bet.top.trim().toLowerCase()===D.actual[mid].top.trim().toLowerCase())pts=3;
   return pts;
 }
 
-// Et modifier calcLB pour chercher dans D.matchsList :
 function calcLB(){
   return POTES.map(p=>({name:p,pts:D.matchsList.filter(m=>m.isProno).reduce((s,m)=>s+calcPts(m.id,p),0)})).sort((a,b)=>b.pts-a.pts);
 }
 
-  PRONO_MATCHES.forEach(m=>{
-    document.getElementById(`act-${m.id}-s1`).oninput = function() { setActual(m.id, 's1', this.value); };
-    document.getElementById(`act-${m.id}-s2`).oninput = function() { setActual(m.id, 's2', this.value); };
-    document.getElementById(`act-${m.id}-top`).oninput = function() { setActual(m.id, 'top', this.value); };
-    POTES.forEach(pote=>{
-      document.getElementById(`bet-${m.id}-${pote}-s1`).oninput = function() { setBet(m.id, pote, 's1', this.value); };
-      document.getElementById(`bet-${m.id}-${pote}-s2`).oninput = function() { setBet(m.id, pote, 's2', this.value); };
-      document.getElementById(`bet-${m.id}-${pote}-top`).oninput = function() { setBet(m.id, pote, 'top', this.value); };
-    });
-  });
-}
-
-function setActual(mid,f,v){if(!D.actual[mid])D.actual[mid]={};D.actual[mid][f]=v;save();renderPronos()}
-function setBet(mid,p,f,v){const k=mid+p;if(!D.pronos[k])D.pronos[k]={};D.pronos[k][f]=v;save();renderPronos()}
-function calcPts(mid,pote){
-  const bet=D.pronos[mid+pote];const actual=D.actual[mid];
-  if(!bet||!actual||actual.s1===''||actual.s2==='')return 0;
-  const bs1=parseInt(bet.s1),bs2=parseInt(bet.s2),as1=parseInt(actual.s1),as2=parseInt(actual.s2);
-  if(isNaN(bs1)||isNaN(bs2)||isNaN(as1)||isNaN(as2))return 0;
-  let pts=0;const res=(a,b)=>a>b?1:a<b?-1:0;
-  if(res(bs1,bs2)===res(as1,as2))pts=1;
-  if(bs1===as1&&bs2===as2)pts=2;
-  if(pts>=1&&bet.top&&actual.top&&bet.top.trim().toLowerCase()===actual.top.trim().toLowerCase())pts=3;
-  return pts;
-}
-function calcLB(){
-  return POTES.map(p=>({name:p,pts:PRONO_MATCHES.reduce((s,m)=>s+calcPts(m.id,p),0)})).sort((a,b)=>b.pts-a.pts);
-}
-
-${D.teamStats.map((t,i)=>`<div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.7fr 1.4fr;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+function renderStats(){
+  const el=document.getElementById('stats');
+  const tM=D.matchsList.length;
+  let tG=0;
+  Object.keys(D.scores).forEach(k=>{ if(D.scores[k]!=='') tG+=parseInt(D.scores[k])||0; });
+  
+  el.innerHTML=`<div class="stat-grid">
+    <div class="stat-card"><div class="stat-lbl">Matchs Ajoutés</div><div class="stat-val">${tM}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Buts Inscrits</div><div class="stat-val">${tG}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Moyenne Buts / Match</div><div class="stat-val">${tM>0?(tG/tM).toFixed(2):'0.00'}</div></div>
+  </div>
+  <div class="card" style="padding:12px 14px;overflow-x:auto">
+    <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.7fr 1.4fr;gap:4px;font-size:10px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;border-bottom:0.5px solid var(--color-border-secondary);padding-bottom:6px;margin-bottom:6px;min-width:400px">
+      <span>Équipe</span><span style="text-align:center">J</span><span style="text-align:center">Buts</span><span style="text-align:center">Moy</span><span style="text-align:center">CS</span><span>Meilleur Joueur (MVP)</span>
+    </div>
+    ${D.teamStats.map((t,i)=>`<div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.7fr 1.4fr;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);min-width:400px">
       <span style="font-size:12px;display:flex;align-items:center;gap:4px"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
       <span style="text-align:center;font-size:12px">${t.played||0}</span>
       <span style="text-align:center;font-size:12px;font-weight:500">${t.goals||0}</span>
       <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${(t.played||0)>0?(t.goals/t.played).toFixed(1):'—'}</span>
       <span style="text-align:center;font-size:12px">${t.cs||0}</span>
-      <span><input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%"></span>
+      <span><input class="inp-sm" value="${t.mvp||''}" id="st-mvp-${i}" style="height:24px;font-size:12px;width:100%"></span>
     </div>`).join('')}
+  </div>`;
 
-function renderEquipes(){
-  const el=document.getElementById('equipes');
-  const posColors={G:'#E6F1FB',D:'#EAF3DE',M:'#FAEEDA',A:'#FAECE7'};
-  const posTxt={G:'#0C447C',D:'#27500A',M:'#633806',A:'#712B13'};
-  el.innerHTML=`<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Clique sur une équipe pour voir l'effectif et l'entraîneur.</p>
-  <div class="teams-grid">${TEAMS_DATA.map((t,ti)=>`<div class="team-card">
-    <div class="team-card-hdr" id="t-hdr-${ti}">
-      <span style="font-size:20px">${t.flag}</span>
-      <div style="flex:1">
-        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">${t.name}</div>
-        <div style="font-size:11px;color:var(--color-text-secondary)">Gr. ${t.group} · ${t.coach}</div>
-      </div>
-      <i class="ti ti-chevron-down" id="chev${ti}" style="font-size:14px;color:var(--color-text-tertiary);transition:transform 0.2s" aria-hidden="true"></i>
-    </div>
-    <div class="team-card-body" id="tbody${ti}">
-      <div style="font-size:11px;color:var(--color-text-secondary);padding:6px 0 8px;display:flex;align-items:center;gap:6px">
-        <i class="ti ti-user" style="font-size:14px" aria-hidden="true"></i>
-        <span style="font-weight:500;color:var(--color-text-primary)">${t.coach}</span>
-        <span>· Entraîneur</span>
-      </div>
-      ${t.players.map(p=>`<div class="player-row">
-        <span class="player-num">${p.n}</span>
-        <span style="flex:1;color:var(--color-text-primary)">${p.name}</span>
-        <span class="player-pos" style="background:${posColors[p.pos]||'#F1EFE8'};color:${posTxt[p.pos]||'#2C2C2A'}">${p.pos}</span>
-      </div>`).join('')}
-    </div>
-  </div>`).join('')}`;
-
-  TEAMS_DATA.forEach((_,ti)=>{
-    document.getElementById(`t-hdr-${ti}`).onclick = function() { toggleTeam(ti); };
+  D.teamStats.map((_,i)=>{
+    document.getElementById(`st-mvp-${i}`).oninput = function() { D.teamStats[i].mvp = this.value; save(); };
   });
 }
-function toggleTeam(i){
-  const body=document.getElementById('tbody'+i);
-  const chev=document.getElementById('chev'+i);
-  const open=body.classList.toggle('open');
-  chev.style.transform=open?'rotate(180deg)':'rotate(0deg)';
+
+function renderTeams(){
+  const el=document.getElementById('equipes');
+  el.innerHTML=`<div class="teams-grid">${TEAMS_DATA.map((t,idx)=>`<div class="team-card">
+    <div class="team-card-hdr" id="t-hdr-${idx}">
+      <span style="font-size:18px">${t.flag}</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">${t.name}</div>
+        <div style="font-size:11px;color:var(--color-text-secondary)">Groupe ${t.group} · Sél: ${t.coach}</div>
+      </div>
+      <span style="font-size:12px;color:var(--color-text-tertiary)">▼</span>
+    </div>
+    <div class="team-card-body" id="t-body-${idx}">
+      ${t.players.map(p=>`<div class="player-row">
+        <span class="player-num">#${p.n}</span>
+        <span class="player-pos">${p.pos}</span>
+        <span style="color:var(--color-text-primary);font-size:12px">${p.name}</span>
+      </div>`).join('')}
+    </div>
+  </div>`).join('')}</div>`;
+
+  TEAMS_DATA.forEach((_,idx)=>{
+    document.getElementById(`t-hdr-${idx}`).onclick = function() {
+      const b = document.getElementById(`t-body-${idx}`);
+      if(b) b.classList.toggle('open');
+    };
+  });
 }
 
 function renderRdv(){
   const el=document.getElementById('rdv');
-  el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-    <p style="font-size:12px;color:var(--color-text-secondary)">Organise vos soirées matchs. Clique sur un avatar pour confirmer la présence.</p>
-    <button class="btn btn-primary" id="rdv-add-btn"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button>
-  </div>
-  ${D.rdvList.map((r,ri)=>{
-    const pres=r.presents||{};
-    const count=Object.values(pres).filter(v=>v===1).length;
-    return`<div class="rdv-card">
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
-        <div class="rdv-date-box">
-          <div class="rdv-date-d"><input type="text" value="${r.date||''}" id="rd-date-${ri}" placeholder="?" style="width:36px;background:none;border:none;text-align:center;font-size:16px;font-weight:500;color:var(--color-text-info);outline:none"></div>
-          <div class="rdv-date-m"><input type="text" value="${r.mois||''}" id="rd-mois-${ri}" placeholder="MOI" style="width:40px;background:none;border:none;text-align:center;font-size:10px;color:var(--color-text-info);outline:none;text-transform:uppercase"></div>
-        </div>
-        <div style="flex:1">
-          <input class="inp-sm" value="${r.match||''}" id="rd-match-${ri}" placeholder="Quel match ?" style="width:100%;margin-bottom:5px">
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <input class="inp-sm" value="${r.heure||''}" id="rd-heure-${ri}" placeholder="Heure" style="width:70px">
-            <input class="inp-sm" value="${r.where||''}" id="rd-where-${ri}" placeholder="Où ? (bar, chez...)" style="flex:1">
-          </div>
-        </div>
-        <button class="btn" id="rd-del-${ri}" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)"><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <p style="font-size:12px;color:var(--color-text-secondary)">Planifie vos soirées foot. Cochez votre avatar pour confirmer votre présence.</p>
+    <button class="btn btn-primary" id="btn-add-rdv">+ Organiser un RDV</button>
+  </div>`+
+  D.rdvList.map((r,ri)=>{
+    let count=0; POTES.forEach(p=>{ if(r.presents&&r.presents[p]===1)count++; });
+    return`<div class="rdv-card" style="display:flex;gap:12px">
+      <div class="rdv-date-box" style="align-self:flex-start">
+        <input type="text" placeholder="18" value="${r.date}" id="rdv-dt-${ri}" style="width:100%;text-align:center;font-size:18px;font-weight:500;background:none;border:none;color:var(--color-text-info);outline:none"><br>
+        <input type="text" placeholder="JUIN" value="${r.mois}" id="rdv-ms-${ri}" style="width:100%;text-align:center;font-size:10px;background:none;border:none;color:var(--color-text-info);outline:none;text-transform:uppercase">
       </div>
-      <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.map((p,pi)=>{
-          const state=pres[p]||0;
-          return`<div id="rd-pote-${ri}-${p}" title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:pointer;background:${AV_BG[pi]};color:${AV_TX[pi]};opacity:${state?'1':'0.35'};border:${state?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <input type="text" placeholder="Affiche du match..." value="${r.match}" id="rdv-mt-${ri}" style="flex:1;font-size:14px;font-weight:500;background:none;border:none;color:var(--color-text-primary);outline:none">
+          <button id="rdv-del-${ri}" style="background:none;border:none;color:var(--color-text-danger);cursor:pointer">🗑️</button>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px;color:var(--color-text-secondary)">
+          <span>🕒 <input type="text" placeholder="21:00" value="${r.heure}" id="rdv-hr-${ri}" style="width:40px;background:none;border:none;color:inherit;outline:none"></span>
+          <span>📍 <input type="text" placeholder="Chez Simon" value="${r.where}" id="rdv-wh-${ri}" style="width:100px;background:none;border:none;color:inherit;outline:none"></span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:4px">${POTES.map(p=>{
+          const state=(r.presents&&r.presents[p]===1); const pi=POTES.indexOf(p);
+          return`<div id="rdv-pote-${ri}-${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:pointer;background:${AV_BG[pi]};color:${AV_TX[pi]};opacity:${state?'1':'0.35'};border:${state?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
         }).join('')}</div>
         <span style="font-size:12px;color:var(--color-text-secondary)">${count>0?count+' présent'+(count>1?'s':''):'Personne encore'}</span>
       </div>
-    </div>`;}).join('')}`;
+    </div>`;}).join('');
 
-  document.getElementById('rdv-add-btn').onclick = function() { addRdv(); };
-  
-  D.rdvList.forEach((r,ri)=>{
-    document.getElementById(`rd-date-${ri}`).oninput = function() { D.rdvList[ri].date=this.value; save(); };
-    document.getElementById(`rd-mois-${ri}`).oninput = function() { D.rdvList[ri].mois=this.value; save(); };
-    document.getElementById(`rd-match-${ri}`).oninput = function() { D.rdvList[ri].match=this.value; save(); };
-    document.getElementById(`rd-heure-${ri}`).oninput = function() { D.rdvList[ri].heure=this.value; save(); };
-    document.getElementById(`rd-where-${ri}`).oninput = function() { D.rdvList[ri].where=this.value; save(); };
-    document.getElementById(`rd-del-${ri}`).onclick = function() { removeRdv(ri); };
-    POTES.forEach(p=>{
-      document.getElementById(`rd-pote-${ri}-${p}`).onclick = function() { toggleRdv(ri, p); };
+  document.getElementById('btn-add-rdv').onclick = addRdv;
+  D.rdvList.forEach((r, ri) => {
+    document.getElementById(`rdv-dt-${ri}`).onchange = function() { D.rdvList[ri].date = this.value; save(); };
+    document.getElementById(`rdv-ms-${ri}`).onchange = function() { D.rdvList[ri].mois = this.value; save(); };
+    document.getElementById(`rdv-mt-${ri}`).onchange = function() { D.rdvList[ri].match = this.value; save(); };
+    document.getElementById(`rdv-hr-${ri}`).onchange = function() { D.rdvList[ri].heure = this.value; save(); };
+    document.getElementById(`rdv-wh-${ri}`).onchange = function() { D.rdvList[ri].where = this.value; save(); };
+    document.getElementById(`rdv-del-${ri}`).onclick = function() { removeRdv(ri); };
+    POTES.forEach(p => {
+      document.getElementById(`rdv-pote-${ri}-${p}`).onclick = function() { toggleRdv(ri, p); };
     });
   });
 }
+
 function toggleRdv(ri,p){if(!D.rdvList[ri].presents)D.rdvList[ri].presents={};D.rdvList[ri].presents[p]=(D.rdvList[ri].presents[p]||0)===1?0:1;save();renderRdv()}
 function addRdv(){D.rdvList.push({id:'rdv_'+Date.now(),date:'',mois:'',match:'',heure:'',where:'',presents:{}});save();renderRdv()}
 function removeRdv(ri){if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}}else{D.rdvList.splice(ri,1)}save();renderRdv()}
 
-function showTab(id){
-  currentTabId = id;
-  const tabs=['groupes','matchs','bracket','pronos','stats','equipes','rdv'];
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===id));
-  document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('active',s.id===id));
-  const renders={groupes:renderGroups,matchs:renderMatchs,bracket:renderBracket,pronos:renderPronos,stats:renderStats,equipes:renderEquipes,rdv:renderRdv};
-  if(renders[id])renders[id]();
-}
-function updateStatsAutomatique() {
-  // Réinitialiser les compteurs temporairement
+window.updateStatsAutomatique = function() {
   D.teamStats.forEach(t => { t.goals = 0; t.played = 0; t.cs = 0; });
-
   D.matchsList.forEach(m => {
-    const s1 = D.scores[m.id+'a'];
-    const s2 = D.scores[m.id+'b'];
+    const s1 = D.scores[m.id+'a']; const s2 = D.scores[m.id+'b'];
     if (s1 !== undefined && s2 !== undefined && s1 !== '' && s2 !== '') {
       const g1 = parseInt(s1); const g2 = parseInt(s2);
-      
-      // Trouver l'équipe 1 et l'équipe 2 dans le tableau des stats (en nettoyant les émojis)
-      const t1Data = D.teamStats.find(t => m.t1.includes(t.name));
-      const t2Data = D.teamStats.find(t => m.t2.includes(t.name));
-
-      if (t1Data) {
-        t1Data.played += 1;
-        t1Data.goals += g1;
-        if (g2 === 0) t1Data.cs += 1; // Clean Sheet
-      }
-      if (t2Data) {
-        t2Data.played += 1;
-        t2Data.goals += g2;
-        if (g1 === 0) t2Data.cs += 1;
-      }
+      const t1Data = D.teamStats.find(t => m.t1.toLowerCase().includes(t.name.toLowerCase()));
+      const t2Data = D.teamStats.find(t => m.t2.toLowerCase().includes(t.name.toLowerCase()));
+      if (t1Data) { t1Data.played += 1; t1Data.goals += g1; if (g2 === 0) t1Data.cs += 1; }
+      if (t2Data) { t2Data.played += 1; t2Data.goals += g2; if (g1 === 0) t2Data.cs += 1; }
     }
   });
   save();
 }
-// Rendre la fonction accessible aux clics sur les boutons d'onglets (HTML classique)
-window.showTab = showTab;
 
-// Premier rendu au chargement
 showTab('groupes');
 </script>
