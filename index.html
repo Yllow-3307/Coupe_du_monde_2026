@@ -350,12 +350,12 @@ function addMatch(){
 function renderBracket(){
   const el = document.getElementById('bracket');
 
-  // Fonction unique pour générer une colonne (gauche ou droite)
+  // Fonction unique et propre pour générer une colonne de matchs
   function bCol(slots, ri, offset){
     const spacer = Math.pow(2, ri) * 6;
     let html = '';
     for(let i = 0; i < slots; i++){
-      const mi = offset + i; // L'offset permet de basculer sur les index de droite
+      const mi = offset + i; // L'offset permet de basculer sur la numérotation de droite
       const k1 = `r${ri}m${mi}t1`, k2 = `r${ri}m${mi}t2`;
       const t1 = D.bracket[k1] || (ri === 0 ? `Éq.${mi*2+1}` : '?');
       const t2 = D.bracket[k2] || (ri === 0 ? `Éq.${mi*2+2}` : '?');
@@ -372,7 +372,7 @@ function renderBracket(){
 
   const colLabels = ["32es", "16es", "Quarts", "Demies"];
 
-  // 1. Arbre de GAUCHE (Matchs 0 à 7 au rang 0)
+  // 1. Arbre de GAUCHE (Progression normale : 32es -> Demies)
   let leftCols = '';
   for(let r = 0; r < 4; r++){
     const slots = 8 / Math.pow(2, r);
@@ -382,18 +382,19 @@ function renderBracket(){
     </div>`;
   }
 
-  // 2. Arbre de DROITE (Matchs 8 à 15 au rang 0, Matchs 4 à 7 au rang 1, etc.)
+  // 2. Arbre de DROITE (Progression inversée visuellement : Demies -> 32es)
   let rightCols = '';
   for(let r = 3; r >= 0; r--){
     const slots = 8 / Math.pow(2, r);
-    const offset = 8 / Math.pow(2, r); // Décale les index pour la partie droite
+    // L'offset décale les index pour la partie droite (ex: matchs 8 à 15 en r0)
+    const offset = 8 / Math.pow(2, r); 
     rightCols += `<div class="b-col" style="min-width:120px">
       <div class="b-col-title">${colLabels[r]}</div>
       <div style="display:flex;flex-direction:column">${bCol(slots, r, offset)}</div>
     </div>`;
   }
 
-  // 3. FINALE (Au centre, Match r4m0)
+  // 3. FINALE (Au centre)
   const fk1 = 'r4m0t1', fk2 = 'r4m0t2';
   const ft1 = D.bracket[fk1] || '?'; 
   const ft2 = D.bracket[fk2] || '?';
@@ -420,26 +421,6 @@ function renderBracket(){
     ${champion ? `<div style="text-align:center;margin-top:16px"><div style="font-size:24px;margin-bottom:6px">🏆</div><div style="display:inline-block;padding:8px 20px;background:var(--color-background-warning);border:0.5px solid var(--color-border-warning);border-radius:var(--border-radius-lg);font-weight:500;color:var(--color-text-primary);font-size:14px">${champion}</div></div>` : ''}
   </div>`;
 }
-
-  // Écouteurs de clics et changements à gauche
-  for(let r=0;r<4;r++){
-    const slots = 8/Math.pow(2,r);
-    for(let i=0;i<slots;i++){
-      const mi = i;
-      const k1=`r${r}m${mi}t1`, k2=`r${r}m${mi}t2`;
-      const t1=D.bracket[k1]||(r===0?`Éq.${mi*2+1}`:'?');
-      const t2=D.bracket[k2]||(r===0?`Éq.${mi*2+2}`:'?');
-      if(r===0){
-        document.getElementById(`inp-bL-${mi}-1`).onchange = function() { D.bracket[k1]=this.value; save(); };
-        document.getElementById(`inp-bL-${mi}-2`).onchange = function() { D.bracket[k2]=this.value; save(); };
-        document.getElementById(`btn-bL-${mi}-1`).onclick = function() { pickW(0, mi, D.bracket[k1]||`Éq.${mi*2+1}`, D.bracket[k2]||`Éq.${mi*2+2}`, 1); };
-        document.getElementById(`btn-bL-${mi}-2`).onclick = function() { pickW(0, mi, D.bracket[k1]||`Éq.${mi*2+1}`, D.bracket[k2]||`Éq.${mi*2+2}`, 2); };
-      } else {
-        document.getElementById(`b-click-${r}-${mi}-1`).onclick = function() { pickW(r, mi, t1, t2, 1); };
-        document.getElementById(`b-click-${r}-${mi}-2`).onclick = function() { pickW(r, mi, t1, t2, 2); };
-      }
-    }
-  }
 
   // Écouteurs de clics et changements à droite
   for(let r=0;r<4;r++){
