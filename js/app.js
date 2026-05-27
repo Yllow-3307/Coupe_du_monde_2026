@@ -10,7 +10,7 @@ const GROUPS = {
   D:{teams:[["🇦🇷","Argentine"],["🇵🇪","Pérou"],["🇨🇮","Côte d'Ivoire"],["🇸🇮","Slovénie"]]},
   E:{teams:[["🇧🇷","Brésil"],["🇯🇵","Japon"],["🇨🇴","Colombie"],["🇲🇦","Maroc"]]},
   F:{teams:[["🇪🇸","Espagne"],["🇩🇰","Danemark"],["🇷🇸","Serbie"],["🇹🇳","Tunisie"]]},
-  G:{teams:[["GB","Angleterre"],["🇸🇰","Slovaquie"],["🇺🇾","Uruguay"],["🇮🇷","Iran"]]},
+  G:{teams:[["GB",""],["🇸🇰","Slovaquie"],["🇺🇾","Uruguay"],["🇮🇷","Iran"]]},
   H:{teams:[["🇵🇹","Portugal"],["🇰🇪","Kenya"],["🇭🇷","Croatie"],["🇺🇿","Ouzbékistan"]]},
   I:{teams:[["🇫🇷","France"],["🇸🇳","Sénégal"],["🇳🇴","Norvège"],["🇮🇶","Irak"]]},
   J:{teams:[["🇩🇪","Allemagne"],["🇦🇺","Australie"],["🇺🇦","Ukraine"],["🇯🇴","Jordanie"]]},
@@ -68,11 +68,11 @@ const PRONO_MATCHES = [
   {id:"p36",label:"🇩🇰 Danemark vs 🇷🇸 Serbie",date:"26 Juin",group:"Gr. F"},
 
   // --- GROUPE G ---
-  {id:"p37",label:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre vs 🇸🇰 Slovaquie",date:"15 Juin",group:"Gr. G"},
+  {id:"p37",label:"  vs 🇸🇰 Slovaquie",date:"15 Juin",group:"Gr. G"},
   {id:"p38",label:"🇺🇾 Uruguay vs 🇮🇷 Iran",date:"16 Juin",group:"Gr. G"},
-  {id:"p39",label:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre vs 🇺🇾 Uruguay",date:"21 Juin",group:"Gr. G"},
+  {id:"p39",label:" GB  vs 🇺🇾 Uruguay",date:"21 Juin",group:"Gr. G"},
   {id:"p40",label:"🇮🇷 Iran vs 🇸🇰 Slovaquie",date:"21 Juin",group:"Gr. G"},
-  {id:"p41",label:"🇮🇷 Iran vs 🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre",date:"26 Juin",group:"Gr. G"},
+  {id:"p41",label:"🇮🇷 Iran vs GB ",date:"26 Juin",group:"Gr. G"},
   {id:"p42",label:"🇸🇰 Slovaquie vs 🇺🇾 Uruguay",date:"26 Juin",group:"Gr. G"},
 
   // --- GROUPE H ---
@@ -179,11 +179,11 @@ const MATCHS_DATA = [
   {day:"26 Juin", stage:"Phase de Groupes", g:"F", t1:"🇩🇰 Danemark", t2:"🇷🇸 Serbie"},
 
   // --- GROUPE G ---
-  {day:"15 Juin", stage:"Phase de Groupes", g:"G", t1:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", t2:"🇸🇰 Slovaquie"},
+  {day:"15 Juin", stage:"Phase de Groupes", g:"G", t1:" ", t2:"🇸🇰 Slovaquie"},
   {day:"16 Juin", stage:"Phase de Groupes", g:"G", t1:"🇺🇾 Uruguay", t2:"🇮🇷 Iran"},
-  {day:"21 Juin", stage:"Phase de Groupes", g:"G", t1:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", t2:"🇺🇾 Uruguay"},
+  {day:"21 Juin", stage:"Phase de Groupes", g:"G", t1:" ", t2:"🇺🇾 Uruguay"},
   {day:"21 Juin", stage:"Phase de Groupes", g:"G", t1:"🇮🇷 Iran", t2:"🇸🇰 Slovaquie"},
-  {day:"26 Juin", stage:"Phase de Groupes", g:"G", t1:"🇮🇷 Iran", t2:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"G", t1:"🇮🇷 Iran", t2:" "},
   {day:"26 Juin", stage:"Phase de Groupes", g:"G", t1:"🇸🇰 Slovaquie", t2:"🇺🇾 Uruguay"},
 
   // --- GROUPE H ---
@@ -394,7 +394,7 @@ const TEAMS_DATA = [
   ]},
 
   // Groupe G
-  {flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",name:"Angleterre",group:"G",coach:"Gareth Southgate",players:[
+  {flag:"GB",name:"",group:"G",coach:"Gareth Southgate",players:[
     {n:1,pos:"G",name:"J. Pickford"},{n:23,pos:"G",name:"D. Ramsdale"},
     {n:2,pos:"D",name:"K. Walker"},{n:5,pos:"D",name:"J. Stones"},{n:6,pos:"D",name:"H. Maguire"},
     {n:4,pos:"M",name:"D. Rice"},{n:22,pos:"M",name:"J. Bellingham"},{n:8,pos:"M",name:"T. Alexander-Arnold"},
