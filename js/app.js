@@ -10,7 +10,7 @@ const GROUPS = {
   D:{teams:[["🇦🇷","Argentine"],["🇵🇪","Pérou"],["🇨🇮","Côte d'Ivoire"],["🇸🇮","Slovénie"]]},
   E:{teams:[["🇧🇷","Brésil"],["🇯🇵","Japon"],["🇨🇴","Colombie"],["🇲🇦","Maroc"]]},
   F:{teams:[["🇪🇸","Espagne"],["🇩🇰","Danemark"],["🇷🇸","Serbie"],["🇹🇳","Tunisie"]]},
-  G:{teams:[["🏴󠁧󠁢󠁥󠁮󠁧󠁿","Angleterre"],["🇸🇰","Slovaquie"],["🇺🇾","Uruguay"],["🇮🇷","Iran"]]},
+  G:{teams:[["GB","Angleterre"],["🇸🇰","Slovaquie"],["🇺🇾","Uruguay"],["🇮🇷","Iran"]]},
   H:{teams:[["🇵🇹","Portugal"],["🇰🇪","Kenya"],["🇭🇷","Croatie"],["🇺🇿","Ouzbékistan"]]},
   I:{teams:[["🇫🇷","France"],["🇸🇳","Sénégal"],["🇳🇴","Norvège"],["🇮🇶","Irak"]]},
   J:{teams:[["🇩🇪","Allemagne"],["🇦🇺","Australie"],["🇺🇦","Ukraine"],["🇯🇴","Jordanie"]]},
