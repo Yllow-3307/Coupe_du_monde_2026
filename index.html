@@ -413,10 +413,13 @@ function renderGroups(){
     <button class="btn" onclick="saveG()"><i class="ti ti-device-floppy" aria-hidden="true"></i> Sauvegarder</button>
   </div>
   <div class="grp-grid">${Object.entries(GROUPS).map(([g,d])=>{
-    const sorted=[...d.teams].map((t,i)=>({t,i,p:getPts(g,i)})).sort((a,b)=>b.p-a.p);
+    const sorted = getGroupeClassement(g); // On appelle notre nouvelle fonction
+    // ------------------------
+
     return`<div class="grp-card"><div class="grp-title">Groupe ${g}</div>${sorted.map((item,rank)=>{
       const cls=rank<2?'team-row q1':rank===2?'team-row q3':'team-row qn';
-      return`<div class="${cls}"><span style="font-size:15px;width:22px">${item.t[0]}</span><span style="flex:1;color:var(--color-text-primary)">${item.t[1]}</span><span class="pts-cell" onclick="editPts(this,'${g}',${item.i})">${item.p}</span></div>`;
+      // On affiche les points calculés (item.pts)
+      return`<div class="${cls}"><span style="font-size:15px;width:22px">${item.flag}</span><span style="flex:1;color:var(--color-text-primary)">${item.nom}</span><span class="pts-cell">${item.pts}</span></div>`;
     }).join('')}</div>`;}).join('')}</div>`;
 }
 function saveG(){save();const b=document.querySelector('#groupes .btn');const n=document.createElement('span');n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';n.textContent='✓ Sauvegardé';b.after(n);setTimeout(()=>n.remove(),2000)}
