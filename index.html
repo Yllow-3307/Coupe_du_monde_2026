@@ -122,6 +122,9 @@
     .b-team { cursor: pointer; padding: 2px; border-bottom: 1px solid #eee; }
     .b-team:hover { background: #f0f0f0; }
 
+    .b-match { padding: 2px !important; font-size: 10px !important; }
+    .b-col { gap: 4px !important; }
+    
   </style>
 </head>
 <body>
@@ -477,7 +480,7 @@ function renderBracket() {
         ${renderCol('L', 'SF', 'Demies', 1)}
       </div>
 
-      <div class="b-col" style="justify-content:center; min-width:100px;">
+      <div class="b-col" style="justify-content:center; min-width:500px;">
         <div class="b-col-title">FINALE</div>
         <div class="b-match"><div class="b-team">Vainqueur A</div><div class="b-team">Vainqueur B</div></div>
       </div>
