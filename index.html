@@ -678,10 +678,6 @@ function showTab(id){
   const renders={groupes:renderGroups,matchs:renderMatchs,bracket:renderBracket,pronos:renderPronos,stats:renderStats,equipes:renderEquipes,rdv:renderRdv};
   if(renders[id])renders[id]();
 }
-
-// Rendre la fonction accessible aux clics sur les boutons d'onglets (HTML classique)
-window.showTab = showTab;
-
 function updateStatsAutomatique() {
   // Réinitialiser les compteurs temporairement
   D.teamStats.forEach(t => { t.goals = 0; t.played = 0; t.cs = 0; });
@@ -710,6 +706,8 @@ function updateStatsAutomatique() {
   });
   save();
 }
+// Rendre la fonction accessible aux clics sur les boutons d'onglets (HTML classique)
+window.showTab = showTab;
 
 // Premier rendu au chargement
 showTab('groupes');
