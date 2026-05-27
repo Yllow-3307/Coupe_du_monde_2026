@@ -490,11 +490,10 @@ function renderSide(side) {
   // Génère les colonnes pour un côté (32es -> Demies)
   // Cela crée une structure miroir
   return `
-    <div class="b-col"><div class="b-col-title">32es</div>${createMatches(side, '32')}</div>
-    <div class="b-col"><div class="b-col-title">16es</div>${createMatches(side, '16')}</div>
-    <div class="b-col"><div class="b-col-title">8es</div>${createMatches(side, '8')}</div>
-    <div class="b-col"><div class="b-col-title">Quarts</div>${createMatches(side, 'QF')}</div>
-    <div class="b-col"><div class="b-col-title">Demies</div>${createMatches(side, 'SF')}</div>
+    <div class="b-col"><div class="b-col-title">16es</div>${createMatches(side, 'SF')}</div>
+    <div class="b-col"><div class="b-col-title">8es</div>${createMatches(side, 'QF')}</div>
+    <div class="b-col"><div class="b-col-title">Quarts</div>${createMatches(side, '8es')}</div>
+    <div class="b-col"><div class="b-col-title">Demies</div>${createMatches(side, '16es')}</div>
   `;
 }
 
