@@ -1,14 +1,12 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang=\"fr\">
 <head>
-  <meta charset="UTF-8">
+  <meta charset=\"UTF-8\">
   <title>Tracker Coupe du Monde 2026</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-  <style>
+  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css\">\n  <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--color-background-secondary);color:var(--color-text-primary);padding:20px;max-width:1200px;margin:0 auto}
     
-    /* Variables de thèmes (compatibles interfaces sombres/claires standard) */
     :root {
       --color-background-primary: #ffffff;
       --color-background-secondary: #f8f9fa;
@@ -23,51 +21,64 @@
       --color-border-secondary: #dee2e6;
       --color-border-tertiary: #e9ecef;
       --border-radius-md: 6px;
-      --border-radius-lg: 12px;
+      --border-radius-lg: 8px;
     }
 
     .hdr{padding:1.5rem 0 1rem;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem;display:flex;align-items:center;gap:12px}
     .hdr h1{font-size:20px;font-weight:500;color:var(--color-text-primary)}
     .hdr p{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
+    
     .tabs{display:flex;gap:0;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);overflow-x:auto}
-    .tab{padding:8px 12px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap;transition:all 0.15s}
+    .tab{padding:8px 12px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
     .tab.active{color:var(--color-text-primary);font-weight:500;border-bottom-color:var(--color-text-primary)}
     .tab:hover:not(.active){color:var(--color-text-primary)}
+    
     .sec{display:none}.sec.active{display:block}
     .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:10px}
+    
     .btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:none;color:var(--color-text-secondary)}
     .btn:hover{background:var(--color-background-secondary)}
     .btn-primary{background:var(--color-background-info);color:var(--color-text-info);border-color:transparent}
+    
     .section-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:10px}
-    .grp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px}
+    .grp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
     .grp-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 12px}
     .grp-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px}
+    
     .team-row{display:flex;align-items:center;gap:6px;padding:4px 0 4px 5px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
     .team-row:last-child{border-bottom:none}
     .q1{border-left:3px solid #1D9E75}.q3{border-left:3px solid #EF9F27}.qn{border-left:3px solid transparent}
+    
     .pts-cell{min-width:22px;text-align:right;color:var(--color-text-secondary);font-size:12px;cursor:pointer;padding:1px 3px;border-radius:3px}
     .pts-cell:hover{background:var(--color-background-secondary)}
+    
     .score-in{width:28px;height:26px;text-align:center;font-size:13px;font-weight:500;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary)}
     .inp-sm{height:28px;font-size:13px;padding:0 8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary)}
+    
+    .filter-container{display:flex;gap:10px;margin-bottom:15px;background:var(--color-background-primary);padding:10px;border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);flex-wrap:wrap}
+    .select-sm{height:28px;font-size:12px;padding:0 8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);outline:none}
+
     .leaderboard{display:flex;flex-direction:column;gap:6px}
     .lb-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg)}
     .lb-winner{background:var(--color-background-warning);border-color:var(--color-border-warning)}
+    
     .prog-match{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:10px}
     .prog-match-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-secondary)}
     .prog-bet-row{display:flex;align-items:center;gap:8px;padding:6px 12px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
     .prog-bet-row:last-child{border-bottom:none}
+    
     .pts-chip{font-size:11px;padding:1px 6px;border-radius:8px;font-weight:500;margin-left:6px}
     .pts-0{background:var(--color-background-secondary);color:var(--color-text-tertiary)}
     .pts-1{background:#FAEEDA;color:#633806}
     .pts-2{background:#EAF3DE;color:#27500A}
     .pts-3{background:#E1F5EE;color:#085041}
+    
     .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
     .stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
     .stat-lbl{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
     .stat-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
     .stat-sub{font-size:11px;color:var(--color-text-secondary)}
-
-    /* BRACKET */
+    
     .bracket-wrap{overflow-x:auto;padding-bottom:12px}
     .bracket-tree{display:flex;align-items:center;gap:0;min-width:1100px}
     .b-col{display:flex;flex-direction:column;justify-content:space-around;padding:0 4px}
@@ -78,12 +89,7 @@
     .b-team:last-child{border-radius:0 0 6px 6px}
     .b-team:hover{background:var(--color-background-secondary)}
     .b-team.winner{color:var(--color-text-success);font-weight:500;background:var(--color-background-success)}
-    .b-connector{width:12px;align-self:stretch}
-    .b-center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:130px;padding:0 8px}
-    .b-trophy{font-size:32px;text-align:center;margin-bottom:6px}
-    .b-champion{font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:center;padding:8px 12px;background:var(--color-background-warning);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-warning)}
-
-    /* EQUIPES */
+    
     .teams-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
     .team-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
     .team-card-hdr{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer}
@@ -94,16 +100,17 @@
     .player-row:last-child{border-bottom:none}
     .player-num{min-width:20px;color:var(--color-text-tertiary);font-size:11px}
     .player-pos{font-size:10px;padding:1px 5px;border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
-
-    /* RDV */
+    
     .rdv-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:10px}
     .rdv-date-box{background:var(--color-background-info);border-radius:var(--border-radius-md);padding:6px 10px;text-align:center;min-width:52px}
     .rdv-date-d{font-size:18px;font-weight:500;color:var(--color-text-info)}
     .rdv-date-m{font-size:10px;color:var(--color-text-info)}
-    .match-stage-title{font-size:12px;font-weight:600;color:var(--color-text-primary);margin:14px 0 8px;text-transform:uppercase;letter-spacing:0.02em}
+    .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
   </style>
 </head>
 <body>
+
+<h2 class="sr-only">Tracker Coupe du Monde 2026 — groupes, bracket, pronos, stats équipes, fiches joueurs et RDV soirées</h2>
 
 <div class="hdr">
   <span style="font-size:28px">🏆</span>
@@ -159,13 +166,112 @@ const PRONO_MATCHES = [
   {id:"p5",label:"🏆 Vainqueur du tournoi",date:"19 juillet",group:"Finale"},
 ];
 
-// Matchs réels triés par étape / poule
+// Base complète de données de tous les matchs
 const MATCHS_DATA = [
-  {stage:"Groupe A",day:"11 juin",g:"A",t1:"🇲🇽 Mexique",t2:"🇿🇦 Afrique du Sud",info:"Stade Azteca, Mexico"},
-  {stage:"Groupe D & E",day:"Phase groupes",g:"D",t1:"🇦🇷 Argentine",t2:"🇧🇷 Brésil",info:"Choc de poule"},
-  {stage:"Groupe I",day:"16 juin",g:"I",t1:"🇫🇷 France",t2:"🇸🇳 Sénégal",info:"MetLife Stadium, New York/NJ"},
-  {stage:"Groupe I",day:"26 juin",g:"I",t1:"🇫🇷 France",t2:"🇳🇴 Norvège",info:"Gillette Stadium, Boston"},
-  {stage:"Phase Finale",day:"19 juillet",g:"",t1:"🏆 Finaliste 1",t2:"🏆 Finaliste 2",info:"MetLife Stadium, New York (Finale)"},
+  // --- GROUPE A ---
+  {day:"11 Juin", stage:"Phase de Groupes", g:"A", t1:"🇲🇽 Mexique", t2:"🇿🇦 Afrique du Sud", info:"Estadio Azteca, Mexico"},
+  {day:"12 Juin", stage:"Phase de Groupes", g:"A", t1:"🇰🇷 Corée du Sud", t2:"🇨🇿 Tchéquie", info:"Estadio Guadalajara"},
+  {day:"17 Juin", stage:"Phase de Groupes", g:"A", t1:"🇲🇽 Mexique", t2:"🇰🇷 Corée du Sud", info:"Estadio Monterrey"},
+  {day:"17 Juin", stage:"Phase de Groupes", g:"A", t1:"🇨🇿 Tchéquie", t2:"🇿🇦 Afrique du Sud", info:"Atlanta Stadium"},
+  {day:"24 Juin", stage:"Phase de Groupes", g:"A", t1:"🇨🇿 Tchéquie", t2:"🇲🇽 Mexique", info:"Estadio Azteca, Mexico"},
+  {day:"24 Juin", stage:"Phase de Groupes", g:"A", t1:"🇿🇦 Afrique du Sud", t2:"🇰🇷 Corée du Sud", info:"Los Angeles Stadium"},
+
+  // --- GROUPE B ---
+  {day:"12 Juin", stage:"Phase de Groupes", g:"B", t1:"🇨🇦 Canada", t2:"🇧🇦 Bosnie-Herz.", info:"Toronto Stadium"},
+  {day:"13 Juin", stage:"Phase de Groupes", g:"B", t1:"🇶🇦 Qatar", t2:"🇨🇭 Suisse", info:"San Francisco Stadium"},
+  {day:"18 Juin", stage:"Phase de Groupes", g:"B", t1:"🇨🇦 Canada", t2:"🇶🇦 Qatar", info:"BC Place, Vancouver"},
+  {day:"18 Juin", stage:"Phase de Groupes", g:"B", t1:"🇨🇭 Suisse", t2:"🇧🇦 Bosnie-Herz.", info:"Los Angeles Stadium"},
+  {day:"24 Juin", stage:"Phase de Groupes", g:"B", t1:"🇨🇭 Suisse", t2:"🇨🇦 Canada", info:"BC Place, Vancouver"},
+  {day:"24 Juin", stage:"Phase de Groupes", g:"B", t1:"🇧🇦 Bosnie-Herz.", t2:"🇶🇦 Qatar", info:"Boston Stadium"},
+
+  // --- GROUPE C ---
+  {day:"13 Juin", stage:"Phase de Groupes", g:"C", t1:"🇺🇸 États-Unis", t2:"🇵🇾 Paraguay", info:"Los Angeles Stadium"},
+  {day:"13 Juin", stage:"Phase de Groupes", g:"C", t1:"🇬🇭 Ghana", t2:"🇬🇪 Géorgie", info:"Miami Stadium"},
+  {day:"19 Juin", stage:"Phase de Groupes", g:"C", t1:"🇺🇸 États-Unis", t2:"🇬🇭 Ghana", info:"Seattle Stadium"},
+  {day:"19 Juin", stage:"Phase de Groupes", g:"C", t1:"🇬🇪 Géorgie", t2:"🇵🇾 Paraguay", info:"San Francisco Stadium"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"C", t1:"🇬🇪 Géorgie", t2:"🇺🇸 États-Unis", info:"Los Angeles Stadium"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"C", t1:"🇵🇾 Paraguay", t2:"🇬🇭 Ghana", info:"San Francisco Stadium"},
+
+  // --- GROUPE D ---
+  {day:"14 Juin", stage:"Phase de Groupes", g:"D", t1:"🇦🇷 Argentine", t2:"🇵🇪 Pérou", info:"Dallas Stadium"},
+  {day:"14 Juin", stage:"Phase de Groupes", g:"D", t1:"🇨🇮 Côte d'Ivoire", t2:"🇸🇮 Slovénie", info:"Houston Stadium"},
+  {day:"20 Juin", stage:"Phase de Groupes", g:"D", t1:"🇦🇷 Argentine", t2:"🇨🇮 Côte d'Ivoire", info:"New York/New Jersey"},
+  {day:"20 Juin", stage:"Phase de Groupes", g:"D", t1:"🇸🇮 Slovénie", t2:"🇵🇪 Pérou", info:"Austin Stadium"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"D", t1:"🇸🇮 Slovénie", t2:"🇦🇷 Argentine", info:"Dallas Stadium"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"D", t1:"🇵🇪 Pérou", t2:"🇨🇮 Côte d'Ivoire", info:"Miami Stadium"},
+
+  // --- GROUPE E ---
+  {day:"14 Juin", stage:"Phase de Groupes", g:"E", t1:"🇧🇷 Brésil", t2:"🇯🇵 Japon", info:"San Francisco Stadium"},
+  {day:"15 Juin", stage:"Phase de Groupes", g:"E", t1:"🇨🇴 Colombie", t2:"🇲🇦 Maroc", info:"Los Angeles Stadium"},
+  {day:"20 Juin", stage:"Phase de Groupes", g:"E", t1:"🇧🇷 Brésil", t2:"🇨🇴 Colombie", info:"Seattle Stadium"},
+  {day:"20 Juin", stage:"Phase de Groupes", g:"E", t1:"🇲🇦 Maroc", t2:"🇯🇵 Japon", info:"Kansas City Stadium"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"E", t1:"🇲🇦 Maroc", t2:"🇧🇷 Brésil", info:"Boston Stadium"},
+  {day:"25 Juin", stage:"Phase de Groupes", g:"E", t1:"🇯🇵 Japon", t2:"🇨🇴 Colombie", info:"Kansas City Stadium"},
+
+  // --- GROUPE F ---
+  {day:"15 Juin", stage:"Phase de Groupes", g:"F", t1:"🇪🇸 Espagne", t2:"🇩🇰 Danemark", info:"Boston Stadium"},
+  {day:"15 Juin", stage:"Phase de Groupes", g:"F", t1:"🇷🇸 Serbie", t2:"🇹🇳 Tunisie", info:"New York/New Jersey"},
+  {day:"21 Juin", stage:"Phase de Groupes", g:"F", t1:"🇪🇸 Espagne", t2:"🇷🇸 Serbie", info:"Atlanta Stadium"},
+  {day:"21 Juin", stage:"Phase de Groupes", g:"F", t1:"🇹🇳 Tunisie", t2:"🇩🇰 Danemark", info:"Philadelphia Stadium"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"F", t1:"🇹🇳 Tunisie", t2:"🇪🇸 Espagne", info:"Miami Stadium"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"F", t1:"🇩🇰 Danemark", t2:"🇷🇸 Serbie", info:"Boston Stadium"},
+
+  // --- GROUPE G ---
+  {day:"15 Juin", stage:"Phase de Groupes", g:"G", t1:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", t2:"🇸🇰 Slovaquie", info:"Los Angeles Stadium"},
+  {day:"16 Juin", stage:"Phase de Groupes", g:"G", t1:"🇺🇾 Uruguay", t2:"🇮🇷 Iran", info:"Dallas Stadium"},
+  {day:"21 Juin", stage:"Phase de Groupes", g:"G", t1:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", t2:"🇺🇾 Uruguay", info:"San Francisco Stadium"},
+  {day:"21 Juin", stage:"Phase de Groupes", g:"G", t1:"🇮🇷 Iran", t2:"🇸🇰 Slovaquie", info:"Seattle Stadium"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"G", t1:"🇮🇷 Iran", t2:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre", info:"Los Angeles Stadium"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"G", t1:"🇸🇰 Slovaquie", t2:"🇺🇾 Uruguay", info:"San Francisco Stadium"},
+
+  // --- GROUPE H ---
+  {day:"16 Juin", stage:"Phase de Groupes", g:"H", t1:"🇵🇹 Portugal", t2:"🇰🇪 Kenya", info:"Houston Stadium"},
+  {day:"16 Juin", stage:"Phase de Groupes", g:"H", t1:"🇭🇷 Croatie", t2:"🇺🇿 Ouzbékistan", info:"Austin Stadium"},
+  {day:"22 Juin", stage:"Phase de Groupes", g:"H", t1:"🇵🇹 Portugal", t2:"🇭🇷 Croatie", info:"Dallas Stadium"},
+  {day:"22 Juin", stage:"Phase de Groupes", g:"H", t1:"🇺🇿 Ouzbékistan", t2:"🇰🇪 Kenya", info:"Kansas City Stadium"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"H", t1:"🇺🇿 Ouzbékistan", t2:"🇵🇹 Portugal", info:"Dallas Stadium"},
+  {day:"26 Juin", stage:"Phase de Groupes", g:"H", t1:"🇰🇪 Kenya", t2:"🇭🇷 Croatie", info:"Houston Stadium"},
+
+  // --- GROUPE I ---
+  {day:"16 Juin", stage:"Phase de Groupes", g:"I", t1:"🇫🇷 France", t2:"🇸🇳 Sénégal", info:"MetLife, New York/NJ"},
+  {day:"17 Juin", stage:"Phase de Groupes", g:"I", t1:"🇳🇴 Norvège", t2:"🇮🇶 Irak", info:"Boston Stadium"},
+  {day:"22 Juin", stage:"Phase de Groupes", g:"I", t1:"🇫🇷 France", t2:"🇳🇴 Norvège", info:"Gillette Stadium, Boston"},
+  {day:"22 Juin", stage:"Phase de Groupes", g:"I", t1:"🇮🇶 Irak", t2:"🇸🇳 Sénégal", info:"Philadelphia Stadium"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"I", t1:"🇮🇶 Irak", t2:"🇫🇷 France", info:"New York/New Jersey"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"I", t1:"🇸🇳 Sénégal", t2:"🇳🇴 Norvège", info:"Philadelphia Stadium"},
+
+  // --- GROUPE J ---
+  {day:"17 Juin", stage:"Phase de Groupes", g:"J", t1:"🇩🇪 Allemagne", t2:"🇦🇺 Australie", info:"Seattle Stadium"},
+  {day:"18 Juin", stage:"Phase de Groupes", g:"J", t1:"🇺🇦 Ukraine", t2:"🇯🇴 Jordanie", info:"BC Place, Vancouver"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"J", t1:"🇩🇪 Allemagne", t2:"🇺🇦 Ukraine", info:"Boston Stadium"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"J", t1:"🇯🇴 Jordanie", t2:"🇦🇺 Australie", info:"Toronto Stadium"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"J", t1:"🇯🇴 Jordanie", t2:"🇩🇪 Allemagne", info:"Seattle Stadium"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"J", t1:"🇦🇺 Australie", t2:"🇺🇦 Ukraine", info:"BC Place, Vancouver"},
+
+  // --- GROUPE K ---
+  {day:"18 Juin", stage:"Phase de Groupes", g:"K", t1:"🇳🇱 Pays-Bas", t2:"🇲🇾 Malaisie", info:"Miami Stadium"},
+  {day:"18 Juin", stage:"Phase de Groupes", g:"K", t1:"🇨🇱 Chili", t2:"🇸🇦 Arabie Saoudite", info:"Atlanta Stadium"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"K", t1:"🇳🇱 Pays-Bas", t2:"🇨🇱 Chili", info:"Miami Stadium"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"K", t1:"🇸🇦 Arabie Saoudite", t2:"🇲🇾 Malaisie", info:"Houston Stadium"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"K", t1:"🇸🇦 Arabie Saoudite", t2:"🇳🇱 Pays-Bas", info:"Atlanta Stadium"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"K", t1:"🇲🇾 Malaisie", t2:"🇨🇱 Chili", info:"Miami Stadium"},
+
+  // --- GROUPE L ---
+  {day:"19 Juin", stage:"Phase de Groupes", g:"L", t1:"🇧🇪 Belgique", t2:"🇨🇺 Cuba", info:"New York/New Jersey"},
+  {day:"19 Juin", stage:"Phase de Groupes", g:"L", t1:"🇷🇴 Roumanie", t2:"🇨🇻 Cap-Vert", info:"Philadelphia Stadium"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"L", t1:"🇧🇪 Belgique", t2:"🇷🇴 Roumanie", info:"Boston Stadium"},
+  {day:"23 Juin", stage:"Phase de Groupes", g:"L", t1:"🇨🇻 Cap-Vert", t2:"🇨🇺 Cuba", info:"New York/New Jersey"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"L", t1:"🇨🇻 Cap-Vert", t2:"🇧🇪 Belgique", info:"Boston Stadium"},
+  {day:"27 Juin", stage:"Phase de Groupes", g:"L", t1:"🇨🇺 Cuba", t2:"🇷🇴 Roumanie", info:"Philadelphia Stadium"},
+
+  // --- PHASES ÉLIMINATOIRES ---
+  {day:"28 Juin - 03 Juillet", stage:"32es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 32e"},
+  {day:"04 - 07 Juillet", stage:"16es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 16e"},
+  {day:"09 - 11 Juillet", stage:"Quarts de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Top 8 mondial"},
+  {day:"14 Juillet", stage:"Demi-Finale 1", g:"", t1:"Qualifié", t2:"Qualifié", info:"Mercedes-Benz, Atlanta"},
+  {day:"15 Juillet", stage:"Demi-Finale 2", g:"", t1:"Qualifié", t2:"Qualifié", info:"AT&T Stadium, Dallas"},
+  {day:"18 Juillet", stage:"Petite Finale (3e place)", g:"", t1:"Perdant DF1", t2:"Perdant DF2", info:"Hard Rock, Miami"},
+  {day:"19 Juillet", stage:"Finale", g:"", t1:"Vainqueur DF1", t2:"Vainqueur DF2", info:"MetLife, New York/NJ"}
 ];
 
 const TEAMS_DATA = [
@@ -219,6 +325,10 @@ const TEAMS_DATA = [
   ]},
 ];
 
+// Variables globales de filtres pour les matchs
+let currentFilterPhase = "all";
+let currentFilterGroup = "all";
+
 let D = {};
 try { D = JSON.parse(localStorage.getItem('wc26v3')||'{}'); } catch(e) { D = {}; }
 D.pts = D.pts||{}; D.scores = D.scores||{}; D.bracket = D.bracket||{};
@@ -256,33 +366,94 @@ function editPts(el,g,i){
   inp.addEventListener('blur',commit);inp.addEventListener('keydown',e=>{if(e.key==='Enter')commit()});
 }
 
+// Fonction de rendu de la section matchs avec ses filtres dynamiques de tri
 function renderMatchs(){
   const el=document.getElementById('matchs');
-  let currentStage = "";
-  let html = `<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Saisis les scores au fur et à mesure des rencontres de groupes et de la phase finale.</p>`;
   
-  MATCHS_DATA.forEach((m,idx)=>{
-    if(m.stage !== currentStage){
-      currentStage = m.stage;
-      html += `<div class="match-stage-title">${currentStage}</div>`;
+  // Construction de l'interface des filtres
+  let htmlFilters = `
+  <div class="filter-container">
+    <div style="display:flex;align-items:center;gap:6px">
+      <label for="filter-phase" style="font-size:12px;color:var(--color-text-secondary);font-weight:500">Phase :</label>
+      <select id="filter-phase" class="select-sm" onchange="updateMatchFilters()">
+        <option value="all" ${currentFilterPhase === 'all' ? 'selected' : ''}>Tout voir</option>
+        <option value="groupes" ${currentFilterPhase === 'groupes' ? 'selected' : ''}>Phase de Groupes</option>
+        <option value="elim" ${currentFilterPhase === 'elim' ? 'selected' : ''}>Phases Éliminatoires</option>
+      </select>
+    </div>
+    
+    <div id="group-filter-wrapper" style="display:${currentFilterPhase === 'elim' ? 'none' : 'flex'};align-items:center;gap:6px">
+      <label for="filter-group" style="font-size:12px;color:var(--color-text-secondary);font-weight:500">Poule :</label>
+      <select id="filter-group" class="select-sm" onchange="updateMatchFilters()">
+        <option value="all" ${currentFilterGroup === 'all' ? 'selected' : ''}>Toutes les poules</option>
+        ${Object.keys(GROUPS).map(g => `<option value="${g}" ${currentFilterGroup === g ? 'selected' : ''}>Groupe ${g}</option>`).join('')}
+      </select>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Saisis les scores au fur et à mesure. Ils se sauvegardent automatiquement.</p>
+  `;
+
+  // Filtrage des données tout en maintenant la référence à l'index global initial (idx)
+  let filteredMatches = MATCHS_DATA.map((m, idx) => ({...m, originalIdx: idx})).filter(m => {
+    if (currentFilterPhase === "groupes" && m.stage !== "Phase de Groupes") return false;
+    if (currentFilterPhase === "elim" && m.stage === "Phase de Groupes") return false;
+    if (currentFilterPhase !== "elim" && currentFilterGroup !== "all" && m.g !== currentFilterGroup) return false;
+    return true;
+  });
+
+  if(filteredMatches.length === 0) {
+    htmlFilters += `<p style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px;">Aucun match ne correspond aux critères sélectionnés.</p>`;
+    el.innerHTML = htmlFilters;
+    return;
+  }
+
+  // Rendu de la liste filtrée
+  let currentHeader = "";
+  let htmlList = filteredMatches.map(m => {
+    let sectionHeader = "";
+    let matchHeaderLabel = m.stage === "Phase de Groupes" ? `Groupe ${m.g}` : m.stage;
+    
+    if (matchHeaderLabel !== currentHeader) {
+      currentHeader = matchHeaderLabel;
+      sectionHeader = `<div class="section-title" style="margin:15px 0 8px">${currentHeader}</div>`;
     }
-    html += `<div class="card" style="padding:10px 12px;margin-bottom:8px">
-      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">${m.day}${m.g?' · Gr. '+m.g:''} · ${m.info}</div>
+
+    return sectionHeader + `
+    <div class="card" style="padding:10px 12px;margin-bottom:8px">
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">${m.day} · ${m.info}</div>
       <div style="display:flex;align-items:center;gap:8px">
         <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)">${m.t1}</span>
-        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[idx+'a']!==undefined?D.scores[idx+'a']:''}" oninput="D.scores[${idx}+'a']=this.value;save()">
+        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'a']!==undefined?D.scores[m.originalIdx+'a']:''}" oninput="D.scores[${m.originalIdx}+'a']=this.value;save()">
         <span style="color:var(--color-text-tertiary);font-size:12px">–</span>
-        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[idx+'b']!==undefined?D.scores[idx+'b']:''}" oninput="D.scores[${idx}+'b']=this.value;save()">
+        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'b']!==undefined?D.scores[m.originalIdx+'b']:''}" oninput="D.scores[${m.originalIdx}+'b']=this.value;save()">
         <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right">${m.t2}</span>
       </div>
     </div>`;
-  });
-  el.innerHTML = html;
+  }).join('');
+
+  el.innerHTML = htmlFilters + htmlList;
+}
+
+// Fonction de déclenchement lors d'un changement de filtre
+function updateMatchFilters(){
+  currentFilterPhase = document.getElementById('filter-phase').value;
+  const groupWrapper = document.getElementById('group-filter-wrapper');
+  if(currentFilterPhase === "elim") {
+    groupWrapper.style.display = "none";
+    currentFilterGroup = "all";
+  } else {
+    groupWrapper.style.display = "flex";
+    currentFilterGroup = document.getElementById('filter-group').value;
+  }
+  renderMatchs();
 }
 
 function renderBracket(){
   const el=document.getElementById('bracket');
-  function bCol(slots, ri, offset){
+  const R0_LEFT = Array.from({length:8},(_,i)=>({k1:`r0m${i}t1`,k2:`r0m${i}t2`}));
+  const R0_RIGHT = Array.from({length:8},(_,i)=>({k1:`r0m${i+8}t1`,k2:`r0m${i+8}t2`}));
+
+  function bCol(slots, ri, offset, flip){
     const spacer = Math.pow(2,ri)*6;
     let html = '';
     for(let i=0;i<slots;i++){
@@ -302,6 +473,7 @@ function renderBracket(){
   }
 
   const champion = D.bracket['r5m0t1'] || null;
+
   const colLabels = ["32es","16es","Quarts","Demies"];
 
   let leftCols = '';
@@ -309,7 +481,7 @@ function renderBracket(){
     const slots = 8/Math.pow(2,r);
     leftCols += `<div class="b-col" style="min-width:120px">
       <div class="b-col-title">${colLabels[r]}</div>
-      <div style="display:flex;flex-direction:column">${bCol(slots,r,0)}</div>
+      <div style="display:flex;flex-direction:column">${bCol(slots,r,0,false)}</div>
     </div>`;
   }
 
