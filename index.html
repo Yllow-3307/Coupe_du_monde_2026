@@ -3,7 +3,7 @@
 <head>
   <meta charset=\"UTF-8\">
   <title>Tracker Coupe du Monde 2026</title>
-  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css\">\n  <style>
+  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css\">  <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--color-background-secondary);color:var(--color-text-primary);padding:20px;max-width:1200px;margin:0 auto}
     
@@ -106,6 +106,18 @@
     .rdv-date-d{font-size:18px;font-weight:500;color:var(--color-text-info)}
     .rdv-date-m{font-size:10px;color:var(--color-text-info)}
     .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    
+    .bracket-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 20px;
+}
+    
+.b-side { display: flex; gap: 5px; }
+.b-center { display: flex; flex-direction: column; justify-content: center; min-width: 120px; }
   </style>
 </head>
 <body>
@@ -448,53 +460,54 @@ function updateMatchFilters(){
   renderMatchs();
 }
 
-// --- Nouvelle version de la fonction Bracket ---
 function renderBracket() {
   const el = document.getElementById('bracket');
   
-  // Définit les phases et leur structure
-  const phases = [
-    { title: "16es", count: 8, key: "16" },
-    { title: "8es", count: 4, key: "8" },
-    { title: "Quarts", count: 2, key: "QF" },
-    { title: "Demies", count: 1, key: "SF" },
-    { title: "Finale", count: 1, key: "FIN" }
-  ];
-
+  // Définit les phases (ici simplifiées pour la structure)
+  // Le côté gauche et droit traiteront les 32es, 16es, 8es, Quarts, Demies
   el.innerHTML = `
-    <div style="font-size:12px; color:var(--color-text-secondary); margin-bottom:15px; text-align:center">
-      Cliquez sur une équipe pour la qualifier au tour suivant.
-    </div>
-    <div class="bracket-container" style="display:flex; justify-content:space-around; align-items:flex-start; overflow-x:auto; padding:10px;">
-      ${phases.map(phase => `
-        <div class="b-col" style="min-width:120px; display:flex; flex-direction:column; gap:10px;">
-          <div class="b-col-title" style="text-align:center; font-weight:bold; font-size:11px; text-transform:uppercase;">${phase.title}</div>
-          ${Array.from({length: phase.count}).map((_, i) => createMatchNode(phase.key, i)).join('')}
+    <div class="bracket-wrapper">
+      <div class="b-side">
+        ${renderSide('L')}
+      </div>
+
+      <div class="b-center">
+        <div class="b-col-title">FINALE</div>
+        <div class="b-match">
+          <div class="b-team" onclick="pickFinal('T1')">${D.bracket['FINAL_T1']||'Finaliste 1'}</div>
+          <div class="b-team" onclick="pickFinal('T2')">${D.bracket['FINAL_T2']||'Finaliste 2'}</div>
         </div>
-      `).join('')}
+      </div>
+
+      <div class="b-side">
+        ${renderSide('R')}
+      </div>
     </div>
   `;
 }
 
-function createMatchNode(phaseKey, index) {
-  // Récupère les équipes stockées ou affiche des zones de saisie
-  const t1 = D.bracket[phaseKey + '_' + index + '_t1'] || "?";
-  const t2 = D.bracket[phaseKey + '_' + index + '_t2'] || "?";
-  
+function renderSide(side) {
+  // Génère les colonnes pour un côté (32es -> Demies)
+  // Cela crée une structure miroir
   return `
-    <div class="b-match" style="background:#fff; border:1px solid #ddd; border-radius:4px; padding:5px;">
-      <div class="b-team" onclick="qualify('${phaseKey}', ${index}, '${t1}', 'next_key')">${t1}</div>
-      <div class="b-team" onclick="qualify('${phaseKey}', ${index}, '${t2}', 'next_key')">${t2}</div>
-    </div>
+    <div class="b-col"><div class="b-col-title">32es</div>${createMatches(side, '32')}</div>
+    <div class="b-col"><div class="b-col-title">16es</div>${createMatches(side, '16')}</div>
+    <div class="b-col"><div class="b-col-title">8es</div>${createMatches(side, '8')}</div>
+    <div class="b-col"><div class="b-col-title">Quarts</div>${createMatches(side, 'QF')}</div>
+    <div class="b-col"><div class="b-col-title">Demies</div>${createMatches(side, 'SF')}</div>
   `;
 }
 
-function qualify(currentPhase, index, teamName, nextKey) {
-  // Logique de transfert automatique vers la phase suivante
-  D.bracket[nextKey] = teamName; 
-  save();
-  renderBracket();
+function createMatches(side, phase) {
+  // Ici, on génère les boîtes de match pour chaque phase
+  // En cliquant sur une équipe, tu peux ajouter une fonction qui remplit la case suivante
+  return `<div class="b-match" style="margin-bottom:10px;">
+            <div class="b-team">?</div>
+            <div class="b-team">?</div>
+          </div>`;
 }
+
+function pickFinal(pos) { /* Logique pour désigner le vainqueur final */ }
 
 function renderPronos(){
   const el=document.getElementById('pronos');
