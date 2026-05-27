@@ -490,6 +490,24 @@ function renderBracket() {
     </div>
   `;
 }
+
+function renderCol(side, phase, label, numMatches) {
+  let matchesHtml = '';
+  
+  for (let i = 0; i < numMatches; i++) {
+    matchesHtml += `
+      <div class="b-match" style="margin-bottom: 8px;">
+        <div class="b-team">?</div>
+        <div class="b-team">?</div>
+      </div>`;
+  }
+
+  return `
+    <div class="b-col">
+      <div class="b-col-title">${label}</div>
+      ${matchesHtml}
+    </div>`;
+}
   
 function renderPronos(){
   const el=document.getElementById('pronos');
