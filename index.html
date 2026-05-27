@@ -83,10 +83,10 @@
     .bracket-tree{display:flex;align-items:center;gap:0;min-width:1100px}
     .b-col{display:flex;flex-direction:column;justify-content:space-around;padding:0 4px}
     .b-col-title{font-size:10px;font-weight:500;color:var(--color-text-secondary);letter-spacing:0.05em;text-transform:uppercase;text-align:center;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:8px;white-space:nowrap}
-    .b-match{display:flex;flex-direction:column;gap:1px;margin:4px 0}
-    .b-team{font-size:11px;padding:5px 7px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);cursor:pointer;max-width:115px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--color-text-secondary);transition:background 0.1s}
+    .b-match{display:flex;flex-direction:column}
+    .b-team{font-size:11px;padding:0 7px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);cursor:pointer;width:115px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--color-text-secondary);transition:background 0.1s;height:23px;display:flex;align-items:center}
     .b-team:first-child{border-radius:6px 6px 0 0}
-    .b-team:last-child{border-radius:0 0 6px 6px}
+    .b-team:last-child{border-radius:0 0 6px 6px;border-top:none}
     .b-team:hover{background:var(--color-background-secondary)}
     .b-team.winner{color:var(--color-text-success);font-weight:500;background:var(--color-background-success)}
     
@@ -287,8 +287,8 @@ const MATCHS_DATA = [
   {day:"27 Juin", stage:"Phase de Groupes", g:"L", t1:"🇨🇺 Cuba", t2:"🇷🇴 Roumanie"},
 
   // --- PHASES ÉLIMINATOIRES ---
-  {day:"28 Juin - 03 Juillet", stage:"32es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 32e"},
-  {day:"04 - 07 Juillet", stage:"16es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 16e"},
+  {day:"28 Juin - 03 Juillet", stage:"16es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 16e"},
+  {day:"04 - 07 Juillet", stage:"16es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 8e"},
   {day:"09 - 11 Juillet", stage:"Quarts de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Top 8 mondial"},
   {day:"14 Juillet", stage:"Demi-Finale 1", g:"", t1:"Qualifié", t2:"Qualifié"},
   {day:"15 Juillet", stage:"Demi-Finale 2", g:"", t1:"Qualifié", t2:"Qualifié"},
@@ -474,45 +474,112 @@ function renderBracket() {
   const el = document.getElementById('bracket');
   if (!el) return;
 
-  el.innerHTML = `
-    <div class="bracket-wrapper">
-      <div class="b-side">
-        ${renderCol('L', '16', '16es', 8)} 
-        ${renderCol('L', '8', '8es', 4)}
-        ${renderCol('L', 'QF', 'Quarts', 2)}
-        ${renderCol('L', 'SF', 'Demies', 1)}
-      </div>
+  // Hauteur totale du bracket (hors titres). Toutes les colonnes partagent cette même hauteur.
+  const TOTAL_H = 640; // px
+  const MATCH_H = 46;  // px — hauteur d'un b-match (2 équipes × 23px)
 
-      <div class="b-col" style="justify-content:center; min-width:100px;">
-        <div class="b-col-title">FINALE</div>
-        <div class="b-match"><div class="b-team">Vainqueur A</div><div class="b-team">Vainqueur B</div></div>
-      </div>
-
-      <div class="b-side">
-        ${renderCol('R', 'SF', 'Demies', 1)}
-        ${renderCol('R', 'QF', 'Quarts', 2)}
-        ${renderCol('R', '8', '8es', 4)}
-        ${renderCol('R', '16', '16es', 8)}
-      </div>
-    </div>
-  `;
-}
-function renderCol(side, phase, label, numMatches) {
-  let matchesHtml = '';
-  
-  for (let i = 0; i < numMatches; i++) {
-    matchesHtml += `
-      <div class="b-match" style="margin-bottom: 10px;">
-        <div class="b-team">?</div>
-        <div class="b-team">?</div>
+  // Génère les matchs d'une colonne avec margin-top calculé pour centrer chaque match
+  // à cheval sur les deux matchs parents du round précédent.
+  // n = nombre de matchs dans cette colonne
+  // La formule : slot = TOTAL_H / n, premier match centré dans son slot
+  function colMatches(side, phase, n, startIdx) {
+    const slotH = TOTAL_H / n;
+    const firstTop = (slotH - MATCH_H) / 2;
+    const gap = slotH - MATCH_H;
+    let html = '';
+    for (let i = 0; i < n; i++) {
+      const mi = startIdx + i;
+      const k = `${side}_${phase}_${mi}`;
+      const t1 = D.bracket[k+'_t1'] || '?';
+      const t2 = D.bracket[k+'_t2'] || '?';
+      const winner = D.bracket[k+'_w'];
+      const mt = i === 0 ? firstTop : gap;
+      html += `<div class="b-match" style="margin-top:${mt}px" data-key="${k}">
+        <div class="b-team${winner===t1&&t1!=='?'?' winner':''}" onclick="pickWinner('${k}',1)">${t1}</div>
+        <div class="b-team${winner===t2&&t2!=='?'?' winner':''}" onclick="pickWinner('${k}',2)">${t2}</div>
       </div>`;
+    }
+    return html;
   }
 
-  return `
-    <div class="b-col">
-      <div class="b-col-title">${label}</div>
-      ${matchesHtml}
+  function col(side, phase, label, n, startIdx=0) {
+    return `<div class="b-col" style="min-width:120px;padding:0 4px">
+      <div class="b-col-title" style="height:28px;display:flex;align-items:center;justify-content:center">${label}</div>
+      <div style="height:${TOTAL_H}px;display:flex;flex-direction:column">
+        ${colMatches(side, phase, n, startIdx)}
+      </div>
     </div>`;
+  }
+
+  // Finale au centre
+  const fk = 'finale';
+  const ft1 = D.bracket[fk+'_t1'] || '?';
+  const ft2 = D.bracket[fk+'_t2'] || '?';
+  const fw  = D.bracket[fk+'_w'];
+  const finaleCol = `<div class="b-col" style="min-width:120px;padding:0 4px">
+    <div class="b-col-title" style="height:28px;display:flex;align-items:center;justify-content:center">Finale</div>
+    <div style="height:${TOTAL_H}px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px">
+      <div class="b-match">
+        <div class="b-team${fw===ft1&&ft1!=='?'?' winner':''}" onclick="pickWinner('${fk}',1)">${ft1}</div>
+        <div class="b-team${fw===ft2&&ft2!=='?'?' winner':''}" onclick="pickWinner('${fk}',2)">${ft2}</div>
+      </div>
+      ${fw && fw !== '?' ? `<div style="text-align:center;margin-top:8px"><div style="font-size:20px">🏆</div><div style="font-size:11px;font-weight:500;color:var(--color-text-primary);padding:4px 8px;background:var(--color-background-warning);border-radius:6px;margin-top:4px">${fw}</div></div>` : ''}
+    </div>
+  </div>`;
+
+  el.innerHTML = `
+    <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">
+      Renseigne les équipes dans les cases des 16es, puis clique sur le vainqueur de chaque match pour faire avancer le bracket.
+    </p>
+    <div style="overflow-x:auto;padding-bottom:12px">
+      <div style="display:flex;align-items:flex-start;gap:0;min-width:1400px">
+        <div style="display:flex">
+          ${col('L','16','16es',8,0)}
+          ${col('L','8','8es',4,0)}
+          ${col('L','QF','Quarts',2,0)}
+          ${col('L','SF','Demies',1,0)}
+        </div>
+        <div style="width:8px"></div>
+        ${finaleCol}
+        <div style="width:8px"></div>
+        <div style="display:flex">
+          ${col('R','SF','Demies',1,0)}
+          ${col('R','QF','Quarts',2,0)}
+          ${col('R','8','8es',4,0)}
+          ${col('R','16','16es',8,0)}
+        </div>
+      </div>
+    </div>`;
+}
+
+function pickWinner(key, teamNum) {
+  const t1 = D.bracket[key+'_t1'] || '?';
+  const t2 = D.bracket[key+'_t2'] || '?';
+  const winner = teamNum === 1 ? t1 : t2;
+  if (winner === '?') return;
+  D.bracket[key+'_w'] = winner;
+
+  // Propager le vainqueur dans le match suivant
+  const parts = key.split('_'); // side, phase, idx
+  const side = parts[0];
+  const phase = parts[1];
+  const idx = parseInt(parts[2]) || 0;
+
+  const nextPhase = {
+    '16':'8','8':'QF','QF':'SF','SF':'finale'
+  }[phase];
+  if (!nextPhase) { save(); renderBracket(); return; }
+
+  if (nextPhase === 'finale') {
+    const slot = side === 'L' ? '_t1' : '_t2';
+    D.bracket['finale'+slot] = winner;
+  } else {
+    const nextIdx = Math.floor(idx / 2);
+    const slot = idx % 2 === 0 ? '_t1' : '_t2';
+    D.bracket[`${side}_${nextPhase}_${nextIdx}${slot}`] = winner;
+  }
+  save();
+  renderBracket();
 }
   
 function renderPronos(){
