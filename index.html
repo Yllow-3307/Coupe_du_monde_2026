@@ -498,21 +498,15 @@ function renderBracket() {
   `;
 }
 function renderCol(side, phase, label, numMatches) {
+  // On crée un conteneur qui force les matchs à s'espacer pour correspondre à la colonne précédente
   let matchesHtml = '';
-  
   for (let i = 0; i < numMatches; i++) {
     matchesHtml += `
-      <div class="b-match" style="margin-bottom: 8px;">
-        <div class="b-team">?</div>
-        <div class="b-team">?</div>
+      <div class="b-match-group">
+         <div class="b-match">16e ${i+1}</div>
       </div>`;
   }
-
-  return `
-    <div class="b-col">
-      <div class="b-col-title">${label}</div>
-      ${matchesHtml}
-    </div>`;
+  return `<div class="b-col">${matchesHtml}</div>`;
 }
   
 function renderPronos(){
