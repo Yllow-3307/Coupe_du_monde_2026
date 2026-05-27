@@ -108,16 +108,20 @@
     .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
     
     .bracket-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 20px;
-}
-    
-.b-side { display: flex; gap: 5px; }
-.b-center { display: flex; flex-direction: column; justify-content: center; min-width: 120px; }
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 15px;
+      padding: 20px;
+      overflow-x: auto;
+    }
+    .b-side { display: flex; gap: 5px; }
+    .b-col { display: flex; flex-direction: column; gap: 10px; width: 100px; }
+    .b-col-title { font-size: 10px; text-transform: uppercase; text-align: center; font-weight: bold; margin-bottom: 5px; color: #666; }
+    .b-match { background: white; border: 1px solid #ddd; padding: 5px; border-radius: 4px; font-size: 11px; }
+    .b-team { cursor: pointer; padding: 2px; border-bottom: 1px solid #eee; }
+    .b-team:hover { background: #f0f0f0; }
+
   </style>
 </head>
 <body>
@@ -462,41 +466,46 @@ function updateMatchFilters(){
 
 function renderBracket() {
   const el = document.getElementById('bracket');
-  
+  if (!el) return; // Sécurité
+
   el.innerHTML = `
     <div class="bracket-wrapper">
-      <div class="b-side" style="flex-direction: column;">
-        ${renderSide('L', ['16', '8', 'QF', 'SF'])}
+      <div class="b-side">
+        ${renderCol('L', '16', '16es')}
+        ${renderCol('L', '8', '8es')}
+        ${renderCol('L', 'QF', 'Quarts')}
+        ${renderCol('L', 'SF', 'Demies')}
       </div>
 
-      <div class="b-center">
+      <div class="b-col" style="justify-content:center;">
         <div class="b-col-title">FINALE</div>
         <div class="b-match">
-          <div class="b-team" onclick="pickFinal('T1')">${D.bracket['FINAL_T1']||'Finaliste 1'}</div>
-          <div class="b-team" onclick="pickFinal('T2')">${D.bracket['FINAL_T2']||'Finaliste 2'}</div>
+          <div class="b-team" onclick="alert('Finale')">Vainqueur A</div>
+          <div class="b-team" onclick="alert('Finale')">Vainqueur B</div>
         </div>
       </div>
 
-      <div class="b-side" style="flex-direction: column;">
-        ${renderSide('R', ['SF', 'QF', '8', '16'])}
+      <div class="b-side">
+        ${renderCol('R', 'SF', 'Demies')}
+        ${renderCol('R', 'QF', 'Quarts')}
+        ${renderCol('R', '8', '8es')}
+        ${renderCol('R', '16', '16es')}
       </div>
     </div>
   `;
 }
 
-function renderSide(side, phases) {
-  // Cette fonction génère maintenant les colonnes selon la liste "phases" passée en paramètre
-  return phases.map(p => `
+// Fonction utilitaire pour générer une colonne
+function renderCol(side, phase, label) {
+  return `
     <div class="b-col">
-      <div class="b-col-title">${getPhaseLabel(p)}</div>
-      ${createMatches(side, p)}
+      <div class="b-col-title">${label}</div>
+      <div class="b-match">
+        <div class="b-team">Équipe 1</div>
+        <div class="b-team">Équipe 2</div>
+      </div>
     </div>
-  `).join('');
-}
-
-function getPhaseLabel(p) {
-  const labels = { '16':'16es', '8':'8es', 'QF':'Quarts', 'SF':'Demies' };
-  return labels[p] || p;
+  `;
 }
 function renderPronos(){
   const el=document.getElementById('pronos');
