@@ -466,23 +466,26 @@ function updateMatchFilters(){
 
 function renderBracket() {
   const el = document.getElementById('bracket');
-  
-  if (!el) {
-    console.error("Erreur : L'élément avec l'ID 'bracket' n'est pas trouvé dans la page !");
-    return;
-  }
-
-  // On injecte un test simple pour vérifier si le JS communique avec le HTML
+  // On injecte le HTML de structure que tu as défini dans le style
   el.innerHTML = `
-    <div style="padding: 50px; text-align: center; border: 2px dashed red;">
-      <h3>Si tu vois ce message, le JavaScript fonctionne !</h3>
-      <p>Le problème vient peut-être du contenu généré.</p>
+    <div class="bracket-wrapper">
+      <div class="b-side">
+        <div class="b-col"><div class="b-col-title">16es</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
+        <div class="b-col"><div class="b-col-title">8es</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
+      </div>
+      
+      <div class="b-col" style="justify-content:center;">
+        <div class="b-col-title">FINALE</div>
+        <div class="b-match"><div class="b-team">Vainqueur A</div><div class="b-team">Vainqueur B</div></div>
+      </div>
+
+      <div class="b-side">
+        <div class="b-col"><div class="b-col-title">8es</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
+        <div class="b-col"><div class="b-col-title">16es</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
+      </div>
     </div>
   `;
 }
-
-// Appelle la fonction au chargement pour tester
-renderBracket();
 function renderPronos(){
   const el=document.getElementById('pronos');
   const lb=calcLB();
@@ -651,6 +654,9 @@ function showTab(id){
   const renders={groupes:renderGroups,matchs:renderMatchs,bracket:renderBracket,pronos:renderPronos,stats:renderStats,equipes:renderEquipes,rdv:renderRdv};
   if(renders[id])renders[id]();
 }
+  if (id === 'bracket') {
+    renderBracket(); // Ceci va déclencher l'affichage quand on clique sur l'onglet
+  }
 
 renderGroups();
 </script>
