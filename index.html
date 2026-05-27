@@ -238,23 +238,23 @@ function save(){
   setDoc(docRef, D).catch(e => console.error("Erreur synchro Firebase:", e));
 }
 
-window.showTab = function(tabId) {
+// On attache explicitement la fonction à l'objet global window
+window.showTab = function(tabId) { 
   currentTabId = tabId;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); 
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active')); 
   
-  const activeBtn = Array.from(document.querySelectorAll('.tab')).find(t => t.getAttribute('onclick').includes(tabId));
-  if(activeBtn) activeBtn.classList.add('active');
-  
-  const secEl = document.getElementById(tabId);
+  const activeBtn = Array.from(document.querySelectorAll('.tab')).find(t => t.getAttribute('onclick').includes(tabId)); 
+  if(activeBtn) activeBtn.classList.add('active'); 
+  const secEl = document.getElementById(tabId); 
   if(secEl) secEl.classList.add('active');
   
-  if(tabId === 'groupes') renderGroups();
-  else if(tabId === 'matchs') renderMatchs();
-  else if(tabId === 'bracket') renderBracket();
+  if(tabId === 'groupes') renderGroups(); 
+  else if(tabId === 'matchs') renderMatchs(); 
+  else if(tabId === 'bracket') renderBracket(); 
   else if(tabId === 'pronos') renderPronos();
-  else if(tabId === 'stats') renderStats();
-  else if(tabId === 'equipes') renderTeams();
+  else if(tabId === 'stats') renderStats(); 
+  else if(tabId === 'equipes') renderTeams(); 
   else if(tabId === 'rdv') renderRdv();
 }
 
