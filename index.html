@@ -127,6 +127,12 @@
       border: 1px solid #ddd; 
       padding: 5px; 
     }
+    /* Amélioration visuelle : chemin et interactivité */
+    .b-match { background: white; border: 1px solid #ddd; padding: 5px; border-radius: 4px; transition: all 0.2s; }
+    .b-team { cursor: pointer; padding: 4px; border-bottom: 1px solid #eee; border-radius: 2px; }
+    .b-team:hover { background: #e0f7fa; transform: scale(1.02); }
+    .b-team.selected { background: #1D9E75; color: white; }
+    .b-col { display: flex; flex-direction: column; justify-content: space-around; gap: 5px; }
     
   </style>
 </head>
@@ -550,6 +556,24 @@ function renderBracket() {
         </div>
       </div>
     </div>`;
+}
+
+// Remplit les 32es avec les données des groupes (D.pts)
+function autoFillBracket() {
+  // Logique : On prend les 2 premiers de chaque groupe
+  // Exemple simplifié :
+  D.bracket['16_L_0_t1'] = D.groupes['A'][0].nom;
+  D.bracket['16_L_0_t2'] = D.groupes['B'][1].nom;
+  save();
+  renderBracket();
+}
+
+// Fonction pour qualifier l'équipe
+function selectTeam(phase, index, teamName) {
+  // Enregistre le vainqueur et met à jour l'affichage
+  D.bracket['next_phase_' + index] = teamName;
+  save();
+  renderBracket();
 }
 
 function pickWinner(key, teamNum) {
