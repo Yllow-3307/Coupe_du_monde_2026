@@ -30,7 +30,7 @@
     .hdr h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
     .hdr p { font-size: 13px; color: var(--color-text-secondary); margin-top: 2px; }
     .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--color-border-tertiary); overflow-x: auto; }
-    .tab { padding: 8px 12px; font-size: 13px; cursor: pointer; border: none; background: none; color: var(--color-text-secondary); border-bottom: 2px solid transparent; margin-bottom: -0.5px; white-space: nowrap; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .tab { padding: 8px 12px; font-size: 13px; cursor: pointer; border: none; background: none; color: var(--color-text-secondary); border-bottom: 2px solid transparent; margin-bottom:-0.5px; white-space: nowrap; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
     .tab.active { color: var(--color-text-primary); font-weight: 500; border-bottom-color: var(--color-text-primary); }
     .tab:hover:not(.active) { color: var(--color-text-primary); }
     .sec { display: none; } .sec.active { display: block; }
@@ -39,14 +39,23 @@
     .btn:hover { background: var(--color-background-secondary); }
     .btn-primary { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; }
     .section-title { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 10px; }
-    .grp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(185px, 1fr)); gap: 10px; }
+    
+    /* Grille des Groupes */
+    .grp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
     .grp-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 10px 12px; }
-    .grp-title { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
-    .team-row { display: flex; align-items: center; gap: 6px; padding: 4px 0 4px 5px; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 12px; }
+    .grp-title { font-size: 12px; font-weight: 600; color: var(--color-text-primary); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--color-border-tertiary); }
+    
+    /* Tableau des lignes équipes */
+    .grp-header-row { display: flex; font-size: 10px; font-weight: bold; color: var(--color-text-tertiary); padding-bottom: 4px; text-transform: uppercase; }
+    .team-row { display: flex; align-items: center; padding: 6px 0 6px 5px; border-bottom: 0.5px solid var(--color-border-tertiary); font-size: 12px; }
     .team-row:last-child { border-bottom: none; }
     .q1 { border-left: 3px solid #1D9E75; } .q3 { border-left: 3px solid #EF9F27; } .qn { border-left: 3px solid transparent; }
-    .pts-cell { min-width: 22px; text-align: right; color: var(--color-text-secondary); font-size: 12px; cursor: pointer; padding: 1px 3px; border-radius: 3px; font-weight: bold; }
-    .pts-cell:hover { background: var(--color-background-secondary); }
+    
+    /* Cellules du tableau */
+    .cell-name { flex: 1; display: flex; align-items: center; gap: 6px; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cell-val { width: 22px; text-align: center; color: var(--color-text-secondary); }
+    .cell-pts { width: 26px; text-align: right; font-weight: bold; color: var(--color-text-primary); }
+
     .score-in { width: 35px; height: 26px; text-align: center; font-size: 13px; font-weight: 500; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); }
     .inp-sm { height: 28px; font-size: 13px; padding: 0 8px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); }
     .leaderboard { display: flex; flex-direction: column; gap: 6px; }
@@ -124,15 +133,14 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// ====== ⚠️ CONFIGURATION FIREBASE À REMPLACER ======
 const firebaseConfig = {
-  apiKey: "AIzaSyBUragXBJrQ2XcdaJ-m30KI2JoZ7Eie5Tk",
-  authDomain: "cdm-2026-eda50.firebaseapp.com",
-  projectId: "cdm-2026-eda50",
-  storageBucket: "cdm-2026-eda50.firebasestorage.app",
-  messagingSenderId: "1000121885026",
-  appId: "1:1000121885026:web:c73deaa1a9bbeaf3f20c3b",
-  measurementId: "G-ENE3935RL0"
+  apiKey: "TON_API_KEY",
+  authDomain: "TON_PROJECT_ID.firebaseapp.com",
+  projectId: "TON_PROJECT_ID",
+  storageBucket: "TON_PROJECT_ID.appspot.com",
+  messagingSenderId: "TON_SENDER_ID",
+  appId: "TON_APP_ID"
 };
 
 // Initialisation
@@ -150,7 +158,7 @@ const GROUPS = {
   B:{teams:[["🇨🇦","Canada"],["🇧🇦","Bosnie-Herz."],["🇶🇦","Qatar"],["🇨🇭","Suisse"]]},
   C:{teams:[["🇺🇸","États-Unis"],["🇵🇾","Paraguay"],["🇬🇭","Ghana"],["🇬🇪","Géorgie"]]},
   D:{teams:[["🇦🇷","Argentine"],["🇵🇪","Pérou"],["🇨🇮","Côte d'Ivoire"],["🇸🇮","Slovénie"]]},
-  E:{teams:[["🇧🇷","Brésil"],["🇯ﭘ","Japon"],["🇨🇴","Colombie"],["🇲🇦","Maroc"]]},
+  E:{teams:[["🇧🇷","Brésil"],["🇯🇵","Japon"],["🇨🇴","Colombie"],["🇲🇦","Maroc"]]},
   F:{teams:[["🇪🇸","Espagne"],["🇩🇰","Danemark"],["🇷🇸","Serbie"],["🇹🇳","Tunisie"]]},
   G:{teams:[["🏴󠁧󠁢󠁥󠁮󠁧󠁿","Angleterre"],["🇸🇰","Slovaquie"],["🇺🇾","Uruguay"],["🇮🇷","Iran"]]},
   H:{teams:[["🇵🇹","Portugal"],["🇰🇪","Kenya"],["🇭🇷","Croatie"],["🇺🇿","Ouzbékistan"]]},
@@ -168,13 +176,14 @@ const PRONO_MATCHES = [
   {id:"p5",label:"🏆 Vainqueur du tournoi",date:"19 juillet",group:"Finale"},
 ];
 
+// Liste enrichie des matchs avec l'ID des équipes pour le calcul automatique des groupes
 const MATCHS_DATA = [
-  {day:"11 juin",g:"A",t1:"🇲🇽 Mexique",t2:"🇿🇦 Afrique du Sud",info:"Azteca, Mexico"},
-  {day:"16 juin",g:"I",t1:"🇫🇷 France",t2:"🇸🇳 Sénégal",info:"New York/NJ"},
-  {day:"22 juin",g:"I",t1:"🇫🇷 France",t2:"⚽ Barragiste",info:"Philadelphie"},
-  {day:"26 juin",g:"I",t1:"🇫🇷 France",t2:"🇳🇴 Norvège",info:"Boston"},
-  {day:"Phase groupes",g:"D",t1:"🇦🇷 Argentine",t2:"🇧🇷 Brésil",info:"Gr. D"},
-  {day:"19 juillet",g:"",t1:"🏆 Finaliste 1",t2:"🏆 Finaliste 2",info:"MetLife, New York"},
+  {id:"m0",day:"11 juin",g:"A",t1_flag:"🇲🇽",t1:"Mexique",t2_flag:"🇿🇦",t2:"Afrique du Sud",info:"Azteca, Mexico"},
+  {id:"m1",day:"16 juin",g:"I",t1_flag:"🇫🇷",t1:"France",t2_flag:"🇸🇳",t2:"Sénégal",info:"New York/NJ"},
+  {id:"m2",day:"22 juin",g:"I",t1_flag:"🇫🇷",t1:"France",t2_flag:"⚽",t2:"Barragiste",info:"Philadelphie"},
+  {id:"m3",day:"26 juin",g:"I",t1_flag:"🇫🇷",t1:"France",t2_flag:"🇳🇴",t2:"Norvège",info:"Boston"},
+  {id:"m4",day:"Phase groupes",g:"D",t1_flag:"🇦🇷",t1:"Argentine",t2_flag:"🇧🇷",t2:"Brésil",info:"Gr. D"},
+  {id:"m5",day:"19 juillet",g:"",t1_flag:"🏆",t1:"Finaliste 1",t2_flag:"🏆",t2:"Finaliste 2",info:"MetLife, New York"},
 ];
 
 const TEAMS_DATA = [
@@ -196,65 +205,124 @@ async function syncToFirebase() {
   try { await setDoc(docRef, D); } catch(e) { console.error("Erreur d'écriture cloud:", e); }
 }
 
-function getPts(g,i){ return D.pts[g+i] !== undefined ? D.pts[g+i] : 0; }
+// Fonction de calcul automatique des stats des groupes en fonction des scores saisis
+function computeGroupStandings() {
+  const standings = {};
+  
+  // Initialisation de la structure pour chaque pays
+  Object.entries(GROUPS).forEach(([g, data]) => {
+    standings[g] = data.teams.map(t => ({
+      flag: t[0],
+      name: t[1],
+      played: 0,
+      diff: 0,
+      pts: 0
+    }));
+  });
+
+  // Parcours des matchs de poule pour calculer les totaux
+  MATCHS_DATA.forEach((m) => {
+    if (!m.g) return; // Ignore la finale ou les matchs sans groupe
+    const s1 = D.scores[m.id + 'a'];
+    const s2 = D.scores[m.id + 'b'];
+
+    // Si les deux scores sont saisis (non vides)
+    if (s1 !== undefined && s2 !== undefined && s1 !== '' && s2 !== '') {
+      const score1 = parseInt(s1);
+      const score2 = parseInt(s2);
+      const groupList = standings[m.g];
+      
+      if (groupList) {
+        const team1 = groupList.find(t => t.name === m.t1);
+        const team2 = groupList.find(t => t.name === m.t2);
+
+        if (team1 && team2) {
+          team1.played += 1;
+          team2.played += 1;
+          team1.diff += (score1 - score2);
+          team2.diff += (score2 - score1);
+
+          if (score1 > score2) {
+            team1.pts += 3;
+          } else if (score1 < score2) {
+            team2.pts += 3;
+          } else {
+            team1.pts += 1;
+            team2.pts += 1;
+          }
+        }
+      }
+    }
+  });
+
+  // Tri automatique de chaque groupe (par points, puis différence de buts)
+  Object.keys(standings).forEach(g => {
+    standings[g].sort((a, b) => b.pts - a.pts || b.diff - a.diff);
+  });
+
+  return standings;
+}
 
 // --- RENDERS DE L'INTERFACE ---
 function renderGroups(){
-  const el=document.getElementById('groupes');
-  el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+  const el = document.getElementById('groupes');
+  const standings = computeGroupStandings();
+
+  el.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
     <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#1D9E75;border-radius:2px;display:inline-block"></span>Qualifié direct</span>
-      <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#EF9F27;border-radius:2px;display:inline-block"></span>Potentiel meilleur 3e</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#1D9E75;border-radius:2px;display:inline-block"></span>Qualifié direct</span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#EF9F27;border-radius:2px;display:inline-block"></span>Meilleur 3e</span>
     </div>
   </div>
-  <div class="grp-grid">${Object.entries(GROUPS).map(([g,d])=>{
-    const sorted=[...d.teams].map((t,i)=>({t,i,p:getPts(g,i)})).sort((a,b)=>b.p-a.p);
-    return`<div class="grp-card"><div class="grp-title">Groupe ${g}</div>${sorted.map((item,rank)=>{
-      const cls=rank<2?'team-row q1':rank===2?'team-row q3':'team-row qn';
-      return`<div class="${cls}"><span style="font-size:15px;width:22px">${item.t[0]}</span><span style="flex:1;color:var(--color-text-primary)">${item.t[1]}</span><span class="pts-cell" id="ptscell-${g}-${item.i}">${item.p}</span></div>`;
-    }).join('')}</div>`;}).join('')}</div>`;
-    
-    // Attacher les events d'édition après génération du HTML
-    Object.entries(GROUPS).forEach(([g,d]) => {
-      d.teams.forEach((_,i) => {
-        const cell = document.getElementById(`ptscell-${g}-${i}`);
-        if(cell) cell.onclick = () => editPts(cell, g, i);
-      });
-    });
-}
-
-function editPts(el,g,i){
-  const cur=getPts(g,i); const inp=document.createElement('input');
-  inp.type='number'; inp.value=cur; inp.min=0; inp.max=9;
-  inp.style.cssText='width:28px;height:22px;text-align:center;font-size:12px;border:0.5px solid var(--color-border-info);border-radius:4px;background:var(--color-background-info);color:var(--color-text-info)';
-  el.replaceWith(inp); inp.focus(); inp.select();
-  const commit=()=>{ 
-    D.pts[g+i]=Math.max(0,Math.min(9,parseInt(inp.value)||0)); 
-    renderGroups(); syncToFirebase(); 
-  };
-  inp.onblur=commit;
-  inp.onkeydown=e=>{ if(e.key==='Enter') commit(); };
+  <div class="grp-grid">${Object.entries(standings).map(([g, teams]) => {
+    return `<div class="grp-card">
+      <div class="grp-title">Groupe ${g}</div>
+      <div class="grp-header-row">
+        <span style="flex:1">Équipe</span>
+        <span class="cell-val">J</span>
+        <span class="cell-val">+/-</span>
+        <span class="cell-pts">Pts</span>
+      </div>
+      ${teams.map((team, rank) => {
+        const cls = rank < 2 ? 'team-row q1' : rank === 2 ? 'team-row q3' : 'team-row qn';
+        const diffSign = team.diff > 0 ? `+${team.diff}` : team.diff;
+        return `<div class="${cls}">
+          <div class="cell-name">
+            <span style="font-size:15px; min-width:20px">${team.flag}</span>
+            <span>${team.name}</span>
+          </div>
+          <span class="cell-val">${team.played}</span>
+          <span class="cell-val" style="color:${team.diff > 0 ? 'var(--color-text-success)' : team.diff < 0 ? 'var(--color-text-danger)' : 'var(--color-text-secondary)'}">${diffSign}</span>
+          <span class="cell-pts">${team.pts}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function renderMatchs(){
   const el=document.getElementById('matchs');
-  el.innerHTML=`<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Saisis les scores au fur et à mesure. Ils se synchronisent en temps réel.</p>`+
-  MATCHS_DATA.map((m,idx)=>`<div class="card" style="padding:10px 12px;margin-bottom:8px">
+  el.innerHTML=`<p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Saisis les scores au fur et à mesure. Le classement des groupes et les stats se mettent à jour automatiquement !</p>`+
+  MATCHS_DATA.map((m)=>`<div class="card" style="padding:10px 12px;margin-bottom:8px">
     <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">${m.day}${m.g?' · Gr. '+m.g:''} · ${m.info}</div>
     <div style="display:flex;align-items:center;gap:8px">
-      <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)">${m.t1}</span>
-      <input class="score-in" id="score-${idx}a" type="number" min="0" max="20" placeholder="—" value="${D.scores[idx+'a']!==undefined?D.scores[idx+'a']:''}">
+      <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:6px">
+        <span style="font-size:16px">${m.t1_flag}</span> ${m.t1}
+      </span>
+      <input class="score-in" id="score-${m.id}a" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.id+'a']!==undefined?D.scores[m.id+'a']:''}">
       <span style="color:var(--color-text-tertiary);font-size:12px">–</span>
-      <input class="score-in" id="score-${idx}b" type="number" min="0" max="20" placeholder="—" value="${D.scores[idx+'b']!==undefined?D.scores[idx+'b']:''}">
-      <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right">${m.t2}</span>
+      <input class="score-in" id="score-${m.id}b" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.id+'b']!==undefined?D.scores[m.id+'b']:''}">
+      <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:6px">
+        ${m.t2} <span style="font-size:16px">${m.t2_flag}</span>
+      </span>
     </div>
   </div>`).join('');
 
-  MATCHS_DATA.forEach((_,idx)=>{
-    const inpA = document.getElementById(`score-${idx}a`);
-    const inpB = document.getElementById(`score-${idx}b`);
-    if(inpA) inpA.oninput = (e) => { D.scores[idx+'a']=e.target.value; syncToFirebase(); };
-    if(inpB) inpB.oninput = (e) => { D.scores[idx+'b']=e.target.value; syncToFirebase(); };
+  MATCHS_DATA.forEach((m)=>{
+    const inpA = document.getElementById(`score-${m.id}a`);
+    const inpB = document.getElementById(`score-${m.id}b`);
+    if(inpA) inpA.oninput = (e) => { D.scores[m.id+'a']=e.target.value; syncToFirebase(); };
+    if(inpB) inpB.oninput = (e) => { D.scores[m.id+'b']=e.target.value; syncToFirebase(); };
   });
 }
 
@@ -317,25 +385,25 @@ function renderBracket(){
   </div>`;
 
   // Attachement dynamique des clics
-  const pickW=(ri,mi,t,tn)=>{
+  const pickW=(ri,mi,t)=>{
     D.bracket[`r${ri+1}m${Math.floor(mi/2)}t${(mi%2)+1}`]=t;
     renderBracket(); syncToFirebase();
   };
   for(let r=0;r<4;r++){
     for(let i=0;i<(8/Math.pow(2,r));i++){
       const t1=D.bracket[`r${r}m${i}t1`]||`Éq.${i*2+1}`; const t2=D.bracket[`r${r}m${i}t2`]||`Éq.${i*2+2}`;
-      const b1=document.getElementById(`brkt-${r}-${i}-1`); if(b1) b1.onclick=()=>pickW(r,i,t1,1);
-      const b2=document.getElementById(`brkt-${r}-${i}-2`); if(b2) b2.onclick=()=>pickW(r,i,t2,2);
+      const b1=document.getElementById(`brkt-${r}-${i}-1`); if(b1) b1.onclick=()=>pickW(r,i,t1);
+      const b2=document.getElementById(`brkt-${r}-${i}-2`); if(b2) b2.onclick=()=>pickW(r,i,t2);
     }
     for(let i=0;i<(8/Math.pow(2,3-r));i++){
       const mi = Math.pow(2,3-r)*1 + i;
       const t1=D.bracket[`r${r}m${mi}t1`]||`Éq.${mi*2+1}`; const t2=D.bracket[`r${r}m${mi}t2`]||`Éq.${mi*2+2}`;
-      const b1=document.getElementById(`brkt-${r}-${mi}-1`); if(b1) b1.onclick=()=>pickW(r,mi,t1,1);
-      const b2=document.getElementById(`brkt-${r}-${mi}-2`); if(b2) b2.onclick=()=>pickW(r,mi,t2,2);
+      const b1=document.getElementById(`brkt-${r}-${mi}-1`); if(b1) b1.onclick=()=>pickW(r,mi,t1);
+      const b2=document.getElementById(`brkt-${r}-${mi}-2`); if(b2) b2.onclick=()=>pickW(r,mi,t2);
     }
   }
-  const f1=document.getElementById('brkt-4-0-1'); if(f1) f1.onclick=()=>pickW(4,0,ft1,1);
-  const f2=document.getElementById('brkt-4-0-2'); if(f2) f2.onclick=()=>pickW(4,0,ft2,2);
+  const f1=document.getElementById('brkt-4-0-1'); if(f1) f1.onclick=()=>pickW(4,0,ft1);
+  const f2=document.getElementById('brkt-4-0-2'); if(f2) f2.onclick=()=>pickW(4,0,ft2);
 }
 
 function renderPronos(){
