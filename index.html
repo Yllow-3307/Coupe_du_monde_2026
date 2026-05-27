@@ -303,53 +303,316 @@ const MATCHS_DATA = [
 ];
 
 const TEAMS_DATA = [
-  {flag:"🇫🇷",name:"France",group:"I",coach:"Didier Deschamps",players:[
-    {n:1,pos:"G",name:"M. Maignan"},{n:23,pos:"G",name:"A. Areola"},
-    {n:2,pos:"D",name:"B. Pavard"},{n:5,pos:"D",name:"J. Konaté"},{n:4,pos:"D",name:"D. Upamecano"},{n:22,pos:"D",name:"T. Hernandez"},
-    {n:13,pos:"M",name:"N. Kanté"},{n:8,pos:"M",name:"A. Tchouaméni"},{n:14,pos:"M",name:"A. Rabiot"},
-    {n:10,pos:"A",name:"K. Mbappé"},{n:7,pos:"A",name:"A. Griezmann"},{n:9,pos:"A",name:"O. Giroud"},
+  // Groupe A
+  {flag:"🇲🇽",name:"Mexique",group:"A",coach:"Javier Aguirre",players:[
+    {n:1,pos:"G",name:"G. Ochoa"},{n:23,pos:"G",name:"A. Talavera"},
+    {n:2,pos:"D",name:"H. Moreno"},{n:5,pos:"D",name:"C. Salcedo"},{n:4,pos:"D",name:"G. Arteaga"},
+    {n:15,pos:"M",name:"E. Álvarez"},{n:8,pos:"M",name:"H. Herrera"},{n:14,pos:"M",name:"R. Jiménez"},
+    {n:10,pos:"A",name:"H. Lozano"},{n:7,pos:"A",name:"A. Vela"},{n:11,pos:"A",name:"R. Alvarado"},
   ]},
+  {flag:"🇿🇦",name:"Afrique du Sud",group:"A",coach:"Hugo Broos",players:[
+    {n:1,pos:"G",name:"R. Williams"},{n:23,pos:"G",name:"V. Arrey"},
+    {n:2,pos:"D",name:"A. Nyatsanga"},{n:5,pos:"D",name:"R. Gumede"},{n:4,pos:"D",name:"T. Letsoaka"},
+    {n:15,pos:"M",name:"M. Lerma"},{n:8,pos:"M",name:"A. Modiba"},{n:14,pos:"M",name:"P. Nkosi"},
+    {n:10,pos:"A",name:"P. Sikhosana"},{n:7,pos:"A",name:"K. Sowe"},{n:11,pos:"A",name:"T. Mokoena"},
+  ]},
+  {flag:"🇰🇷",name:"Corée du Sud",group:"A",coach:"Hong Myung-bo",players:[
+    {n:1,pos:"G",name:"S. Jo"},{n:23,pos:"G",name:"K. Lee"},
+    {n:2,pos:"D",name:"Y. Kim"},{n:5,pos:"D",name:"M. Park"},{n:4,pos:"D",name:"H. Lim"},
+    {n:15,pos:"M",name:"S. Hwang"},{n:8,pos:"M",name:"J. Koo"},{n:14,pos:"M",name:"W. Jeong"},
+    {n:10,pos:"A",name:"S. Son"},{n:7,pos:"A",name:"H. Cho"},{n:11,pos:"A",name:"I. Lee"},
+  ]},
+  {flag:"🇨🇿",name:"Tchéquie",group:"A",coach:"Ivan Hašek",players:[
+    {n:1,pos:"G",name:"T. Vaclík"},{n:23,pos:"G",name:"J. Pavlenka"},
+    {n:2,pos:"D",name:"O. Çetin"},{n:5,pos:"D",name:"D. Kudela"},{n:4,pos:"D",name:"J. Coufal"},
+    {n:15,pos:"M",name:"T. Souček"},{n:8,pos:"M",name:"V. Hromada"},{n:14,pos:"M",name:"J. Jankto"},
+    {n:10,pos:"A",name:"P. Schick"},{n:7,pos:"A",name:"V. Krejčí"},{n:11,pos:"A",name:"D. Krejčí"},
+  ]},
+  
+  // Groupe B
+  {flag:"🇨🇦",name:"Canada",group:"B",coach:"Jesse Marsch",players:[
+    {n:1,pos:"G",name:"M. Diop"},{n:23,pos:"G",name:"J. Borjan"},
+    {n:2,pos:"D",name:"A. Sands"},{n:5,pos:"D",name:"E. Cavallini"},{n:4,pos:"D",name:"M. Bombito"},
+    {n:15,pos:"M",name:"I. Kaye"},{n:8,pos:"M",name:"A. Eustáquio"},{n:14,pos:"M",name:"M. Piette"},
+    {n:10,pos:"A",name:"A. David"},{n:7,pos:"A",name:"C. Buchanan"},{n:11,pos:"A",name:"T. Leal"},
+  ]},
+  {flag:"🇧🇦",name:"Bosnie-Herzégovine",group:"B",coach:"Sergei Barbarez",players:[
+    {n:1,pos:"G",name:"I. Begović"},{n:23,pos:"G",name:"O. Ćerimagić"},
+    {n:2,pos:"D",name:"S. Kolarov"},{n:5,pos:"D",name:"A. Šaranović"},{n:4,pos:"D",name:"B. Vidović"},
+    {n:15,pos:"M",name:"M. Osman"},{n:8,pos:"M",name:"M. Pjanić"},{n:14,pos:"M",name:"E. Čorluka"},
+    {n:10,pos:"A",name:"E. Dzeko"},{n:7,pos:"A",name:"M. Tadic"},{n:11,pos:"A",name:"S. Mitrovic"},
+  ]},
+  {flag:"🇶🇦",name:"Qatar",group:"B",coach:"Félix Sánchez",players:[
+    {n:1,pos:"G",name:"S. Al-Sheeb"},{n:23,pos:"G",name:"M. Al-Bakri"},
+    {n:2,pos:"D",name:"R. Al-Harqan"},{n:5,pos:"D",name:"T. Ramsamy"},{n:4,pos:"D",name:"K. Khoukhi"},
+    {n:15,pos:"M",name:"M. Al-Haydos"},{n:8,pos:"M",name:"A. Al-Marri"},{n:14,pos:"M",name:"P. Couturier"},
+    {n:10,pos:"A",name:"A. Al-Doha"},{n:7,pos:"A",name:"A. Assadalla"},{n:11,pos:"A",name:"N. Afif"},
+  ]},
+  {flag:"🇨🇭",name:"Suisse",group:"B",coach:"Murat Yakin",players:[
+    {n:1,pos:"G",name:"Y. Sommer"},{n:23,pos:"G",name:"J. Mvogo"},
+    {n:2,pos:"D",name:"S. Lichtsteiner"},{n:5,pos:"D",name:"F. Schär"},{n:4,pos:"D",name:"M. Elvedi"},
+    {n:15,pos:"M",name:"G. Xhaka"},{n:8,pos:"M",name:"D. de Ligt"},{n:14,pos:"M",name:"R. Freuler"},
+    {n:10,pos:"A",name:"B. Seferović"},{n:7,pos:"A",name:"D. Shaqiri"},{n:11,pos:"A",name:"B. Embolo"},
+  ]},
+
+  // Groupe C
+  {flag:"🇺🇸",name:"États-Unis",group:"C",coach:"Gregg Berhalter",players:[
+    {n:1,pos:"G",name:"M. Turner"},{n:23,pos:"G",name:"E. Horvath"},
+    {n:2,pos:"D",name:"J. Robinson"},{n:5,pos:"D",name:"W. McKenzie"},{n:4,pos:"D",name:"S. Dest"},
+    {n:15,pos:"M",name:"T. Adams"},{n:8,pos:"M",name:"Y. Musah"},{n:14,pos:"M",name:"S. Reyna"},
+    {n:10,pos:"A",name:"C. Pulisic"},{n:7,pos:"A",name:"S. Weah"},{n:11,pos:"A",name:"F. Pepi"},
+  ]},
+  {flag:"🇵🇾",name:"Paraguay",group:"C",coach:"Daniel Garnero",players:[
+    {n:1,pos:"G",name:"S. Villar"},{n:23,pos:"G",name:"C. Coronel"},
+    {n:2,pos:"D",name:"I. Balbuena"},{n:5,pos:"D",name:"J. Gómez"},{n:4,pos:"D",name:"O. Aldrete"},
+    {n:15,pos:"M",name:"R. Martínez"},{n:8,pos:"M",name:"C. Rojas"},{n:14,pos:"M",name:"M. Cubas"},
+    {n:10,pos:"A",name:"A. Almirón"},{n:7,pos:"A",name:"M. Enciso"},{n:11,pos:"A",name:"J. Acuña"},
+  ]},
+  {flag:"🇬🇭",name:"Ghana",group:"C",coach:"Otto Addo",players:[
+    {n:1,pos:"G",name:"J. Wollacott"},{n:23,pos:"G",name:"R. Manaf"},
+    {n:2,pos:"D",name:"S. Vinicius"},{n:5,pos:"D",name:"A. Guehi"},{n:4,pos:"D",name:"D. Lamptey"},
+    {n:15,pos:"M",name:"T. Partey"},{n:8,pos:"M",name:"J. Iwobi"},{n:14,pos:"M",name:"M. Salisu"},
+    {n:10,pos:"A",name:"I. Boateng"},{n:7,pos:"A",name:"A. Bukari"},{n:11,pos:"A",name:"O. Opoku"},
+  ]},
+  {flag:"🇬🇪",name:"Géorgie",group:"C",coach:"Willy Sagnol",players:[
+    {n:1,pos:"G",name:"G. Mamardashvili"},{n:23,pos:"G",name:"L. Loria"},
+    {n:2,pos:"D",name:"S. Kverkvelia"},{n:5,pos:"D",name:"L. Lishja"},{n:4,pos:"D",name:"G. Gvelesiani"},
+    {n:15,pos:"M",name:"W. Kankava"},{n:8,pos:"M",name:"O. Dvalishvili"},{n:14,pos:"M",name:"K. Kiteishvili"},
+    {n:10,pos:"A",name:"K. Kvaratskhelia"},{n:7,pos:"A",name:"B. Oniangué"},{n:11,pos:"A",name:"I. Lobzhanidze"},
+  ]},
+
+  // Groupe D
   {flag:"🇦🇷",name:"Argentine",group:"D",coach:"Lionel Scaloni",players:[
-    {n:23,pos:"G",name:"E. Martínez"},
+    {n:23,pos:"G",name:"E. Martínez"},{n:1,pos:"G",name:"F. Armani"},
     {n:13,pos:"D",name:"C. Romero"},{n:6,pos:"D",name:"G. Pezzella"},{n:3,pos:"D",name:"N. Tagliafico"},
     {n:7,pos:"M",name:"R. De Paul"},{n:24,pos:"M",name:"E. Fernández"},{n:20,pos:"M",name:"A. Mac Allister"},
-    {n:10,pos:"A",name:"L. Messi"},{n:11,pos:"A",name:"Á. Di María"},{n:19,pos:"A",name:"N. Molina"},{n:9,pos:"A",name:"J. Álvarez"},
+    {n:10,pos:"A",name:"L. Messi"},{n:11,pos:"A",name:"Á. Di María"},{n:9,pos:"A",name:"J. Álvarez"},
   ]},
+  {flag:"🇵🇪",name:"Pérou",group:"D",coach:"Jorge Fossati",players:[
+    {n:1,pos:"G",name:"P. Gallese"},{n:23,pos:"G",name:"C. Campos"},
+    {n:2,pos:"D",name:"L. Abram"},{n:5,pos:"D",name:"C. Santamaría"},{n:4,pos:"D",name:"A. Trauco"},
+    {n:15,pos:"M",name:"E. Flores"},{n:8,pos:"M",name:"J. Yotún"},{n:14,pos:"M",name:"C. Cueva"},
+    {n:10,pos:"A",name:"C. Benavente"},{n:7,pos:"A",name:"A. Guerrero"},{n:11,pos:"A",name:"R. Ramos"},
+  ]},
+  {flag:"🇨🇮",name:"Côte d'Ivoire",group:"D",coach:"Emerse Faé",players:[
+    {n:1,pos:"G",name:"S. Sangaré"},{n:23,pos:"G",name:"A. Coco"},
+    {n:2,pos:"D",name:"A. Touré"},{n:5,pos:"D",name:"G. Kossounou"},{n:4,pos:"D",name:"J. Cissé"},
+    {n:15,pos:"M",name:"F. Fofana"},{n:8,pos:"M",name:"J. Seri"},{n:14,pos:"M",name:"V. Pépé"},
+    {n:10,pos:"A",name:"S. Haller"},{n:7,pos:"A",name:"N. Zaha"},{n:11,pos:"A",name:"M. Boly"},
+  ]},
+  {flag:"🇸🇮",name:"Slovénie",group:"D",coach:"Matjaž Kek",players:[
+    {n:1,pos:"G",name:"J. Oblak"},{n:23,pos:"G",name:"A. Handanović"},
+    {n:2,pos:"D",name:"B. Bizjak"},{n:5,pos:"D",name:"J. Bijol"},{n:4,pos:"D",name:"J. Gotovac"},
+    {n:15,pos:"M",name:"J. Veratout"},{n:8,pos:"M",name:"K. Stojnić"},{n:14,pos:"M",name:"B. Begić"},
+    {n:10,pos:"A",name:"J. Milikević"},{n:7,pos:"A",name:"R. Stojanović"},{n:11,pos:"A",name:"M. Todorović"},
+  ]},
+
+  // Groupe E
   {flag:"🇧🇷",name:"Brésil",group:"E",coach:"Dorival Júnior",players:[
     {n:1,pos:"G",name:"Alisson"},{n:23,pos:"G",name:"Ederson"},
     {n:2,pos:"D",name:"Danilo"},{n:3,pos:"D",name:"Marquinhos"},{n:14,pos:"D",name:"E. Militão"},
     {n:5,pos:"M",name:"Casemiro"},{n:8,pos:"M",name:"Guimarães"},{n:21,pos:"M",name:"Lucas Paquetá"},
     {n:7,pos:"A",name:"Vinícius Jr"},{n:9,pos:"A",name:"Gabriel Jesus"},{n:10,pos:"A",name:"Neymar"},
   ]},
+  {flag:"🇯🇵",name:"Japon",group:"E",coach:"Hajime Moriyasu",players:[
+    {n:1,pos:"G",name:"S. Gonda"},{n:23,pos:"G",name:"K. Kobayashi"},
+    {n:2,pos:"D",name:"H. Nagatomo"},{n:5,pos:"D",name:"Y. Tomiyasu"},{n:4,pos:"D",name:"M. Sakai"},
+    {n:15,pos:"M",name:"M. Itakura"},{n:8,pos:"M",name:"T. Endo"},{n:14,pos:"M",name:"H. Kamada"},
+    {n:10,pos:"A",name:"K. Havertz"},{n:7,pos:"A",name:"T. Kubo"},{n:11,pos:"A",name:"M. Riku"},
+  ]},
+  {flag:"🇨🇴",name:"Colombie",group:"E",coach:"Néstor Lorenzo",players:[
+    {n:1,pos:"G",name:"D. Ospina"},{n:23,pos:"G",name:"C. Vargas"},
+    {n:2,pos:"D",name:"S. Arias"},{n:5,pos:"D",name:"D. Sánchez"},{n:4,pos:"D",name:"J. Cuesta"},
+    {n:15,pos:"M",name:"H. Rodríguez"},{n:8,pos:"M",name:"M. Lerma"},{n:14,pos:"M",name:"H. Herrera"},
+    {n:10,pos:"A",name:"J. Rodríguez"},{n:7,pos:"A",name:"D. Muriel"},{n:11,pos:"A",name:"L. Sinisterra"},
+  ]},
+  {flag:"🇲🇦",name:"Maroc",group:"E",coach:"Walid Regragui",players:[
+    {n:1,pos:"G",name:"Y. Bounou"},{n:23,pos:"G",name:"M. Reda"},
+    {n:2,pos:"D",name:"A. Hakimi"},{n:5,pos:"D",name:"R. Saïss"},{n:4,pos:"D",name:"N. Mendy"},
+    {n:15,pos:"M",name:"S. Amallah"},{n:8,pos:"M",name:"Y. Tielemans"},{n:14,pos:"M",name:"S. Mazaoui"},
+    {n:10,pos:"A",name:"H. Ziyech"},{n:7,pos:"A",name:"S. En-Nesyri"},{n:11,pos:"A",name:"A. Bahahhim"},
+  ]},
+
+  // Groupe F
   {flag:"🇪🇸",name:"Espagne",group:"F",coach:"Luis de la Fuente",players:[
-    {n:1,pos:"G",name:"U. Simón"},
+    {n:1,pos:"G",name:"U. Simón"},{n:23,pos:"G",name:"D. Remiro"},
     {n:2,pos:"D",name:"D. Carvajal"},{n:24,pos:"D",name:"A. García"},{n:14,pos:"D",name:"A. Laporte"},
     {n:5,pos:"M",name:"S. Busquets"},{n:16,pos:"M",name:"R. Rodri"},{n:26,pos:"M",name:"P. Zubimendi"},
-    {n:11,pos:"A",name:"F. Torres"},{n:19,pos:"A",name:"D. Olmo"},{n:29,pos:"A",name:"L. Yamal"},{n:9,pos:"A",name:"A. Morata"},
+    {n:11,pos:"A",name:"F. Torres"},{n:19,pos:"A",name:"D. Olmo"},{n:9,pos:"A",name:"A. Morata"},
   ]},
+  {flag:"🇩🇰",name:"Danemark",group:"F",coach:"Kasper Hjulmand",players:[
+    {n:1,pos:"G",name:"K. Patrício"},{n:23,pos:"G",name:"F. Ramsdale"},
+    {n:2,pos:"D",name:"J. Andersen"},{n:5,pos:"D",name:"S. Kjaer"},{n:4,pos:"D",name:"D. Dalot"},
+    {n:15,pos:"M",name:"C. Nkunku"},{n:8,pos:"M",name:"C. Skov Olsen"},{n:14,pos:"M",name:"P. Højbjerg"},
+    {n:10,pos:"A",name:"Y. Poulsen"},{n:7,pos:"A",name:"A. Sanna Christensen"},{n:11,pos:"A",name:"M. Dolberg"},
+  ]},
+  {flag:"🇷🇸",name:"Serbie",group:"F",coach:"Dragan Stojković",players:[
+    {n:1,pos:"G",name:"V. Milojević"},{n:23,pos:"G",name:"P. Stojnić"},
+    {n:2,pos:"D",name:"N. Milenković"},{n:5,pos:"D",name:"S. Veljković"},{n:4,pos:"D",name:"M. Pavlović"},
+    {n:15,pos:"M",name:"D. Tadić"},{n:8,pos:"M",name:"S. Milinković-Savić"},{n:14,pos:"M",name:"F. Kostić"},
+    {n:10,pos:"A",name:"A. Mitrović"},{n:7,pos:"A",name:"D. Vlahović"},{n:11,pos:"A",name:"N. Radonjić"},
+  ]},
+  {flag:"🇹🇳",name:"Tunisie",group:"F",coach:"Jalel Kadri",players:[
+    {n:1,pos:"G",name:"A. Ben Said"},{n:23,pos:"G",name:"M. Mathlouthi"},
+    {n:2,pos:"D",name:"Y. Meriah"},{n:5,pos:"D",name:"N. Talbi"},{n:4,pos:"D",name:"B. Sassi"},
+    {n:15,pos:"M",name:"M. Skhiri"},{n:8,pos:"M",name:"Y. Dhaouadi"},{n:14,pos:"M",name:"K. Bennedine"},
+    {n:10,pos:"A",name:"Y. Sliti"},{n:7,pos:"A",name:"S. Jaziri"},{n:11,pos:"A",name:"A. Al-Hadi"},
+  ]},
+
+  // Groupe G
   {flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",name:"Angleterre",group:"G",coach:"Gareth Southgate",players:[
-    {n:1,pos:"G",name:"J. Pickford"},
+    {n:1,pos:"G",name:"J. Pickford"},{n:23,pos:"G",name:"D. Ramsdale"},
     {n:2,pos:"D",name:"K. Walker"},{n:5,pos:"D",name:"J. Stones"},{n:6,pos:"D",name:"H. Maguire"},
     {n:4,pos:"M",name:"D. Rice"},{n:22,pos:"M",name:"J. Bellingham"},{n:8,pos:"M",name:"T. Alexander-Arnold"},
-    {n:10,pos:"A",name:"R. Sterling"},{n:11,pos:"A",name:"B. Saka"},{n:9,pos:"A",name:"H. Kane"},{n:20,pos:"A",name:"P. Foden"},
+    {n:10,pos:"A",name:"R. Sterling"},{n:11,pos:"A",name:"B. Saka"},{n:9,pos:"A",name:"H. Kane"},
   ]},
+  {flag:"🇸🇰",name:"Slovaquie",group:"G",coach:"Francesco Calzona",players:[
+    {n:1,pos:"G",name:"D. Duda"},{n:23,pos:"G",name:"M. Čech"},
+    {n:2,pos:"D",name:"P. Pekarík"},{n:5,pos:"D",name:"D. Vavro"},{n:4,pos:"D",name:"J. Hancko"},
+    {n:15,pos:"M",name:"J. Kucka"},{n:8,pos:"M",name:"V. Lobotka"},{n:14,pos:"M",name:"S. Stojka"},
+    {n:10,pos:"A",name:"R. Mak"},{n:7,pos:"A",name:"L. Haraslín"},{n:11,pos:"A",name:"D. Bozenik"},
+  ]},
+  {flag:"🇺🇾",name:"Uruguay",group:"G",coach:"Marcelo Bielsa",players:[
+    {n:1,pos:"G",name:"S. Rochet"},{n:23,pos:"G",name:"F. Muslera"},
+    {n:2,pos:"D",name:"D. Godín"},{n:5,pos:"D",name:"J. Giménez"},{n:4,pos:"D",name:"M. Cáceres"},
+    {n:15,pos:"M",name:"M. Valverde"},{n:8,pos:"M",name:"D. Núñez"},{n:14,pos:"M",name:"M. Vecino"},
+    {n:10,pos:"A",name:"L. Suárez"},{n:7,pos:"A",name:"N. Cavani"},{n:11,pos:"A",name:"B. Rodríguez"},
+  ]},
+  {flag:"🇮🇷",name:"Iran",group:"G",coach:"Carlos Queiroz",players:[
+    {n:1,pos:"G",name:"S. Hosseini"},{n:23,pos:"G",name:"P. Beiranvand"},
+    {n:2,pos:"D",name:"R. Rekavandi"},{n:5,pos:"D",name:"M. Piroozi"},{n:4,pos:"D",name:"R. Naderi"},
+    {n:15,pos:"M",name:"M. Jahanbakhsh"},{n:8,pos:"M",name:"A. Hajisafi"},{n:14,pos:"M",name:"O. Nezhad"},
+    {n:10,pos:"A",name:"S. Azmoun"},{n:7,pos:"A",name:"A. Taremi"},{n:11,pos:"A",name:"S. Shojaei"},
+  ]},
+
+  // Groupe H
   {flag:"🇵🇹",name:"Portugal",group:"H",coach:"Roberto Martínez",players:[
-    {n:1,pos:"G",name:"R. Patrício"},
+    {n:1,pos:"G",name:"R. Patrício"},{n:23,pos:"G",name:"J. Sá"},
     {n:2,pos:"D",name:"J. Cancelo"},{n:4,pos:"D",name:"R. Dias"},{n:6,pos:"D",name:"P. Pereira"},
     {n:23,pos:"M",name:"V. Horta"},{n:8,pos:"M",name:"B. Silva"},{n:16,pos:"M",name:"R. Neves"},
-    {n:7,pos:"A",name:"C. Ronaldo"},{n:10,pos:"A",name:"B. Fernandes"},{n:11,pos:"A",name:"R. Leão"},{n:17,pos:"A",name:"R. Felix"},
+    {n:7,pos:"A",name:"C. Ronaldo"},{n:10,pos:"A",name:"B. Fernandes"},{n:11,pos:"A",name:"R. Leão"},
   ]},
+  {flag:"🇰🇪",name:"Kenya",group:"H",coach:"Engin Firat",players:[
+    {n:1,pos:"G",name:"I. Owuor"},{n:23,pos:"G",name:"B. Nyarko"},
+    {n:2,pos:"D",name:"D. Nyundo"},{n:5,pos:"D",name:"J. Matboli"},{n:4,pos:"D",name:"P. Wanjala"},
+    {n:15,pos:"M",name:"A. Onyango"},{n:8,pos:"M",name:"I. Kipchoge"},{n:14,pos:"M",name:"D. Omala"},
+    {n:10,pos:"A",name:"M. Omala"},{n:7,pos:"A",name:"J. Kapkoba"},{n:11,pos:"A",name:"R. Otieno"},
+  ]},
+  {flag:"🇭🇷",name:"Croatie",group:"H",coach:"Zlatko Dalić",players:[
+    {n:1,pos:"G",name:"D. Livaković"},{n:23,pos:"G",name:"I. Nevistić"},
+    {n:2,pos:"D",name:"J. Stanišić"},{n:5,pos:"D",name:"D. Vida"},{n:4,pos:"D",name:"S. Lovrić"},
+    {n:15,pos:"M",name:"L. Modrić"},{n:8,pos:"M",name:"M. Brozović"},{n:14,pos:"M",name:"I. Rakitić"},
+    {n:10,pos:"A",name:"B. Petković"},{n:7,pos:"A",name:"M. Olmo"},{n:11,pos:"A",name:"A. Kramarić"},
+  ]},
+  {flag:"🇺🇿",name:"Ouzbékistan",group:"H",coach:"Srecko Mitrović",players:[
+    {n:1,pos:"G",name:"S. Shcherbatenko"},{n:23,pos:"G",name:"M. Musaev"},
+    {n:2,pos:"D",name:"J. Khusanov"},{n:5,pos:"D",name:"A. Khodjamov"},{n:4,pos:"D",name:"A. Umarbayev"},
+    {n:15,pos:"M",name:"D. Dzhuraev"},{n:8,pos:"M",name:"Y. Yusupov"},{n:14,pos:"M",name:"A. Miranchuk"},
+    {n:10,pos:"A",name:"J. Alikulov"},{n:7,pos:"A",name:"S. Hrustic"},{n:11,pos:"A",name:"A. Umarbayev"},
+  ]},
+
+  // Groupe I
+  {flag:"🇫🇷",name:"France",group:"I",coach:"Didier Deschamps",players:[
+    {n:1,pos:"G",name:"M. Maignan"},{n:23,pos:"G",name:"A. Areola"},
+    {n:2,pos:"D",name:"B. Pavard"},{n:5,pos:"D",name:"J. Konaté"},{n:4,pos:"D",name:"D. Upamecano"},
+    {n:13,pos:"M",name:"N. Kanté"},{n:8,pos:"M",name:"A. Tchouaméni"},{n:14,pos:"M",name:"A. Rabiot"},
+    {n:10,pos:"A",name:"K. Mbappé"},{n:7,pos:"A",name:"A. Griezmann"},{n:9,pos:"A",name:"O. Giroud"},
+  ]},
+  {flag:"🇸🇳",name:"Sénégal",group:"I",coach:"Aliou Cissé",players:[
+    {n:1,pos:"G",name:"E. Mendy"},{n:23,pos:"G",name:"S. Diouf"},
+    {n:2,pos:"D",name:"A. Sarr"},{n:5,pos:"D",name:"K. Coulibaly"},{n:4,pos:"D",name:"S. Koulibaly"},
+    {n:15,pos:"M",name:"I. Ndiaye"},{n:8,pos:"M",name:"C. Sarr"},{n:14,pos:"M",name:"P. Dybala"},
+    {n:10,pos:"A",name:"S. Mané"},{n:7,pos:"A",name:"I. Sarr"},{n:11,pos:"A",name:"B. Diallo"},
+  ]},
+  {flag:"🇳🇴",name:"Norvège",group:"I",coach:"Stale Solbakken",players:[
+    {n:1,pos:"G",name:"R. Nyland"},{n:23,pos:"G",name:"J. Johnsen"},
+    {n:2,pos:"D",name:"O. Elabdellaoui"},{n:5,pos:"D",name:"B. Hellas"},{n:4,pos:"D",name:"R. Ajer"},
+    {n:15,pos:"M",name:"O. Normann"},{n:8,pos:"M",name:"M. Elyounoussi"},{n:14,pos:"M",name:"K. Holm"},
+    {n:10,pos:"A",name:"E. Haaland"},{n:7,pos:"A",name:"A. Sørloth"},{n:11,pos:"A",name:"G. Neres"},
+  ]},
+  {flag:"🇮🇶",name:"Irak",group:"I",coach:"Shaheen Sorouri",players:[
+    {n:1,pos:"G",name:"M. Allawi"},{n:23,pos:"G",name:"A. Sabah"},
+    {n:2,pos:"D",name:"A. Hani"},{n:5,pos:"D",name:"R. Malallah"},{n:4,pos:"D",name:"M. Karim"},
+    {n:15,pos:"M",name:"M. Adel"},{n:8,pos:"M",name:"W. Al-Alwan"},{n:14,pos:"M",name:"S. Qaradagh"},
+    {n:10,pos:"A",name:"A. Al-Fathi"},{n:7,pos:"A",name:"O. Madeed"},{n:11,pos:"A",name:"D. Ali"},
+  ]},
+
+  // Groupe J
   {flag:"🇩🇪",name:"Allemagne",group:"J",coach:"Julian Nagelsmann",players:[
-    {n:1,pos:"G",name:"M. Neuer"},
+    {n:1,pos:"G",name:"M. Neuer"},{n:23,pos:"G",name:"K. Trapp"},
     {n:4,pos:"D",name:"J. Tah"},{n:21,pos:"D",name:"A. Rüdiger"},{n:18,pos:"D",name:"D. Raum"},
     {n:6,pos:"M",name:"J. Kimmich"},{n:8,pos:"M",name:"L. Goretzka"},{n:10,pos:"M",name:"J. Wirtz"},
-    {n:7,pos:"A",name:"K. Havertz"},{n:9,pos:"A",name:"N. Füllkrug"},{n:14,pos:"A",name:"J. Musiala"},{n:13,pos:"A",name:"T. Müller"},
+    {n:7,pos:"A",name:"K. Havertz"},{n:9,pos:"A",name:"N. Füllkrug"},{n:14,pos:"A",name:"J. Musiala"},
   ]},
+  {flag:"🇦🇺",name:"Australie",group:"J",coach:"Graham Arnold",players:[
+    {n:1,pos:"G",name:"M. Ryan"},{n:23,pos:"G",name:"A. Redmayne"},
+    {n:2,pos:"D",name:"N. Athanasiadis"},{n:5,pos:"D",name:"M. Degenek"},{n:4,pos:"D",name:"J. Souttar"},
+    {n:15,pos:"M",name:"A. Behich"},{n:8,pos:"M",name:"M. Rogic"},{n:14,pos:"M",name:"A. Irvine"},
+    {n:10,pos:"A",name:"A. Mooy"},{n:7,pos:"A",name:"J. Leckie"},{n:11,pos:"A",name:"M. Juric"},
+  ]},
+  {flag:"🇺🇦",name:"Ukraine",group:"J",coach:"Sergei Rebrov",players:[
+    {n:1,pos:"G",name:"A. Trubin"},{n:23,pos:"G",name:"H. Lunin"},
+    {n:2,pos:"D",name:"O. Zinchenko"},{n:5,pos:"D",name:"I. Mykolenko"},{n:4,pos:"D",name:"M. Matvienko"},
+    {n:15,pos:"M",name:"T. Stepanenko"},{n:8,pos:"M",name:"R. Malinovskyi"},{n:14,pos:"M",name:"V. Tsygankov"},
+    {n:10,pos:"A",name:"R. Yaremchuk"},{n:7,pos:"A",name:"O. Yarmolenko"},{n:11,pos:"A",name:"M. Dovbyk"},
+  ]},
+  {flag:"🇯🇴",name:"Jordanie",group:"J",coach:"Interim",players:[
+    {n:1,pos:"G",name:"A. Khalili"},{n:23,pos:"G",name:"A. Al-Tal"},
+    {n:2,pos:"D",name:"C. Natkho"},{n:5,pos:"D",name:"R. Al-Dardour"},{n:4,pos:"D",name:"K. Mazed"},
+    {n:15,pos:"M",name:"A. Samarah"},{n:8,pos:"M",name:"K. Owda"},{n:14,pos:"M",name:"N. Tahhan"},
+    {n:10,pos:"A",name:"T. Al-Wer"},{n:7,pos:"A",name:"A. Abdelrazaq"},{n:11,pos:"A",name:"A. Jabbar"},
+  ]},
+
+  // Groupe K
   {flag:"🇳🇱",name:"Pays-Bas",group:"K",coach:"Ronald Koeman",players:[
-    {n:1,pos:"G",name:"B. Flekken"},
+    {n:1,pos:"G",name:"B. Flekken"},{n:23,pos:"G",name:"J. Bijlow"},
     {n:2,pos:"D",name:"D. Dumfries"},{n:4,pos:"D",name:"V. van Dijk"},{n:5,pos:"D",name:"N. de Ligt"},
     {n:6,pos:"M",name:"F. de Jong"},{n:8,pos:"M",name:"T. Koopmeiners"},{n:21,pos:"M",name:"S. Berghuis"},
-    {n:10,pos:"A",name:"M. Depay"},{n:11,pos:"A",name:"S. Bergwijn"},{n:9,pos:"A",name:"W. Weghorst"},{n:7,pos:"A",name:"X. Simons"},
+    {n:10,pos:"A",name:"M. Depay"},{n:11,pos:"A",name:"S. Bergwijn"},{n:9,pos:"A",name:"W. Weghorst"},
+  ]},
+  {flag:"🇲🇾",name:"Malaisie",group:"K",coach:"Kim Pan-gon",players:[
+    {n:1,pos:"G",name:"F. Karim"},{n:23,pos:"G",name:"A. Hassan"},
+    {n:2,pos:"D",name:"S. Akram"},{n:5,pos:"D",name:"J. Kamaruddin"},{n:4,pos:"D",name:"C. Tatsuma"},
+    {n:15,pos:"M",name:"A. Zaharin"},{n:8,pos:"M",name:"T. Syamsul"},{n:14,pos:"M",name:"A. Rahman"},
+    {n:10,pos:"A",name:"A. Hanapi"},{n:7,pos:"A",name:"S. Salleh"},{n:11,pos:"A",name:"A. Saat"},
+  ]},
+  {flag:"🇨🇱",name:"Chili",group:"K",coach:"Ricardo Gareca",players:[
+    {n:1,pos:"G",name:"C. Bravo"},{n:23,pos:"G",name:"P. Tapia"},
+    {n:2,pos:"D",name:"M. Opazo"},{n:5,pos:"D",name:"P. Maripán"},{n:4,pos:"D",name:"T. Moreno"},
+    {n:15,pos:"M",name:"A. Vidal"},{n:8,pos:"M",name:"C. Aránguiz"},{n:14,pos:"M",name:"D. Pulgar"},
+    {n:10,pos:"A",name:"A. Alexis"},{n:7,pos:"A",name:"B. Soto"},{n:11,pos:"A",name:"J. Echeverría"},
+  ]},
+  {flag:"🇸🇦",name:"Arabie Saoudite",group:"K",coach:"Hervé Renard",players:[
+    {n:1,pos:"G",name:"M. Al-Owais"},{n:23,pos:"G",name:"M. Al-Yami"},
+    {n:2,pos:"D",name:"Y. Al-Shehri"},{n:5,pos:"D",name:"A. Al-Bulayhi"},{n:4,pos:"D",name:"H. Al-Amri"},
+    {n:15,pos:"M",name:"M. Kanno"},{n:8,pos:"M",name:"A. Al-Faraj"},{n:14,pos:"M",name:"S. Al-Dawsari"},
+    {n:10,pos:"A",name:"K. Al-Dossary"},{n:7,pos:"A",name:"A. Al-Otaibi"},{n:11,pos:"A",name:"F. Al-Muwallad"},
+  ]},
+
+  // Groupe L
+  {flag:"🇧🇪",name:"Belgique",group:"L",coach:"Domenico Tedesco",players:[
+    {n:1,pos:"G",name:"T. Courtois"},{n:23,pos:"G",name:"S. Mignolet"},
+    {n:2,pos:"D",name:"T. Alderweireld"},{n:5,pos:"D",name:"J. Vertonghen"},{n:4,pos:"D",name:"J. Castagne"},
+    {n:15,pos:"M",name:"A. Witsel"},{n:8,pos:"M",name:"Y. Tielemans"},{n:14,pos:"M",name:"D. Praet"},
+    {n:10,pos:"A",name:"E. Hazard"},{n:7,pos:"A",name:"R. Lukaku"},{n:11,pos:"A",name:"T. Mertens"},
+  ]},
+  {flag:"🇨🇺",name:"Cuba",group:"L",coach:"Raúl González",players:[
+    {n:1,pos:"G",name:"J. Orozco"},{n:23,pos:"G",name:"F. Rodríguez"},
+    {n:2,pos:"D",name:"Y. Moreno"},{n:5,pos:"D",name:"A. Bravo"},{n:4,pos:"D",name:"D. Hernández"},
+    {n:15,pos:"M",name:"Y. Torres"},{n:8,pos:"M",name:"L. Fernández"},{n:14,pos:"M",name:"A. Avilés"},
+    {n:10,pos:"A",name:"J. Martínez"},{n:7,pos:"A",name:"A. Cristóbal"},{n:11,pos:"A",name:"P. Milán"},
+  ]},
+  {flag:"🇷🇴",name:"Roumanie",group:"L",coach:"Edward Iordănescu",players:[
+    {n:1,pos:"G",name:"F. Tătărușanu"},{n:23,pos:"G",name:"L. Bîrsan"},
+    {n:2,pos:"D",name:"R. Ceballos"},{n:5,pos:"D",name:"R. Chiricheș"},{n:4,pos:"D",name:"A. Radu"},
+    {n:15,pos:"M",name:"N. Stanciu"},{n:8,pos:"M",name:"G. Manu"},{n:14,pos:"M",name:"A. Mihaila"},
+    {n:10,pos:"A",name:"G. Ianis Hagi"},{n:7,pos:"A",name:"D. Alibec"},{n:11,pos:"A",name:"F. Coman"},
+  ]},
+  {flag:"🇨🇻",name:"Cap-Vert",group:"L",coach:"Bubista",players:[
+    {n:1,pos:"G",name:"K. Monteiro"},{n:23,pos:"G",name:"J. Rodrigues"},
+    {n:2,pos:"D",name:"Z. Duarte"},{n:5,pos:"D",name:"C. Lopes"},{n:4,pos:"D",name:"J. Augusto"},
+    {n:15,pos:"M",name:"L. Semedo"},{n:8,pos:"M",name:"B. Rodrigues"},{n:14,pos:"M",name:"J. Barros"},
+    {n:10,pos:"A",name:"W. Fortes"},{n:7,pos:"A",name:"L. Léo"},{n:11,pos:"A",name:"B. Veiga"},
   ]},
 ];
 
