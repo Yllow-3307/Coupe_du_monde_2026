@@ -187,11 +187,114 @@ const GROUPS = {
 };
 
 const PRONO_MATCHES = [
-  {id:"p1",label:"🇫🇷 France vs 🇸🇳 Sénégal",date:"16 juin",group:"Gr. I"},
-  {id:"p2",label:"🇦🇷 Argentine vs 🇧🇷 Brésil",date:"Phase groupes",group:"Gr. D/E"},
-  {id:"p3",label:"🇪🇸 Espagne vs 🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre",date:"Phase groupes",group:"Gr. F/G"},
-  {id:"p4",label:"🇫🇷 France vs 🇳🇴 Norvège",date:"26 juin",group:"Gr. I"},
-  {id:"p5",label:"🏆 Vainqueur du tournoi",date:"19 juillet",group:"Finale"},
+ const PRONO_MATCHES = [
+  // --- GROUPE A ---
+  {id:"p1",label:"🇲🇽 Mexique vs 🇿🇦 Afrique du Sud",date:"11 Juin",group:"Gr. A"},
+  {id:"p2",label:"🇰🇷 Corée du Sud vs 🇨🇿 Tchéquie",date:"12 Juin",group:"Gr. A"},
+  {id:"p3",label:"🇨🇿 Tchéquie vs 🇿🇦 Afrique du Sud",date:"19 Juin",group:"Gr. A"},
+  {id:"p4",label:"🇲🇽 Mexique vs 🇰🇷 Corée du Sud",date:"19 Juin",group:"Gr. A"},
+  {id:"p5",label:"🇨🇿 Tchéquie vs 🇲🇽 Mexique",date:"24 Juin",group:"Gr. A"},
+  {id:"p6",label:"🇿🇦 Afrique du Sud vs 🇰🇷 Corée du Sud",date:"24 Juin",group:"Gr. A"},
+
+  // --- GROUPE B ---
+  {id:"p7",label:"🇨🇦 Canada vs 🇧🇦 Bosnie-Herz.",date:"12 Juin",group:"Gr. B"},
+  {id:"p8",label:"🇶🇦 Qatar vs 🇨🇭 Suisse",date:"13 Juin",group:"Gr. B"},
+  {id:"p9",label:"🇨🇦 Canada vs 🇶🇦 Qatar",date:"18 Juin",group:"Gr. B"},
+  {id:"p10",label:"🇨🇭 Suisse vs 🇧🇦 Bosnie-Herz.",date:"18 Juin",group:"Gr. B"},
+  {id:"p11",label:"🇨🇭 Suisse vs 🇨🇦 Canada",date:"24 Juin",group:"Gr. B"},
+  {id:"p12",label:"🇧🇦 Bosnie-Herz. vs 🇶🇦 Qatar",date:"24 Juin",group:"Gr. B"},
+
+  // --- GROUPE C ---
+  {id:"p13",label:"🇺🇸 États-Unis vs 🇵🇾 Paraguay",date:"13 Juin",group:"Gr. C"},
+  {id:"p14",label:"🇬🇭 Ghana vs 🇬🇪 Géorgie",date:"13 Juin",group:"Gr. C"},
+  {id:"p15",label:"🇺🇸 États-Unis vs 🇬🇭 Ghana",date:"19 Juin",group:"Gr. C"},
+  {id:"p16",label:"🇬🇪 Géorgie vs 🇵🇾 Paraguay",date:"19 Juin",group:"Gr. C"},
+  {id:"p17",label:"🇬🇪 Géorgie vs 🇺🇸 États-Unis",date:"25 Juin",group:"Gr. C"},
+  {id:"p18",label:"🇵🇾 Paraguay vs 🇬🇭 Ghana",date:"25 Juin",group:"Gr. C"},
+
+  // --- GROUPE D ---
+  {id:"p19",label:"🇦🇷 Argentine vs 🇵🇪 Pérou",date:"14 Juin",group:"Gr. D"},
+  {id:"p20",label:"🇨🇮 Côte d'Ivoire vs 🇸🇮 Slovénie",date:"14 Juin",group:"Gr. D"},
+  {id:"p21",label:"🇦🇷 Argentine vs 🇨🇮 Côte d'Ivoire",date:"20 Juin",group:"Gr. D"},
+  {id:"p22",label:"🇸🇮 Slovénie vs 🇵🇪 Pérou",date:"20 Juin",group:"Gr. D"},
+  {id:"p23",label:"🇸🇮 Slovénie vs 🇦🇷 Argentine",date:"25 Juin",group:"Gr. D"},
+  {id:"p24",label:"🇵🇪 Pérou vs 🇨🇮 Côte d'Ivoire",date:"25 Juin",group:"Gr. D"},
+
+  // --- GROUPE E ---
+  {id:"p25",label:"🇧🇷 Brésil vs 🇯🇵 Japon",date:"14 Juin",group:"Gr. E"},
+  {id:"p26",label:"🇨🇴 Colombie vs 🇲🇦 Maroc",date:"15 Juin",group:"Gr. E"},
+  {id:"p27",label:"🇧🇷 Brésil vs 🇨🇴 Colombie",date:"20 Juin",group:"Gr. E"},
+  {id:"p28",label:"🇲🇦 Maroc vs 🇯🇵 Japon",date:"20 Juin",group:"Gr. E"},
+  {id:"p29",label:"🇲🇦 Maroc vs 🇧🇷 Brésil",date:"25 Juin",group:"Gr. E"},
+  {id:"p30",label:"🇯🇵 Japon vs 🇨🇴 Colombie",date:"25 Juin",group:"Gr. E"},
+
+  // --- GROUPE F ---
+  {id:"p31",label:"🇪🇸 Espagne vs 🇩🇰 Danemark",date:"15 Juin",group:"Gr. F"},
+  {id:"p32",label:"🇷🇸 Serbie vs 🇹🇳 Tunisie",date:"15 Juin",group:"Gr. F"},
+  {id:"p33",label:"🇪🇸 Espagne vs 🇷🇸 Serbie",date:"21 Juin",group:"Gr. F"},
+  {id:"p34",label:"🇹🇳 Tunisie vs 🇩🇰 Danemark",date:"21 Juin",group:"Gr. F"},
+  {id:"p35",label:"🇹🇳 Tunisie vs 🇪🇸 Espagne",date:"26 Juin",group:"Gr. F"},
+  {id:"p36",label:"🇩🇰 Danemark vs 🇷🇸 Serbie",date:"26 Juin",group:"Gr. F"},
+
+  // --- GROUPE G ---
+  {id:"p37",label:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre vs 🇸🇰 Slovaquie",date:"15 Juin",group:"Gr. G"},
+  {id:"p38",label:"🇺🇾 Uruguay vs 🇮🇷 Iran",date:"16 Juin",group:"Gr. G"},
+  {id:"p39",label:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre vs 🇺🇾 Uruguay",date:"21 Juin",group:"Gr. G"},
+  {id:"p40",label:"🇮🇷 Iran vs 🇸🇰 Slovaquie",date:"21 Juin",group:"Gr. G"},
+  {id:"p41",label:"🇮🇷 Iran vs 🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre",date:"26 Juin",group:"Gr. G"},
+  {id:"p42",label:"🇸🇰 Slovaquie vs 🇺🇾 Uruguay",date:"26 Juin",group:"Gr. G"},
+
+  // --- GROUPE H ---
+  {id:"p43",label:"🇵🇹 Portugal vs 🇰🇪 Kenya",date:"16 Juin",group:"Gr. H"},
+  {id:"p44",label:"🇭🇷 Croatie vs 🇺🇿 Ouzbékistan",date:"16 Juin",group:"Gr. H"},
+  {id:"p45",label:"🇵🇹 Portugal vs 🇭🇷 Croatie",date:"22 Juin",group:"Gr. H"},
+  {id:"p46",label:"🇺🇿 Ouzbékistan vs 🇰🇪 Kenya",date:"22 Juin",group:"Gr. H"},
+  {id:"p47",label:"🇺🇿 Ouzbékistan vs 🇵🇹 Portugal",date:"26 Juin",group:"Gr. H"},
+  {id:"p48",label:"🇰🇪 Kenya vs 🇭🇷 Croatie",date:"26 Juin",group:"Gr. H"},
+
+  // --- GROUPE I ---
+  {id:"p49",label:"🇫🇷 France vs 🇸🇳 Sénégal",date:"16 Juin",group:"Gr. I"},
+  {id:"p50",label:"🇳🇴 Norvège vs 🇮🇶 Irak",date:"17 Juin",group:"Gr. I"},
+  {id:"p51",label:"🇫🇷 France vs 🇳🇴 Norvège",date:"22 Juin",group:"Gr. I"},
+  {id:"p52",label:"🇮🇶 Irak vs 🇸🇳 Sénégal",date:"22 Juin",group:"Gr. I"},
+  {id:"p53",label:"🇮🇶 Irak vs 🇫🇷 France",date:"27 Juin",group:"Gr. I"},
+  {id:"p54",label:"🇸🇳 Sénégal vs 🇳🇴 Norvège",date:"27 Juin",group:"Gr. I"},
+
+  // --- GROUPE J ---
+  {id:"p55",label:"🇩🇪 Allemagne vs 🇦🇺 Australie",date:"17 Juin",group:"Gr. J"},
+  {id:"p56",label:"🇺🇦 Ukraine vs 🇯🇴 Jordanie",date:"18 Juin",group:"Gr. J"},
+  {id:"p57",label:"🇩🇪 Allemagne vs 🇺🇦 Ukraine",date:"23 Juin",group:"Gr. J"},
+  {id:"p58",label:"🇯🇴 Jordanie vs 🇦🇺 Australie",date:"23 Juin",group:"Gr. J"},
+  {id:"p59",label:"🇯🇴 Jordanie vs 🇩🇪 Allemagne",date:"27 Juin",group:"Gr. J"},
+  {id:"p60",label:"🇦🇺 Australie vs 🇺🇦 Ukraine",date:"27 Juin",group:"Gr. J"},
+
+  // --- GROUPE K ---
+  {id:"p61",label:"🇳🇱 Pays-Bas vs 🇲🇾 Malaisie",date:"18 Juin",group:"Gr. K"},
+  {id:"p62",label:"🇨🇱 Chili vs 🇸🇦 Arabie Saoudite",date:"18 Juin",group:"Gr. K"},
+  {id:"p63",label:"🇳🇱 Pays-Bas vs 🇨🇱 Chili",date:"23 Juin",group:"Gr. K"},
+  {id:"p64",label:"🇸🇦 Arabie Saoudite vs 🇲🇾 Malaisie",date:"23 Juin",group:"Gr. K"},
+  {id:"p65",label:"🇸🇦 Arabie Saoudite vs 🇳🇱 Pays-Bas",date:"27 Juin",group:"Gr. K"},
+  {id:"p66",label:"🇲🇾 Malaisie vs 🇨🇱 Chili",date:"27 Juin",group:"Gr. K"},
+
+  // --- GROUPE L ---
+  {id:"p67",label:"🇧🇪 Belgique vs 🇨🇺 Cuba",date:"19 Juin",group:"Gr. L"},
+  {id:"p68",label:"🇷🇴 Roumanie vs 🇨🇻 Cap-Vert",date:"19 Juin",group:"Gr. L"},
+  {id:"p69",label:"🇧🇪 Belgique vs 🇷🇴 Roumanie",date:"23 Juin",group:"Gr. L"},
+  {id:"p70",label:"🇨🇻 Cap-Vert vs 🇨🇺 Cuba",date:"23 Juin",group:"Gr. L"},
+  {id:"p71",label:"🇨🇻 Cap-Vert vs 🇧🇪 Belgique",date:"27 Juin",group:"Gr. L"},
+  {id:"p72",label:"🇨🇺 Cuba vs 🇷🇴 Roumanie",date:"27 Juin",group:"Gr. L"},
+
+  // --- PHASES ÉLIMINATOIRES ---
+  {id:"p73",label:"16es de Finale 1",date:"28-30 Juin",group:"Élim."},
+  {id:"p74",label:"16es de Finale 2",date:"01-03 Juillet",group:"Élim."},
+  {id:"p75",label:"8es de Finale 1",date:"04-06 Juillet",group:"Élim."},
+  {id:"p76",label:"8es de Finale 2",date:"07 Juillet",group:"Élim."},
+  {id:"p77",label:"Quarts de Finale 1",date:"09-10 Juillet",group:"Élim."},
+  {id:"p78",label:"Quarts de Finale 2",date:"11 Juillet",group:"Élim."},
+  {id:"p79",label:"Demi-Finale 1",date:"14 Juillet",group:"Élim."},
+  {id:"p80",label:"Demi-Finale 2",date:"15 Juillet",group:"Élim."},
+  {id:"p81",label:"Petite Finale (3e place)",date:"18 Juillet",group:"Élim."},
+  {id:"p82",label:"Finale",date:"19 Juillet",group:"Élim."},
 ];
 
 // Base complète de données de tous les matchs
