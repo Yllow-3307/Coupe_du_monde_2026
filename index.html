@@ -631,6 +631,33 @@ function save(){try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}}
 
 function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
 
+// Récupère les scores depuis Google Sheets
+async function syncScoresFromGoogle() {
+  try {
+    const url = "https://script.google.com/macros/d/AKfycbyg8hdAjUa4s-kL82fTjETUI6kOpZ37wYBvtLkWAJVD4Ze26qyqm1MGi0CJeeTLqT5GvA/useTrigger";
+    const response = await fetch(url);
+    const scores = await response.json();
+    
+    // Remplit D.scores avec les données du sheet
+    scores.forEach((score, idx) => {
+      D.scores[idx + 'a'] = score.score1.toString();
+      D.scores[idx + 'b'] = score.score2.toString();
+    });
+    
+    save();
+    renderGroups();
+    console.log("✅ Scores synchronisés depuis Google Sheets");
+  } catch (e) {
+    console.error("❌ Erreur sync:", e);
+  }
+}
+
+// Sync automatique toutes les 30 secondes
+setInterval(syncScoresFromGoogle, 30000);
+
+// Sync au démarrage
+syncScoresFromGoogle();
+  
 function renderGroups(){
   const el=document.getElementById('groupes');
   el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
