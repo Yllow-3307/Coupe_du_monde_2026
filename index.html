@@ -466,31 +466,31 @@ function updateMatchFilters(){
 
 function renderBracket() {
   const el = document.getElementById('bracket');
-  // On injecte le HTML de structure que tu as défini dans le style
+  if (!el) return;
+
   el.innerHTML = `
     <div class="bracket-wrapper">
       <div class="b-side">
-        <div class="b-col"><div class="b-col-title">16es</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
-        <div class="b-col"><div class="b-col-title">8es</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
-        <div class="b-col"><div class="b-col-title">QUARTS</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
-        <div class="b-col"><div class="b-col-title">DEMIES</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
+        ${renderCol('L', '16', '16es', 8)} 
+        ${renderCol('L', '8', '8es', 4)}
+        ${renderCol('L', 'QF', 'Quarts', 2)}
+        ${renderCol('L', 'SF', 'Demies', 1)}
       </div>
-      
-      <div class="b-col" style="justify-content:center;">
+
+      <div class="b-col" style="justify-content:center; min-width:100px;">
         <div class="b-col-title">FINALE</div>
         <div class="b-match"><div class="b-team">Vainqueur A</div><div class="b-team">Vainqueur B</div></div>
       </div>
 
       <div class="b-side">
-        <div class="b-col"><div class="b-col-title">DEMIES</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
-        <div class="b-col"><div class="b-col-title">QUARTS</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
-        <div class="b-col"><div class="b-col-title">8es</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
-        <div class="b-col"><div class="b-col-title">16es</div><div class="b-match"><div class="b-team">?</div><div class="b-team">?</div></div></div>
+        ${renderCol('R', 'SF', 'Demies', 1)}
+        ${renderCol('R', 'QF', 'Quarts', 2)}
+        ${renderCol('R', '8', '8es', 4)}
+        ${renderCol('R', '16', '16es', 8)}
       </div>
     </div>
   `;
 }
-
 function renderCol(side, phase, label, numMatches) {
   let matchesHtml = '';
   
