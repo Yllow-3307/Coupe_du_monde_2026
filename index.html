@@ -992,7 +992,25 @@ function pickWinner(key, teamNum) {
   save();
   renderBracket();
 }
-  
+
+// Sauvegarde sans rechargement de page
+function saveSilent(){
+  localStorage.setItem('data', JSON.stringify(D));
+}
+
+// Ou modifie les fonctions setBet et setActual
+function setBet(matchId, pote, field, value){
+  if(!D.pronos[matchId+pote]) D.pronos[matchId+pote] = {s1:'', s2:'', top:''};
+  D.pronos[matchId+pote][field] = value;
+  saveSilent(); // Au lieu de save()
+}
+
+function setActual(matchId, field, value){
+  if(!D.actual[matchId]) D.actual[matchId] = {s1:'', s2:'', top:''};
+  D.actual[matchId][field] = value;
+  saveSilent(); // Au lieu de save()
+}
+
 function renderPronos(){
   const el=document.getElementById('pronos');
   const lb=calcLB();
