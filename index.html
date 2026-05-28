@@ -1117,16 +1117,35 @@ function updatePronosFilters(){
 }
 function setActual(mid,f,v){if(!D.actual[mid])D.actual[mid]={};D.actual[mid][f]=v;save();renderPronos()}
 function setBet(mid,p,f,v){const k=mid+p;if(!D.pronos[k])D.pronos[k]={};D.pronos[k][f]=v;save();renderPronos()}
-function calcPts(mid,pote){
-  const bet=D.pronos[mid+pote];const actual=D.actual[mid];
-  if(!bet||!actual||actual.s1===''||actual.s2==='')return 0;
-  const bs1=parseInt(bet.s1),bs2=parseInt(bet.s2),as1=parseInt(actual.s1),as2=parseInt(actual.s2);
-  if(isNaN(bs1)||isNaN(bs2)||isNaN(as1)||isNaN(as2))return 0;
-  let pts=0;
-  const res=(a,b)=>a>b?1:a<b?-1:0;
-  if(res(bs1,bs2)===res(as1,as2))pts=1;
-  if(bs1===as1&&bs2===as2)pts=2;
-  if(pts>=1&&bet.top&&actual.top&&bet.top.trim().toLowerCase()===actual.top.trim().toLowerCase())pts=3;
+function calcPts(matchId, pote){
+  const actual = D.actual[matchId] || {s1:'', s2:'', top:''};
+  const bet = D.pronos[matchId+pote] || {s1:'', s2:'', top:''};
+  
+  let pts = 0;
+  
+  // Score exact = 2 pts
+  if(bet.s1 === actual.s1 && bet.s2 === actual.s2){
+    pts += 2;
+  }
+  // Juste le résultat = 1 pt
+  else if((bet.s1 > bet.s2 && actual.s1 > actual.s2) ||
+          (bet.s1 < bet.s2 && actual.s1 < actual.s2) ||
+          (bet.s1 == bet.s2 && actual.s1 == actual.s2)){
+    pts += 1;
+  }
+  
+  // Buteur exact = 3 pts bonus
+  if(actual.top && bet.top){
+    // Normalise les noms (minuscules, pas d'accents)
+    const actualTop = actual.top.toLowerCase().trim();
+    const betTop = bet.top.toLowerCase().trim();
+    
+    // Vérification simple : si le nom est dans la liste des buteurs
+    if(actualTop.includes(betTop) || betTop.includes(actualTop)){
+      pts += 3;
+    }
+  }
+  
   return pts;
 }
 function calcLB(){
