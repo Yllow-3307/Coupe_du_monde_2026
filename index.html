@@ -833,6 +833,7 @@ function renderMatchs(){
   }
 
   // Rendu de la liste filtrée
+  // Rendu de la liste filtrée
   let currentHeader = "";
   let htmlList = filteredMatches.map(m => {
     let sectionHeader = "";
@@ -846,12 +847,19 @@ function renderMatchs(){
     return sectionHeader + `
     <div class="card" style="padding:10px 12px;margin-bottom:8px">
       <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">${m.day}</div>
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
         <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)">${m.t1}</span>
         <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'a']!==undefined?D.scores[m.originalIdx+'a']:''}" oninput="D.scores['${m.originalIdx}a']=this.value;save();renderGroups();" style="width:32px">
         <span style="color:var(--color-text-tertiary);font-size:12px">–</span>
         <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'b']!==undefined?D.scores[m.originalIdx+'b']:''}" oninput="D.scores['${m.originalIdx}b']=this.value;save();renderGroups();" style="width:32px">
         <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right">${m.t2}</span>
+      </div>
+      <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Buteurs :</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <input class="inp-sm" type="text" placeholder="Buteur ${m.t1}..." value="${D.scores[m.originalIdx+'buteur1']||''}" oninput="D.scores['${m.originalIdx}buteur1']=this.value;save();" style="flex:1;height:28px;font-size:12px">
+          <input class="inp-sm" type="text" placeholder="Buteur ${m.t2}..." value="${D.scores[m.originalIdx+'buteur2']||''}" oninput="D.scores['${m.originalIdx}buteur2']=this.value;save();" style="flex:1;height:28px;font-size:12px">
+        </div>
       </div>
     </div>`;
   }).join('');
