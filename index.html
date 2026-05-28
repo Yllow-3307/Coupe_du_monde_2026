@@ -1140,7 +1140,18 @@ function setActual(mid,f,v){
 
   localStorage.setItem('cdm2026', JSON.stringify(D));
 }
-function setBet(mid,p,f,v){const k=mid+p;if(!D.pronos[k])D.pronos[k]={};D.pronos[k][f]=v;save();renderPronos()}
+function setBet(mid,p,f,v){
+
+  const k = mid + pote;
+
+  if(!D.pronos[k]){
+    D.pronos[k]={};
+  }
+
+  D.pronos[k][f]=v;
+
+  localStorage.setItem('cdm2026', JSON.stringify(D));
+}
 function calcPts(matchId, pote){
   const actual = D.actual[matchId] || {s1:'', s2:'', top:''};
   const bet = D.pronos[matchId+pote] || {s1:'', s2:'', top:''};
