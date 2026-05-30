@@ -276,11 +276,30 @@ let isAdmin = false;
 let unsubscribers = [];
 
 async function doRegister() {
+  const pseudo = document.getElementById('login-pseudo').value.trim();
   const email = document.getElementById('login-email').value.trim();
   const pwd = document.getElementById('login-pwd').value;
 
+  if (!pseudo) {
+    document.getElementById('login-err').textContent =
+      "Choisis un pseudo";
+    return;
+  }
+
   try {
-    await firebase.auth().createUserWithEmailAndPassword(email, pwd);
+    const cred = await firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, pwd);
+
+    await firebase.firestore()
+      .collection("users")
+      .doc(cred.user.uid)
+      .set({
+        pseudo,
+        email,
+        createdAt: Date.now()
+      });
+
   } catch (err) {
     document.getElementById('login-err').textContent = err.message;
   }
