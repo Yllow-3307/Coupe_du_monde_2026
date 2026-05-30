@@ -998,19 +998,6 @@ function saveSilent(){
   localStorage.setItem('data', JSON.stringify(D));
 }
 
-// Ou modifie les fonctions setBet et setActual
-function setBet(matchId, pote, field, value){
-  if(!D.pronos[matchId+pote]) D.pronos[matchId+pote] = {s1:'', s2:'', top:''};
-  D.pronos[matchId+pote][field] = value;
-  saveSilent(); // Au lieu de save()
-}
-
-function setActual(matchId, field, value){
-  if(!D.actual[matchId]) D.actual[matchId] = {s1:'', s2:'', top:''};
-  D.actual[matchId][field] = value;
-  saveSilent(); // Au lieu de save()
-}
-
 function renderPronos(){
   const el=document.getElementById('pronos');
   const lb=calcLB();
@@ -1142,7 +1129,7 @@ function setActual(mid,f,v){
 }
 function setBet(mid,p,f,v){
 
-  const k = mid + pote;
+  const k = mid + p;
 
   if(!D.pronos[k]){
     D.pronos[k]={};
@@ -1353,9 +1340,6 @@ function showTab(id){
   const renders={groupes:renderGroups,matchs:renderMatchs,bracket:renderBracket,pronos:renderPronos,stats:renderStats,equipes:renderEquipes,rdv:renderRdv};
   if(renders[id])renders[id]();
 }
-  if (id === 'bracket') {
-    renderBracket(); // Ceci va déclencher l'affichage quand on clique sur l'onglet
-  }
 
 renderGroups();
   
