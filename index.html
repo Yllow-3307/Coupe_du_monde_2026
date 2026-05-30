@@ -10,7 +10,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyBUragXBJrQ2XcdaJ-m30KI2JoZ7Eie5Tk\",
+      apiKey: \"AIzaSyBUragXBJrQ2XcdaJ-m30KI2JoZ7Eie5Tk\",
       authDomain: \"cdm-2026-eda50.firebaseapp.com\",
       projectId: \"cdm-2026-eda50\",
       storageBucket: \"cdm-2026-eda50.firebasestorage.app\",
@@ -992,7 +992,7 @@ function renderGroups(){
       return`<div class="${cls}"><span style="font-size:15px;width:22px">${item.flag}</span><span style="flex:1;color:var(--color-text-primary)">${item.nom}</span><span class="pts-cell" style="min-width:50px;text-align:right">${item.pt}pts (${item.bu}-${item.ec})</span></div>`;
     }).join('')}</div>`;}).join('')}</div>`;
 }
-function saveG(){if(!isAdmin){alert('Seul l'admin peut modifier les points.');return;}save();const b=document.querySelector('#groupes .btn');const n=document.createElement('span');n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';n.textContent='✓ Sauvegardé';b.after(n);setTimeout(()=>n.remove(),2000)}
+function saveG(){if(!isAdmin){alert("Seul l'admin peut modifier les points.");return;}save();const b=document.querySelector('#groupes .btn');const n=document.createElement('span');n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';n.textContent='✓ Sauvegardé';b.after(n);setTimeout(()=>n.remove(),2000)}
 function editPts(el,g,i){
   const cur=getPts(g,i);const inp=document.createElement('input');
   inp.type='number';inp.value=cur;inp.min=0;inp.max=9;
