@@ -305,7 +305,17 @@ function doLogin() {
       errEl.textContent = msgs[e.code] || 'Erreur : ' + e.message;
     });
 }
+  await loadUsers();
 
+async function loadUsers() {
+  const snap = await firebase.firestore()
+    .collection("users")
+    .get();
+
+  POTES = snap.docs.map(doc => doc.data().pseudo);
+}
+  
+  
 function doLogout() {
   window._auth.signOut();
 }
@@ -441,9 +451,7 @@ async function saveBet(matchId, pote, field, value) {
   } catch(e) { console.error(e); }
 }
 
-  const POTES = ["Alban","Lino","Louis","Maxime","Simon","Theo","Titouan","Victor"];
-const AV_BG = ["#CECBF6","#9FE1CB","#F5C4B3","#FAC775","#B5D4F4","#F4C0D1","#C0DD97","#D3D1C7"];
-const AV_TX = ["#3C3489","#085041","#712B13","#633806","#0C447C","#72243E","#27500A","#2C2C2A"];
+  let POTES = [];
 
 const GROUPS = {
   A:{teams:[["🇲🇽","Mexique"],["🇿🇦","Afrique du Sud"],["🇰🇷","Corée du Sud"],["🇨🇿","Tchéquie"]]},
