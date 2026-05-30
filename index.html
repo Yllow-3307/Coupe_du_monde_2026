@@ -206,6 +206,9 @@
       <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
     </div>
     <button class="login-btn" onclick="doLogin()">Se connecter</button>
+    <button class="login-btn" onclick="doRegister()" style="margin-top:8px">
+  Créer un compte
+</button>
     <div class="login-err" id="login-err"></div>
   </div>
 </div>
@@ -267,6 +270,28 @@ let currentUser = null;
 let currentPote = null;
 let isAdmin = false;
 let unsubscribers = [];
+
+async function doRegister() {
+  const email = document.getElementById('login-email').value.trim();
+  const pwd = document.getElementById('login-pwd').value;
+  const emailsAutorises = [
+    "ton@email.com",
+    "pote1@email.com",
+    "pote2@email.com"
+  ];
+
+  if (!emailsAutorises.includes(email)) {
+    document.getElementById('login-err').textContent =
+      "Email non autorisé";
+    return;
+  }
+
+  try {
+    await firebase.auth().createUserWithEmailAndPassword(email, pwd);
+  } catch (err) {
+    document.getElementById('login-err').textContent = err.message;
+  }
+}
 
 function doLogin() {
   const email = document.getElementById('login-email').value.trim();
