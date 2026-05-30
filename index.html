@@ -258,18 +258,6 @@
 // ===== FIREBASE AUTH & FIRESTORE =====
 const ADMIN_EMAIL = "louis.ragot.33@gmail.com"; // ← ton email admin
 
-// Mapping email → nom affiché
-const EMAIL_TO_POTE = {
-  "louis.ragot.33@gmail.com": "Louis",
-  "alban.bach10@gmail.com": "Alban",
-  "lino@cdm2026.fr": "Lino",
-  "maxime@cdm2026.fr": "Maxime",
-  "simon@cdm2026.fr": "Simon",
-  "theo@cdm2026.fr": "Theo",
-  "titouan@cdm2026.fr": "Titouan",
-  "victormialonrichard@gmail.com": "Victor",
-};
-
 let currentUser = null;
 let currentPote = null;
 let isAdmin = false;
@@ -328,12 +316,23 @@ document.getElementById('login-pwd').addEventListener('keydown', e => { if(e.key
 window.addEventListener('load', () => {
   setTimeout(() => {
     if (!window._auth) { console.error('Firebase not ready'); return; }
-    window._auth.onAuthStateChanged(user => {
+    window._auth.onAuthStateChanged(async user => {
       if (user) {
         currentUser = user;
-        currentPote = EMAIL_TO_POTE[user.email] || user.email.split('@')[0];
+
+        const userDoc = await firebase.firestore()
+          .collection("users")
+          .doc(user.uid)
+          .get();
+
+        if (userDoc.exists) {
+          currentPote = userDoc.data().pseudo;
+        } else {
+          currentPote = user.email.split('@')[0];
+        }
+
         isAdmin = user.email === ADMIN_EMAIL;
-        // Hide login, show app
+
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('user-bar').style.display = 'flex';
         document.getElementById('user-name').textContent = currentPote;
