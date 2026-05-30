@@ -3,7 +3,35 @@
 <head>
   <meta charset=\"UTF-8\">
   <title>Tracker Coupe du Monde 2026</title>
-  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css\">  <style>
+  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css\">
+  <!-- Firebase SDKs -->
+  <script src=\"https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js\"></script>
+  <script src=\"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js\"></script>
+  <script src=\"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js\"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: \"AIzaSyBUragXBJrQ2XcdaJ-m30KI2JoZ7Eie5Tk\",
+      authDomain: \"cdm-2026-eda50.firebaseapp.com\",
+      projectId: \"cdm-2026-eda50\",
+      storageBucket: \"cdm-2026-eda50.firebasestorage.app\",
+      messagingSenderId: \"1000121885026\",
+      appId: \"1:1000121885026:web:c73deaa1a9bbeaf3f20c3b\"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window._auth = firebase.auth();
+    window._db = firebase.firestore();
+    window._fbFns = {
+      signInWithEmailAndPassword: (auth, email, pwd) => auth.signInWithEmailAndPassword(email, pwd),
+      signOut: (auth) => auth.signOut(),
+      onAuthStateChanged: (auth, cb) => auth.onAuthStateChanged(cb),
+      doc: (db, col, id) => db.collection(col).doc(id),
+      getDoc: (ref) => ref.get(),
+      setDoc: (ref, data) => ref.set(data),
+      onSnapshot: (ref, cb) => ref.onSnapshot(cb),
+      collection: (db, col) => db.collection(col)
+    };
+  </script>
+  <style>
 
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--color-background-secondary);color:var(--color-text-primary);padding:20px;max-width:1200px;margin:0 auto}
@@ -135,9 +163,60 @@
     .b-team.selected { background: #1D9E75; color: white; }
     .b-col { display: flex; flex-direction: column; justify-content: space-around; gap: 5px; }
     
+
+    /* ===== LOGIN SCREEN ===== */
+    #login-screen{position:fixed;inset:0;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;z-index:9999}
+    #login-screen.hidden{display:none}
+    .login-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:32px 28px;width:320px;box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+    .login-box h2{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+    .login-box p{font-size:13px;color:var(--color-text-secondary);margin-bottom:24px}
+    .login-field{margin-bottom:12px}
+    .login-field label{font-size:12px;font-weight:500;color:var(--color-text-secondary);display:block;margin-bottom:4px}
+    .login-field input{width:100%;height:36px;padding:0 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px}
+    .login-field input:focus{outline:none;border-color:var(--color-text-info)}
+    .login-btn{width:100%;height:36px;background:var(--color-text-primary);color:#fff;border:none;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;margin-top:8px}
+    .login-btn:hover{opacity:0.85}
+    .login-err{font-size:12px;color:#c92a2a;margin-top:8px;text-align:center;min-height:16px}
+    /* User bar */
+    .user-bar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);margin-bottom:12px;font-size:12px}
+    .user-bar-name{flex:1;font-weight:500;color:var(--color-text-primary)}
+    .user-bar-role{padding:2px 7px;border-radius:8px;font-size:11px;font-weight:500}
+    .role-admin{background:#FAEEDA;color:#633806}
+    .role-user{background:var(--color-background-info);color:var(--color-text-info)}
+    .logout-btn{font-size:11px;padding:3px 8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:none;color:var(--color-text-secondary)}
+    .logout-btn:hover{background:var(--color-background-secondary)}
+    /* Champs désactivés pour non-admin */
+    .readonly-field{pointer-events:none;opacity:0.5}
+
   </style>
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h2>🏆 CDM 2026</h2>
+    <p>Connecte-toi pour accéder au tracker</p>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="ton@email.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>Mot de passe</label>
+      <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Se connecter</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- USER BAR (shown when logged in) -->
+<div class="user-bar" id="user-bar" style="display:none">
+  <span style="font-size:16px" id="user-avatar">👤</span>
+  <span class="user-bar-name" id="user-name">—</span>
+  <span class="user-bar-role" id="user-role-badge">—</span>
+  <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout" aria-hidden="true"></i> Déconnexion</button>
+</div>
 
 <h2 class="sr-only">Tracker Coupe du Monde 2026 — groupes, bracket, pronos, stats équipes, fiches joueurs et RDV soirées</h2>
 
@@ -168,6 +247,163 @@
 <div id="rdv" class="sec"></div>
 
 <script>
+
+// ===== FIREBASE AUTH & FIRESTORE =====
+const ADMIN_EMAIL = "louisvandamme2505@gmail.com"; // ← ton email admin
+
+// Mapping email → nom affiché
+const EMAIL_TO_POTE = {
+  "louisvandamme2505@gmail.com": "Louis",
+  "alban@cdm2026.fr": "Alban",
+  "lino@cdm2026.fr": "Lino",
+  "maxime@cdm2026.fr": "Maxime",
+  "simon@cdm2026.fr": "Simon",
+  "theo@cdm2026.fr": "Theo",
+  "titouan@cdm2026.fr": "Titouan",
+  "victor@cdm2026.fr": "Victor",
+};
+
+let currentUser = null;
+let currentPote = null;
+let isAdmin = false;
+let unsubscribers = [];
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pwd = document.getElementById('login-pwd').value;
+  const errEl = document.getElementById('login-err');
+  errEl.textContent = 'Connexion...';
+  window._auth.signInWithEmailAndPassword(email, pwd)
+    .then(() => { errEl.textContent = ''; })
+    .catch(e => {
+      const msgs = { 'auth/user-not-found':'Compte introuvable', 'auth/wrong-password':'Mot de passe incorrect', 'auth/invalid-email':'Email invalide', 'auth/invalid-credential':'Email ou mot de passe incorrect' };
+      errEl.textContent = msgs[e.code] || 'Erreur : ' + e.message;
+    });
+}
+
+function doLogout() {
+  window._auth.signOut();
+}
+
+document.getElementById('login-pwd').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+// Auth state listener - runs when Firebase is ready
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (!window._auth) { console.error('Firebase not ready'); return; }
+    window._auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        currentPote = EMAIL_TO_POTE[user.email] || user.email.split('@')[0];
+        isAdmin = user.email === ADMIN_EMAIL;
+        // Hide login, show app
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('user-bar').style.display = 'flex';
+        document.getElementById('user-name').textContent = currentPote;
+        document.getElementById('user-role-badge').textContent = isAdmin ? 'Admin' : 'Joueur';
+        document.getElementById('user-role-badge').className = 'user-bar-role ' + (isAdmin ? 'role-admin' : 'role-user');
+        // Subscribe to Firestore
+        subscribeFirestore();
+        renderGroups();
+      } else {
+        currentUser = null; currentPote = null; isAdmin = false;
+        // Unsubscribe all listeners
+        unsubscribers.forEach(u => u()); unsubscribers = [];
+        document.getElementById('login-screen').classList.remove('hidden');
+        document.getElementById('user-bar').style.display = 'none';
+      }
+    });
+  }, 800);
+});
+
+function subscribeFirestore() {
+  const db = window._db;
+  // Listen to shared data (scores, bracket, stats, rdv, grouppts)
+  const sharedUnsub = db.collection('shared').doc('data').onSnapshot(snap => {
+    if (snap.exists()) {
+      const data = snap.data();
+      D.scores = data.scores || {};
+      D.bracket = data.bracket || {};
+      D.teamStats = data.teamStats || TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0}));
+      D.rdvList = data.rdvList || [{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}];
+      D.pts = data.pts || {};
+      // Re-render current tab
+      const activeTab = document.querySelector('.tab.active');
+      if (activeTab) activeTab.click();
+    }
+  });
+  unsubscribers.push(sharedUnsub);
+
+  // Listen to pronos of current user
+  const pronosUnsub = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
+    if (snap.exists()) {
+      D.pronos = D.pronos || {};
+      const data = snap.data();
+      Object.assign(D.pronos, data.bets || {});
+    }
+  });
+  unsubscribers.push(pronosUnsub);
+
+  // If admin, also listen to all potes pronos
+  if (isAdmin) {
+    POTES.forEach(pote => {
+      const u = db.collection('pronos').doc(pote).onSnapshot(snap => {
+        if (snap.exists()) {
+          D.pronos = D.pronos || {};
+          Object.assign(D.pronos, snap.data().bets || {});
+        }
+      });
+      unsubscribers.push(u);
+    });
+    // Listen to actual scores
+    const actualUnsub = db.collection('shared').doc('actuals').onSnapshot(snap => {
+      if (snap.exists()) { D.actual = snap.data().actuals || {}; }
+    });
+    unsubscribers.push(actualUnsub);
+  } else {
+    // Non-admin: load actuals once
+    db.collection('shared').doc('actuals').get().then(snap => {
+      if (snap.exists()) D.actual = snap.data().actuals || {};
+    });
+  }
+}
+
+async function save() {
+  if (!currentUser) { localStorage.setItem('wc26v3', JSON.stringify(D)); return; }
+  if (!isAdmin) return;
+  try {
+    await window._db.collection('shared').doc('data').set({
+      scores: D.scores || {},
+      bracket: D.bracket || {},
+      teamStats: D.teamStats || [],
+      rdvList: D.rdvList || [],
+      pts: D.pts || {}
+    });
+  } catch(e) { console.error('Save error:', e); }
+}
+
+async function saveActuals() {
+  if (!isAdmin) return;
+  try {
+    await window._db.collection('shared').doc('actuals').set({ actuals: D.actual || {} });
+  } catch(e) { console.error(e); }
+}
+
+async function saveBet(matchId, pote, field, value) {
+  if (!currentUser) return;
+  if (pote !== currentPote && !isAdmin) return;
+  const key = matchId + pote;
+  if (!D.pronos[key]) D.pronos[key] = {s1:'', s2:'', top:''};
+  D.pronos[key][field] = value;
+  try {
+    const ref = window._db.collection('pronos').doc(pote);
+    const snap = await ref.get();
+    const existing = snap.exists ? (snap.data().bets || {}) : {};
+    if (!existing[key]) existing[key] = {s1:'',s2:'',top:''};
+    existing[key][field] = value;
+    await ref.set({ bets: existing });
+  } catch(e) { console.error(e); }
+}
 
   const POTES = ["Alban","Lino","Louis","Maxime","Simon","Theo","Titouan","Victor"];
 const AV_BG = ["#CECBF6","#9FE1CB","#F5C4B3","#FAC775","#B5D4F4","#F4C0D1","#C0DD97","#D3D1C7"];
@@ -724,43 +960,18 @@ const TEAMS_DATA = [
 let currentFilterPhase = "all";
 let currentFilterGroup = "all";
 
-let D = {};
-try { D = JSON.parse(localStorage.getItem('wc26v3')||'{}'); } catch(e) { D = {}; }
-D.pts = D.pts||{}; D.scores = D.scores||{}; D.bracket = D.bracket||{};
-D.pronos = D.pronos||{}; D.actual = D.actual||{};
-D.teamStats = D.teamStats||TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0}));
-D.rdvList = D.rdvList||[{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}];
-
-function save(){try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}}
+// D is now synced from Firestore. Initialize empty.
+let D = {
+  pts: {}, scores: {}, bracket: {},
+  pronos: {}, actual: {},
+  teamStats: TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0})),
+  rdvList: [{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}]
+};
+// save() is now async and writes to Firestore (defined above)
 
 function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
 
-// Récupère les scores depuis Google Sheets
-async function syncScoresFromGoogle() {
-  try {
-    const url = "https://script.google.com/macros/d/AKfycbyg8hdAjUa4s-kL82fTjETUI6kOpZ37wYBvtLkWAJVD4Ze26qyqm1MGi0CJeeTLqT5GvA/useTrigger";
-    const response = await fetch(url);
-    const scores = await response.json();
-    
-    // Remplit D.scores avec les données du sheet
-    scores.forEach((score, idx) => {
-      D.scores[idx + 'a'] = score.score1.toString();
-      D.scores[idx + 'b'] = score.score2.toString();
-    });
-    
-    save();
-    renderGroups();
-    console.log("✅ Scores synchronisés depuis Google Sheets");
-  } catch (e) {
-    console.error("❌ Erreur sync:", e);
-  }
-}
-
-// Sync automatique toutes les 30 secondes
-setInterval(syncScoresFromGoogle, 30000);
-
-// Sync au démarrage
-syncScoresFromGoogle();
+// Scores are now synced via Firestore real-time listeners (see subscribeFirestore)
   
 function renderGroups(){
   const el=document.getElementById('groupes');
@@ -781,7 +992,7 @@ function renderGroups(){
       return`<div class="${cls}"><span style="font-size:15px;width:22px">${item.flag}</span><span style="flex:1;color:var(--color-text-primary)">${item.nom}</span><span class="pts-cell" style="min-width:50px;text-align:right">${item.pt}pts (${item.bu}-${item.ec})</span></div>`;
     }).join('')}</div>`;}).join('')}</div>`;
 }
-function saveG(){save();const b=document.querySelector('#groupes .btn');const n=document.createElement('span');n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';n.textContent='✓ Sauvegardé';b.after(n);setTimeout(()=>n.remove(),2000)}
+function saveG(){if(!isAdmin){alert('Seul l'admin peut modifier les points.');return;}save();const b=document.querySelector('#groupes .btn');const n=document.createElement('span');n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';n.textContent='✓ Sauvegardé';b.after(n);setTimeout(()=>n.remove(),2000)}
 function editPts(el,g,i){
   const cur=getPts(g,i);const inp=document.createElement('input');
   inp.type='number';inp.value=cur;inp.min=0;inp.max=9;
@@ -849,16 +1060,16 @@ function renderMatchs(){
       <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">${m.day}</div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
         <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)">${m.t1}</span>
-        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'a']!==undefined?D.scores[m.originalIdx+'a']:''}" oninput="D.scores['${m.originalIdx}a']=this.value;save();renderGroups();" style="width:32px">
+        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'a']!==undefined?D.scores[m.originalIdx+'a']:''}" oninput="D.scores['${m.originalIdx}a']=this.value;save();renderGroups();" style="width:32px" ${isAdmin?'':'disabled'}>
         <span style="color:var(--color-text-tertiary);font-size:12px">–</span>
-        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'b']!==undefined?D.scores[m.originalIdx+'b']:''}" oninput="D.scores['${m.originalIdx}b']=this.value;save();renderGroups();" style="width:32px">
+        <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${D.scores[m.originalIdx+'b']!==undefined?D.scores[m.originalIdx+'b']:''}" oninput="D.scores['${m.originalIdx}b']=this.value;save();renderGroups();" style="width:32px" ${isAdmin?'':'disabled'}>
         <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right">${m.t2}</span>
       </div>
       <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px">
         <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Buteurs :</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <input class="inp-sm" type="text" placeholder="Buteur ${m.t1}..." value="${D.scores[m.originalIdx+'buteur1']||''}" oninput="D.scores['${m.originalIdx}buteur1']=this.value;save();" style="flex:1;height:28px;font-size:12px">
-          <input class="inp-sm" type="text" placeholder="Buteur ${m.t2}..." value="${D.scores[m.originalIdx+'buteur2']||''}" oninput="D.scores['${m.originalIdx}buteur2']=this.value;save();" style="flex:1;height:28px;font-size:12px">
+          <input class="inp-sm" type="text" placeholder="Buteur ${m.t1}..." value="${D.scores[m.originalIdx+'buteur1']||''}" oninput="D.scores['${m.originalIdx}buteur1']=this.value;save();" style="flex:1;height:28px;font-size:12px" ${isAdmin?'':'disabled'}>
+          <input class="inp-sm" type="text" placeholder="Buteur ${m.t2}..." value="${D.scores[m.originalIdx+'buteur2']||''}" oninput="D.scores['${m.originalIdx}buteur2']=this.value;save();" style="flex:1;height:28px;font-size:12px" ${isAdmin?'':'disabled'}>
         </div>
       </div>
     </div>`;
@@ -993,10 +1204,8 @@ function pickWinner(key, teamNum) {
   renderBracket();
 }
 
-// Sauvegarde sans rechargement de page
-function saveSilent(){
-  localStorage.setItem('data', JSON.stringify(D));
-}
+// saveSilent kept for compatibility (no-op now)
+function saveSilent(){ save(); }
 
 function renderPronos(){
   const el=document.getElementById('pronos');
@@ -1038,21 +1247,23 @@ function renderPronos(){
       <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
         <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Score réel :</div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s1}" oninput="setActual('${m.id}','s1',this.value)" style="width:32px;height:28px">
+          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s1}" oninput="setActual('${m.id}','s1',this.value)" style="width:32px;height:28px" ${isAdmin?'':'disabled'}>
           <span style="color:var(--color-text-tertiary)">–</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s2}" oninput="setActual('${m.id}','s2',this.value)" style="width:32px;height:28px">
-          <input class="inp-sm" placeholder="Top buteur..." value="${actual.top||''}" oninput="setActual('${m.id}','top',this.value)" style="width:130px">
+          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s2}" oninput="setActual('${m.id}','s2',this.value)" style="width:32px;height:28px" ${isAdmin?'':'disabled'}>
+          <input class="inp-sm" placeholder="Top buteur..." value="${actual.top||''}" oninput="setActual('${m.id}','top',this.value)" style="width:130px" ${isAdmin?'':'disabled'}>
+          ${!isAdmin?'<span style="font-size:11px;color:var(--color-text-tertiary);margin-left:4px">Saisi par l'admin</span>':''}
         </div>
       </div>
       <div>${POTES.map((pote)=>{
         const bet=D.pronos[m.id+pote]||{s1:'',s2:'',top:''};
         const pts=calcPts(m.id,pote);
-        return`<div class="prog-bet-row">
-          <span style="min-width:65px;color:var(--color-text-secondary)">${pote}</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="setBet('${m.id}','${pote}','s1',this.value)" style="width:28px;height:24px;font-size:12px">
+        const canEdit = isAdmin || pote === currentPote;
+        return`<div class="prog-bet-row" style="${pote===currentPote?'background:var(--color-background-info);':''}">
+          <span style="min-width:65px;color:var(--color-text-secondary);font-weight:${pote===currentPote?'600':'400'}">${pote}${pote===currentPote?' 👤':''}</span>
+          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="setBet('${m.id}','${pote}','s1',this.value)" style="width:28px;height:24px;font-size:12px" ${canEdit?'':'disabled'}>
           <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="setBet('${m.id}','${pote}','s2',this.value)" style="width:28px;height:24px;font-size:12px">
-          <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" oninput="setBet('${m.id}','${pote}','top',this.value)" style="width:90px;height:24px;font-size:12px">
+          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="setBet('${m.id}','${pote}','s2',this.value)" style="width:28px;height:24px;font-size:12px" ${canEdit?'':'disabled'}>
+          <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" oninput="setBet('${m.id}','${pote}','top',this.value)" style="width:90px;height:24px;font-size:12px" ${canEdit?'':'disabled'}>
           ${pts>0?`<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
         </div>`;}).join('')}</div>
     </div>`;}).join('')}`;
@@ -1121,23 +1332,18 @@ function updatePronosFilters(){
   }
 }
 function setActual(mid,f,v){
+  if(!isAdmin) return; // Only admin sets actual scores
   if(!D.actual[mid]) D.actual[mid]={};
-
   D.actual[mid][f]=v;
-
-  localStorage.setItem('cdm2026', JSON.stringify(D));
+  saveActuals();
+  // Recalculate pronos display
+  const el = document.getElementById('pronos');
+  if(el && el.classList.contains('active')) renderPronos();
 }
 function setBet(mid,p,f,v){
-
-  const k = mid + p;
-
-  if(!D.pronos[k]){
-    D.pronos[k]={};
-  }
-
-  D.pronos[k][f]=v;
-
-  localStorage.setItem('cdm2026', JSON.stringify(D));
+  if(!currentUser) return;
+  if(p !== currentPote && !isAdmin) return; // Can only edit own bets
+  saveBet(mid, p, f, v);
 }
 function calcPts(matchId, pote){
   const actual = D.actual[matchId] || {s1:'', s2:'', top:''};
@@ -1192,11 +1398,11 @@ function renderStats(){
     </div>
     ${D.teamStats.map((t,i)=>`<div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.7fr 0.7fr 0.7fr 1.4fr;gap:4px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
       <span style="font-size:12px;display:flex;align-items:center;gap:4px"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
-      <span style="text-align:center"><input class="score-in" type="number" min="0" max="20" value="${t.played||0}" oninput="D.teamStats[${i}].played=parseInt(this.value)||0;save();renderStats()" style="width:32px;height:24px;font-size:12px"></span>
-      <span style="text-align:center"><input class="score-in" type="number" min="0" max="99" value="${t.goals||0}" oninput="D.teamStats[${i}].goals=parseInt(this.value)||0;save();renderStats()" style="width:32px;height:24px;font-size:12px"></span>
+      <span style="text-align:center"><input class="score-in" type="number" min="0" max="20" value="${t.played||0}" oninput="D.teamStats[${i}].played=parseInt(this.value)||0;save();renderStats()" style="width:32px;height:24px;font-size:12px" ${isAdmin?'':'disabled'}></span>
+      <span style="text-align:center"><input class="score-in" type="number" min="0" max="99" value="${t.goals||0}" oninput="D.teamStats[${i}].goals=parseInt(this.value)||0;save();renderStats()" style="width:32px;height:24px;font-size:12px" ${isAdmin?'':'disabled'}></span>
       <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${(parseInt(t.played)||0)>0?((parseInt(t.goals)||0)/(parseInt(t.played)||1)).toFixed(1):'—'}</span>
-      <span style="text-align:center"><input class="score-in" type="number" min="0" max="10" value="${t.cs||0}" oninput="D.teamStats[${i}].cs=parseInt(this.value)||0;save()" style="width:32px;height:24px;font-size:12px"></span>
-      <span><input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%"></span>
+      <span style="text-align:center"><input class="score-in" type="number" min="0" max="10" value="${t.cs||0}" oninput="D.teamStats[${i}].cs=parseInt(this.value)||0;save()" style="width:32px;height:24px;font-size:12px" ${isAdmin?'':'disabled'}></span>
+      <span><input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%" ${isAdmin?'':'disabled'}></span>
     </div>`).join('')}
   </div>`;
 }
@@ -1312,10 +1518,10 @@ function renderRdv(){
           <div class="rdv-date-m"><input type="text" value="${r.mois||''}" oninput="D.rdvList[${ri}].mois=this.value;save()" placeholder="MOI" style="width:40px;background:none;border:none;text-align:center;font-size:10px;color:var(--color-text-info);outline:none;text-transform:uppercase"></div>
         </div>
         <div style="flex:1">
-          <input class="inp-sm" value="${r.match||''}" oninput="D.rdvList[${ri}].match=this.value;save()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px">
+          <input class="inp-sm" value="${r.match||''}" oninput="D.rdvList[${ri}].match=this.value;save()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${isAdmin?'':'disabled'}>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <input class="inp-sm" value="${r.heure||''}" oninput="D.rdvList[${ri}].heure=this.value;save()" placeholder="Heure" style="width:70px">
-            <input class="inp-sm" value="${r.where||''}" oninput="D.rdvList[${ri}].where=this.value;save()" placeholder="Où ? (bar, chez...)" style="flex:1">
+            <input class="inp-sm" value="${r.where||''}" oninput="D.rdvList[${ri}].where=this.value;save()" placeholder="Où ? (bar, chez...)" style="flex:1" ${isAdmin?'':'disabled'}>
           </div>
         </div>
         <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)"><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
@@ -1340,10 +1546,7 @@ function showTab(id){
   const renders={groupes:renderGroups,matchs:renderMatchs,bracket:renderBracket,pronos:renderPronos,stats:renderStats,equipes:renderEquipes,rdv:renderRdv};
   if(renders[id])renders[id]();
 }
-
-renderGroups();
-  
+// App renders after login via onAuthStateChanged
 </script>
 </body>
 </html>
-
