@@ -274,17 +274,6 @@ let unsubscribers = [];
 async function doRegister() {
   const email = document.getElementById('login-email').value.trim();
   const pwd = document.getElementById('login-pwd').value;
-  const emailsAutorises = [
-    "ton@email.com",
-    "pote1@email.com",
-    "pote2@email.com"
-  ];
-
-  if (!emailsAutorises.includes(email)) {
-    document.getElementById('login-err').textContent =
-      "Email non autorisé";
-    return;
-  }
 
   try {
     await firebase.auth().createUserWithEmailAndPassword(email, pwd);
