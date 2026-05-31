@@ -189,8 +189,11 @@
     .readonly-field{pointer-events:none;opacity:0.5}
 
 
-    #pseudo-screen{position:fixed;inset:0;background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;z-index:9998}
-    #pseudo-screen.hidden{display:none}
+    .login-tabs{display:flex;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:20px}
+    .login-tab{flex:1;padding:8px;font-size:13px;font-weight:500;text-align:center;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-0.5px}
+    .login-tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary)}
+    .login-panel{display:none}.login-panel.active{display:block}
+    .login-ok{font-size:12px;color:#2b8a3e;margin-top:8px;text-align:center;min-height:16px}
   </style>
 </head>
 <body>
@@ -199,31 +202,44 @@
 <div id="login-screen">
   <div class="login-box">
     <h2>🏆 CDM 2026</h2>
-    <p>Connecte-toi pour accéder au tracker</p>
-    <div class="login-field">
-      <label>Email</label>
-      <input type="email" id="login-email" placeholder="ton@email.com" autocomplete="email">
+    <!-- Tabs -->
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchLoginTab('signin')">Se connecter</button>
+      <button class="login-tab" onclick="switchLoginTab('signup')">Créer un compte</button>
     </div>
-    <div class="login-field">
-      <label>Mot de passe</label>
-      <input type="password" id="login-pwd" placeholder="••••••••" autocomplete="current-password">
-    </div>
-    <button class="login-btn" onclick="doLogin()">Se connecter</button>
-    <div class="login-err" id="login-err"></div>
-  </div>
-</div>
 
-<!-- PSEUDO SCREEN (shown after first login if no pseudo yet) -->
-<div id="pseudo-screen" class="hidden">
-  <div class="login-box">
-    <h2>👋 Bienvenue !</h2>
-    <p>C'est ta première connexion. Choisis le pseudo qui apparaîtra dans les pronos.</p>
-    <div class="login-field">
-      <label>Ton pseudo</label>
-      <input type="text" id="pseudo-input" placeholder="Ex: Louis, Alban..." maxlength="20" autocomplete="off">
+    <!-- Panel : connexion -->
+    <div class="login-panel active" id="panel-signin">
+      <div class="login-field">
+        <label>Email</label>
+        <input type="email" id="signin-email" placeholder="ton@email.com" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label>Mot de passe</label>
+        <input type="password" id="signin-pwd" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="login-btn" onclick="doLogin()">Se connecter</button>
+      <div class="login-err" id="signin-err"></div>
     </div>
-    <button class="login-btn" onclick="savePseudo()">Valider</button>
-    <div class="login-err" id="pseudo-err"></div>
+
+    <!-- Panel : inscription -->
+    <div class="login-panel" id="panel-signup">
+      <div class="login-field">
+        <label>Pseudo <span style="font-size:11px;color:var(--color-text-tertiary)">(visible par tous)</span></label>
+        <input type="text" id="signup-pseudo" placeholder="Ex: Louis, Alban..." maxlength="20" autocomplete="off">
+      </div>
+      <div class="login-field">
+        <label>Email</label>
+        <input type="email" id="signup-email" placeholder="ton@email.com" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label>Mot de passe <span style="font-size:11px;color:var(--color-text-tertiary)">(6 caractères min.)</span></label>
+        <input type="password" id="signup-pwd" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button class="login-btn" onclick="doSignup()">Créer mon compte</button>
+      <div class="login-err" id="signup-err"></div>
+      <div class="login-ok" id="signup-ok"></div>
+    </div>
   </div>
 </div>
 
@@ -271,12 +287,21 @@ const ADMIN_EMAIL = "louis.ragot.33@gmail.com"; // ← ton email admin
 let currentUser = null;
 let currentPote = null;
 let isAdmin = false;
-let unsubscribers = {}; // keyed for named + indexed subs
+let unsubscribers = {};
 
+// ===== LOGIN / SIGNUP TABS =====
+function switchLoginTab(tab) {
+  document.querySelectorAll('.login-tab').forEach((t,i) =>
+    t.classList.toggle('active', ['signin','signup'][i] === tab));
+  document.getElementById('panel-signin').classList.toggle('active', tab === 'signin');
+  document.getElementById('panel-signup').classList.toggle('active', tab === 'signup');
+}
+
+// ===== SIGN IN =====
 function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pwd   = document.getElementById('login-pwd').value;
-  const errEl = document.getElementById('login-err');
+  const email  = document.getElementById('signin-email').value.trim();
+  const pwd    = document.getElementById('signin-pwd').value;
+  const errEl  = document.getElementById('signin-err');
   errEl.textContent = 'Connexion...';
   window._auth.signInWithEmailAndPassword(email, pwd)
     .then(() => errEl.textContent = '')
@@ -291,105 +316,95 @@ function doLogin() {
     });
 }
 
-function doLogout() { window._auth.signOut(); }
+// ===== SIGN UP =====
+async function doSignup() {
+  const pseudo = document.getElementById('signup-pseudo').value.trim();
+  const email  = document.getElementById('signup-email').value.trim();
+  const pwd    = document.getElementById('signup-pwd').value;
+  const errEl  = document.getElementById('signup-err');
+  const okEl   = document.getElementById('signup-ok');
+  errEl.textContent = ''; okEl.textContent = '';
 
-// ---- Pseudo flow ----
-async function savePseudo() {
-  const pseudo = document.getElementById('pseudo-input').value.trim();
-  const errEl  = document.getElementById('pseudo-err');
-  if (!pseudo) { errEl.textContent = 'Saisis un pseudo.'; return; }
-  if (pseudo.length > 20) { errEl.textContent = 'Max 20 caractères.'; return; }
-  errEl.textContent = 'Sauvegarde...';
+  if (!pseudo)          { errEl.textContent = 'Choisis un pseudo.'; return; }
+  if (pseudo.length>20) { errEl.textContent = 'Pseudo max 20 caractères.'; return; }
+  if (!email)           { errEl.textContent = 'Saisis ton email.'; return; }
+  if (pwd.length < 6)   { errEl.textContent = 'Mot de passe : 6 caractères minimum.'; return; }
+
+  errEl.textContent = 'Création du compte...';
   try {
-    await window._db.collection('users').doc(currentUser.uid).set({ pseudo, email: currentUser.email });
-    // Add to POTES list in Firestore so everyone sees the new player
-    await window._db.collection('shared').doc('players').set(
-      { [currentUser.uid]: pseudo },
-      { merge: true }
+    // Check pseudo not already taken
+    const db = window._db;
+    const playersSnap = await db.collection('shared').doc('players').get();
+    if (playersSnap.exists) {
+      const taken = Object.values(playersSnap.data()).map(p => p.toLowerCase());
+      if (taken.includes(pseudo.toLowerCase())) {
+        errEl.textContent = 'Ce pseudo est déjà pris, choisis-en un autre.';
+        return;
+      }
+    }
+    // Create Firebase Auth account
+    const cred = await window._auth.createUserWithEmailAndPassword(email, pwd);
+    // Save user profile
+    await db.collection('users').doc(cred.user.uid).set({
+      pseudo, email, createdAt: Date.now()
+    });
+    // Add to shared players list
+    await db.collection('shared').doc('players').set(
+      { [cred.user.uid]: pseudo }, { merge: true }
     );
-    currentPote = pseudo;
-    // Refresh POTES from Firestore then boot app
-    await loadPlayers();
-    document.getElementById('pseudo-screen').classList.add('hidden');
-    bootApp();
+    errEl.textContent = '';
+    okEl.textContent = '✓ Compte créé ! Connexion en cours...';
+    // onAuthStateChanged will fire and boot the app automatically
   } catch(e) {
-    errEl.textContent = 'Erreur : ' + e.message;
+    const msgs = {
+      'auth/email-already-in-use': 'Cet email est déjà utilisé.',
+      'auth/invalid-email'       : 'Email invalide.',
+      'auth/weak-password'       : 'Mot de passe trop faible (6 caractères min.).'
+    };
+    errEl.textContent = msgs[e.code] || 'Erreur : ' + e.message;
   }
 }
 
-async function loadPlayers() {
-  // Load the shared players list from Firestore and rebuild POTES + AV arrays
-  try {
-    const snap = await window._db.collection('shared').doc('players').get();
-    if (snap.exists) {
-      const data = snap.data(); // { uid: pseudo, ... }
-      const pseudos = Object.values(data).sort();
-      POTES.length = 0;
-      pseudos.forEach(p => POTES.push(p));
-      // Rebuild avatar colors (cycle through palette)
-      const palette_bg = ["#CECBF6","#9FE1CB","#F5C4B3","#FAC775","#B5D4F4","#F4C0D1","#C0DD97","#D3D1C7","#FFD6A5","#CAFFBF"];
-      const palette_tx = ["#3C3489","#085041","#712B13","#633806","#0C447C","#72243E","#27500A","#2C2C2A","#7C4D00","#1A6300"];
-      AV_BG.length = 0; AV_TX.length = 0;
-      POTES.forEach((_, i) => {
-        AV_BG.push(palette_bg[i % palette_bg.length]);
-        AV_TX.push(palette_tx[i % palette_tx.length]);
-      });
-    }
-  } catch(e) { console.error('loadPlayers error:', e); }
-}
+// ===== LOGOUT =====
+function doLogout() { window._auth.signOut(); }
 
-function bootApp() {
-  isAdmin = currentUser.email === ADMIN_EMAIL;
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('pseudo-screen').classList.add('hidden');
-  document.getElementById('user-bar').style.display = 'flex';
-  document.getElementById('user-name').textContent = currentPote;
-  document.getElementById('user-role-badge').textContent = isAdmin ? 'Admin' : 'Joueur';
-  document.getElementById('user-role-badge').className = 'user-bar-role ' + (isAdmin ? 'role-admin' : 'role-user');
-  subscribeFirestore();
-  renderGroups();
-}
-
-// Auth state listener
+// ===== AUTH STATE =====
 window.addEventListener('load', () => {
-  const pwdEl = document.getElementById('login-pwd');
-  if (pwdEl) pwdEl.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  const psdEl = document.getElementById('pseudo-input');
-  if (psdEl) psdEl.addEventListener('keydown', e => { if (e.key === 'Enter') savePseudo(); });
+  // Keydown shortcuts
+  document.getElementById('signin-pwd').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+  document.getElementById('signup-pwd').addEventListener('keydown', e => { if(e.key==='Enter') doSignup(); });
 
   window._auth.onAuthStateChanged(async user => {
     if (user) {
       currentUser = user;
-      // Look up pseudo in Firestore
+      // Load pseudo from Firestore
       const userDoc = await window._db.collection('users').doc(user.uid).get();
       if (userDoc.exists && userDoc.data().pseudo) {
-        // Known user — load players then boot
         currentPote = userDoc.data().pseudo;
-        await loadPlayers();
-        bootApp();
       } else {
-        // First login — ask for pseudo
-        document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('pseudo-screen').classList.remove('hidden');
-        document.getElementById('pseudo-input').focus();
+        currentPote = user.email.split('@')[0];
       }
+      isAdmin = user.email === ADMIN_EMAIL;
+      // Load players list then boot
+      await loadPlayers();
+      bootApp();
     } else {
       currentUser = null; currentPote = null; isAdmin = false;
-      Object.values(unsubscribers).forEach(u => typeof u === "function" && u()); unsubscribers = {};
+      Object.values(unsubscribers).forEach(u => typeof u === 'function' && u());
+      unsubscribers = {};
       document.getElementById('login-screen').classList.remove('hidden');
-      document.getElementById('pseudo-screen').classList.add('hidden');
       document.getElementById('user-bar').style.display = 'none';
     }
   });
 });
 
-function subscribeFirestore() {
-  const db = window._db;
-  const palette_bg = ["#CECBF6","#9FE1CB","#F5C4B3","#FAC775","#B5D4F4","#F4C0D1","#C0DD97","#D3D1C7","#FFD6A5","#CAFFBF"];
-  const palette_tx = ["#3C3489","#085041","#712B13","#633806","#0C447C","#72243E","#27500A","#2C2C2A","#7C4D00","#1A6300"];
+// ===== HELPERS =====
+const palette_bg = ["#CECBF6","#9FE1CB","#F5C4B3","#FAC775","#B5D4F4","#F4C0D1","#C0DD97","#D3D1C7","#FFD6A5","#CAFFBF"];
+const palette_tx = ["#3C3489","#085041","#712B13","#633806","#0C447C","#72243E","#27500A","#2C2C2A","#7C4D00","#1A6300"];
 
-  // Listen to players list — POTES updates live when someone new joins
-  unsubscribers["players"] = db.collection('shared').doc('players').onSnapshot(snap => {
+async function loadPlayers() {
+  try {
+    const snap = await window._db.collection('shared').doc('players').get();
     if (snap.exists) {
       const pseudos = Object.values(snap.data()).sort();
       POTES.length = 0; AV_BG.length = 0; AV_TX.length = 0;
@@ -398,7 +413,34 @@ function subscribeFirestore() {
         AV_BG.push(palette_bg[i % palette_bg.length]);
         AV_TX.push(palette_tx[i % palette_tx.length]);
       });
-      // Subscribe to each player's pronos (skip if already subscribed)
+    }
+  } catch(e) { console.error('loadPlayers:', e); }
+}
+
+function bootApp() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('user-bar').style.display = 'flex';
+  document.getElementById('user-name').textContent = currentPote;
+  document.getElementById('user-role-badge').textContent = isAdmin ? 'Admin' : 'Joueur';
+  document.getElementById('user-role-badge').className = 'user-bar-role ' + (isAdmin ? 'role-admin' : 'role-user');
+  subscribeFirestore();
+  renderGroups();
+}
+
+function subscribeFirestore() {
+  const db = window._db;
+
+  // Players list — updates POTES live when someone new joins
+  unsubscribers['players'] = db.collection('shared').doc('players').onSnapshot(snap => {
+    if (snap.exists) {
+      const pseudos = Object.values(snap.data()).sort();
+      POTES.length = 0; AV_BG.length = 0; AV_TX.length = 0;
+      pseudos.forEach((p, i) => {
+        POTES.push(p);
+        AV_BG.push(palette_bg[i % palette_bg.length]);
+        AV_TX.push(palette_tx[i % palette_tx.length]);
+      });
+      // Subscribe to each player's pronos dynamically
       POTES.forEach(pote => {
         if (!unsubscribers['prono_' + pote]) {
           unsubscribers['prono_' + pote] = db.collection('pronos').doc(pote).onSnapshot(s => {
@@ -409,8 +451,8 @@ function subscribeFirestore() {
     }
   });
 
-  // Listen to shared data (scores, bracket, stats, rdv, pts)
-  unsubscribers["shared"] = db.collection('shared').doc('data').onSnapshot(snap => {
+  // Shared data (scores, bracket, stats, rdv, pts)
+  unsubscribers['shared'] = db.collection('shared').doc('data').onSnapshot(snap => {
     if (snap.exists) {
       const data = snap.data();
       D.scores    = data.scores    || {};
@@ -423,13 +465,13 @@ function subscribeFirestore() {
     }
   });
 
-  // Listen to actual scores
-  unsubscribers["actuals"] = db.collection('shared').doc('actuals').onSnapshot(snap => {
+  // Actual scores
+  unsubscribers['actuals'] = db.collection('shared').doc('actuals').onSnapshot(snap => {
     if (snap.exists) D.actual = snap.data().actuals || {};
   });
 
-  // Listen to own pronos
-  unsubscribers["myPronos"] = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
+  // Own pronos
+  unsubscribers['myPronos'] = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
     if (snap.exists) Object.assign(D.pronos, snap.data().bets || {});
   });
 }
@@ -471,8 +513,7 @@ async function saveBet(matchId, pote, field, value) {
   } catch(e) { console.error(e); }
 }
 
-  // POTES is dynamically loaded from Firestore (see loadPlayers)
-// Using let arrays so loadPlayers() can mutate them in-place
+// POTES built dynamically from Firestore players list
 let POTES  = [];
 let AV_BG  = [];
 let AV_TX  = [];
