@@ -363,7 +363,7 @@ function subscribeFirestore() {
   const db = window._db;
   // Listen to shared data (scores, bracket, stats, rdv, grouppts)
   const sharedUnsub = db.collection('shared').doc('data').onSnapshot(snap => {
-    if (snap.exists()) {
+    if (snap.exists) {
       const data = snap.data();
       D.scores = data.scores || {};
       D.bracket = data.bracket || {};
@@ -379,7 +379,7 @@ function subscribeFirestore() {
 
   // Listen to pronos of current user
   const pronosUnsub = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
-    if (snap.exists()) {
+    if (snap.exists) {
       D.pronos = D.pronos || {};
       const data = snap.data();
       Object.assign(D.pronos, data.bets || {});
@@ -391,7 +391,7 @@ function subscribeFirestore() {
   if (isAdmin) {
     POTES.forEach(pote => {
       const u = db.collection('pronos').doc(pote).onSnapshot(snap => {
-        if (snap.exists()) {
+        if (snap.exists) {
           D.pronos = D.pronos || {};
           Object.assign(D.pronos, snap.data().bets || {});
         }
@@ -400,13 +400,13 @@ function subscribeFirestore() {
     });
     // Listen to actual scores
     const actualUnsub = db.collection('shared').doc('actuals').onSnapshot(snap => {
-      if (snap.exists()) { D.actual = snap.data().actuals || {}; }
+      if (snap.exists) { D.actual = snap.data().actuals || {}; }
     });
     unsubscribers.push(actualUnsub);
   } else {
     // Non-admin: load actuals once
     db.collection('shared').doc('actuals').get().then(snap => {
-      if (snap.exists()) D.actual = snap.data().actuals || {};
+      if (snap.exists) D.actual = snap.data().actuals || {};
     });
   }
 }
