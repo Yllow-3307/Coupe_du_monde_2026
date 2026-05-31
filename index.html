@@ -269,6 +269,7 @@
   <button class="tab" onclick="showTab('stats')"><i class="ti ti-chart-bar" aria-hidden="true"></i> Stats</button>
   <button class="tab" onclick="showTab('equipes')"><i class="ti ti-shirt" aria-hidden="true"></i> Équipes</button>
   <button class="tab" onclick="showTab('rdv')"><i class="ti ti-map-pin" aria-hidden="true"></i> RDV</button>
+  <button class="tab" onclick="showTab('admin')"><i class="ti ti-users" aria-hidden="true"></i> Admin</button>
 </div>
 
 <div id="groupes" class="sec active"></div>
@@ -278,6 +279,7 @@
 <div id="stats" class="sec"></div>
 <div id="equipes" class="sec"></div>
 <div id="rdv" class="sec"></div>
+<div id="admin" class="sec"></div>
 
 <script>
 
@@ -1652,11 +1654,116 @@ function addRdv(){D.rdvList.push({id:'rdv_'+Date.now(),date:'',mois:'',match:'',
 function removeRdv(ri){if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}}else{D.rdvList.splice(ri,1)}save();renderRdv()}
 
 function showTab(id){
-  const tabs=['groupes','matchs','bracket','pronos','stats','equipes','rdv'];
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===id));
-  document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('active',s.id===id));
-  const renders={groupes:renderGroups,matchs:renderMatchs,bracket:renderBracket,pronos:renderPronos,stats:renderStats,equipes:renderEquipes,rdv:renderRdv};
-  if(renders[id])renders[id]();
+  const tabs = ['groupes','matchs','bracket','pronos','stats','equipes','rdv','admin'];
+  
+  document.querySelectorAll('.tab').forEach((t,i) => 
+    t.classList.toggle('active', tabs[i] === id)
+  );
+  
+  document.querySelectorAll('.sec').forEach(s => 
+    s.classList.toggle('active', s.id === id)
+  );
+
+  const renders = {
+    groupes: renderGroups,
+    matchs: renderMatchs,
+    bracket: renderBracket,
+    pronos: renderPronos,
+    stats: renderStats,
+    equipes: renderEquipes,
+    rdv: renderRdv,
+    admin: renderAdmin
+  };
+
+  if (renders[id]) renders[id]();
+}
+
+// ====================== ADMIN - GESTION UTILISATEURS ======================
+
+function renderAdmin() {
+  if (!isAdmin) {
+    document.getElementById('admin').innerHTML = `<p style="color:red;padding:20px;">Accès réservé à l'administrateur.</p>`;
+    return;
+  }
+
+  let html = `
+    <div class="card">
+      <div class="section-title">Gestion des participants (${POTES.length})</div>
+      <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">
+        Supprimer un joueur efface ses pronos et son profil. L'adresse email reste dans Firebase Auth (tu peux la supprimer manuellement dans la console si besoin).
+      </p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+  `;
+
+  POTES.forEach((pote, index) => {
+    const isCurrentUser = pote === currentPote;
+    html += `
+      <div class="lb-row" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;background:${AV_BG[index]};color:${AV_TX[index]}">
+            ${pote.charAt(0)}
+          </div>
+          <span style="font-weight:500">${pote}</span>
+          ${isCurrentUser ? '<span class="role-user" style="font-size:11px;padding:1px 6px">Toi</span>' : ''}
+        </div>
+        
+        <button class="btn" onclick="deleteUser('${pote}')" style="color:#c92a2a;border-color:#c92a2a" ${isCurrentUser ? 'disabled' : ''}>
+          <i class="ti ti-trash"></i> Supprimer
+        </button>
+      </div>`;
+  });
+
+  html += `</div></div>`;
+  document.getElementById('admin').innerHTML = html;
+}
+
+// Fonction de suppression
+async function deleteUser(pote) {
+  if (!isAdmin) return;
+  if (!confirm(`⚠️ Supprimer le joueur "${pote}" ?\n\nSes pronos et son profil seront définitivement effacés.`)) {
+    return;
+  }
+
+  try {
+    const db = window._db;
+
+    // 1. Supprimer ses pronos
+    await db.collection('pronos').doc(pote).delete();
+
+    // 2. Supprimer son profil user
+    const userSnap = await db.collection('shared').doc('players').get();
+    if (userSnap.exists) {
+      const data = userSnap.data();
+      // Trouver l'UID correspondant au pseudo
+      let uidToRemove = null;
+      for (let [uid, pseudo] of Object.entries(data)) {
+        if (pseudo === pote) {
+          uidToRemove = uid;
+          break;
+        }
+      }
+      if (uidToRemove) {
+        await db.collection('users').doc(uidToRemove).delete();
+        
+        // 3. Retirer de la liste des players
+        delete data[uidToRemove];
+        await db.collection('shared').doc('players').set(data);
+      }
+    }
+
+    alert(`✅ ${pote} a été supprimé.`);
+    
+    // Rafraîchir
+    await loadPlayers();
+    renderAdmin();
+    // Rafraîchir aussi les autres onglets si besoin
+    const activeTab = document.querySelector('.tab.active');
+    if (activeTab) activeTab.click();
+
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la suppression : " + e.message);
+  }
 }
 // App renders after login via onAuthStateChanged
 </script>
