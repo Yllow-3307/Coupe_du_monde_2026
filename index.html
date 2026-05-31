@@ -317,76 +317,47 @@ function doLogin() {
 }
 
 // ===== SIGN UP =====
+// ===== SIGN UP =====
 async function doSignup() {
   const pseudo = document.getElementById('signup-pseudo').value.trim();
   const email  = document.getElementById('signup-email').value.trim();
   const pwd    = document.getElementById('signup-pwd').value;
   const errEl  = document.getElementById('signup-err');
   const okEl   = document.getElementById('signup-ok');
-  errEl.textContent = ''; okEl.textContent = '';
 
-  if (!pseudo)          { errEl.textContent = 'Choisis un pseudo.'; return; }
-  if (pseudo.length>20) { errEl.textContent = 'Pseudo max 20 caractères.'; return; }
-  if (!email)           { errEl.textContent = 'Saisis ton email.'; return; }
-  if (pwd.length < 6)   { errEl.textContent = 'Mot de passe : 6 caractères minimum.'; return; }
+  if (!pseudo || pseudo.length > 20) { errEl.textContent = 'Pseudo invalide'; return; }
+  if (!email) { errEl.textContent = 'Email requis'; return; }
+  if (pwd.length < 6) { errEl.textContent = 'Mot de passe trop court'; return; }
 
-  errEl.textContent = 'Création du compte...';
+  errEl.textContent = 'Création en cours...';
+
   try {
-    // Check pseudo not already taken
-    const db = window._db;
-    const playersSnap = await db.collection('shared').doc('players').get();
-    if (playersSnap.exists) {
-      const taken = Object.values(playersSnap.data()).map(p => p.toLowerCase());
-      if (taken.includes(pseudo.toLowerCase())) {
-        errEl.textContent = 'Ce pseudo est déjà pris, choisis-en un autre.';
-        return;
-      }
-    }
-    // Create Firebase Auth account
     const cred = await window._auth.createUserWithEmailAndPassword(email, pwd);
+    
+    // On attend un peu que l'utilisateur soit bien créé
+    await new Promise(r => setTimeout(r, 800));
 
-// on ne fait plus les écritures ici
-okEl.textContent = 'Compte créé';
-    console.log("Utilisateur créé :", cred.user);
-    console.log("UID :", cred.user.uid);
-    console.log("Utilisateur actuel :", firebase.auth().currentUser);
-    // Save user profile
-    console.log("TEST 1 : écriture users");
+    const db = window._db;
 
-await db.collection('users').doc(cred.user.uid).set({
-  pseudo,
-  email,
-  createdAt: Date.now()
-});
+    // Création du profil utilisateur
+    await db.collection('users').doc(cred.user.uid).set({
+      pseudo: pseudo,
+      email: email,
+      createdAt: Date.now()
+    });
 
-console.log("TEST 1 OK");
+    // Ajout dans la liste des joueurs
+    await db.collection('shared').doc('players').set({
+      [cred.user.uid]: pseudo
+    }, { merge: true });
 
-console.log("TEST 2 : écriture shared/players");
-
-await db.collection('shared').doc('players').set(
-  { [cred.user.uid]: pseudo },
-  { merge: true }
-);
-
-console.log("TEST 2 OK");
+    okEl.textContent = '✓ Compte créé avec succès !';
     errEl.textContent = '';
-    okEl.textContent = '✓ Compte créé ! Connexion en cours...';
-    // onAuthStateChanged will fire and boot the app automatically
+
   } catch(e) {
-  console.error("CODE :", e.code);
-  console.error("MESSAGE :", e.message);
-  console.error("OBJET COMPLET :", e);
-
-  errEl.textContent = e.code + " : " + e.message;
-}
-
-  const msgs = {
-    'auth/email-already-in-use': 'Cet email est déjà utilisé.',
-    'auth/invalid-email': 'Email invalide.',
-    'auth/weak-password': 'Mot de passe trop faible (6 caractères min.).'
-  };
-
-  
+    console.error(e);
+    errEl.textContent = e.message || "Erreur lors de la création";
+  }
 }
 
 // ===== LOGOUT =====
