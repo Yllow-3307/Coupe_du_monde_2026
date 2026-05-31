@@ -305,15 +305,6 @@ function doLogin() {
       errEl.textContent = msgs[e.code] || 'Erreur : ' + e.message;
     });
 }
-  await loadUsers();
-
-async function loadUsers() {
-  const snap = await firebase.firestore()
-    .collection("users")
-    .get();
-
-  POTES = snap.docs.map(doc => doc.data().pseudo);
-}
   
   
 function doLogout() {
@@ -337,8 +328,14 @@ window.addEventListener('load', () => {
 
         if (userDoc.exists) {
           currentPote = userDoc.data().pseudo;
+        }
+        if (!potes.includes(currentPote)) {
+          potes.push(currentPote);
         } else {
           currentPote = user.email.split('@')[0];
+        }
+        if (!potes.includes(currentPote)) {
+          potes.push(currentPote);
         }
 
         isAdmin = user.email === ADMIN_EMAIL;
