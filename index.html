@@ -1368,6 +1368,13 @@ function renderPronos(){
     const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
     return`<div class="prog-match">
       <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
+      <div class="prog-match-hdr">
+  <span style="font-weight:500;color:var(--color-text-primary)">
+    ${m.label}
+    ${isMatchLocked(m.id) ? ' <span style="font-size:11px;padding:2px 6px;border-radius:8px;background:#FFF3CD;color:#856404">🔒 Fermé</span>' : ''}
+  </span>
+  <span>${m.date} · ${m.group}</span>
+</div>
       <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
         <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Score réel :</div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
@@ -1381,7 +1388,8 @@ function renderPronos(){
       <div>${POTES.map((pote)=>{
         const bet=D.pronos[m.id+pote]||{s1:'',s2:'',top:''};
         const pts=calcPts(m.id,pote);
-        const canEdit = isAdmin || pote === currentPote;
+        const locked = isMatchLocked(m.id);
+        const canEdit = (isAdmin || pote === currentPote) && !locked;
         return`<div class="prog-bet-row" style="${pote===currentPote?'background:var(--color-background-info);':''}">
           <span style="min-width:65px;color:var(--color-text-secondary);font-weight:${pote===currentPote?'600':'400'}">${pote}${pote===currentPote?' 👤':''}</span>
           <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="setBet('${m.id}','${pote}','s1',this.value)" style="width:28px;height:24px;font-size:12px" ${canEdit?'':'disabled'}>
@@ -1473,10 +1481,11 @@ function isMatchLocked(matchId) {
 }
   
 function setBet(mid,p,f,v){
-  if(!currentUser) return;
-  if(p !== currentPote && !isAdmin) return; // Can only edit own bets
+  if(p !== currentPote && !isAdmin) return;
+  if(isMatchLocked(mid)) return; // 🔒 match commencé
   saveBet(mid, p, f, v);
 }
+  
 function calcPts(matchId, pote){
   const actual = D.actual[matchId] || {s1:'', s2:'', top:''};
   const bet = D.pronos[matchId+pote] || {s1:'', s2:'', top:''};
