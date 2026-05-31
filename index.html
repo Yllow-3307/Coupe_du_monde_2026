@@ -9,13 +9,15 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBUragXBJrQ2XcdaJ-m30KI2JoZ7Eie5Tk",
-      authDomain: "cdm-2026-eda50.firebaseapp.com",
-      projectId: "cdm-2026-eda50",
-      storageBucket: "cdm-2026-eda50.firebasestorage.app",
-      messagingSenderId: "100012188502",
-      appId: "1:1000121885026:web:c73deaa1a9bbeaf3f20c3b"
+    import { initializeApp } from 'firebase/app';
+    const app = initializeApp(firebaseConfig);
+      const firebaseConfig = {
+        apiKey: "AIzaSyBUragXBJrQ2XcdaJ-m30KI2JoZ7Eie5Tk",
+        authDomain: "cdm-2026-eda50.firebaseapp.com",
+        projectId: "cdm-2026-eda50",
+        storageBucket: "cdm-2026-eda50.firebasestorage.app",
+        messagingSenderId: "100012188502",
+        appId: "1:1000121885026:web:c73deaa1a9bbeaf3f20c3b"
     };
     firebase.initializeApp(firebaseConfig);
     window._auth = firebase.auth();
