@@ -345,15 +345,8 @@ async function doSignup() {
     // Create Firebase Auth account
     const cred = await window._auth.createUserWithEmailAndPassword(email, pwd);
 
-// attendre que Firebase Auth soit vraiment connecté
-await new Promise(resolve => {
-  const unsub = window._auth.onAuthStateChanged(user => {
-    if (user) {
-      unsub();
-      resolve();
-    }
-  });
-});
+// on ne fait plus les écritures ici
+okEl.textContent = 'Compte créé';
     console.log("Utilisateur créé :", cred.user);
     console.log("UID :", cred.user.uid);
     console.log("Utilisateur actuel :", firebase.auth().currentUser);
