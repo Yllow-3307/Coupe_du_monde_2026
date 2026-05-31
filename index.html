@@ -351,13 +351,24 @@ okEl.textContent = 'Compte créé';
     console.log("UID :", cred.user.uid);
     console.log("Utilisateur actuel :", firebase.auth().currentUser);
     // Save user profile
-    await db.collection('users').doc(cred.user.uid).set({
-      pseudo, email, createdAt: Date.now()
-    });
-    // Add to shared players list
-    await db.collection('shared').doc('players').set(
-      { [cred.user.uid]: pseudo }, { merge: true }
-    );
+    console.log("TEST 1 : écriture users");
+
+await db.collection('users').doc(cred.user.uid).set({
+  pseudo,
+  email,
+  createdAt: Date.now()
+});
+
+console.log("TEST 1 OK");
+
+console.log("TEST 2 : écriture shared/players");
+
+await db.collection('shared').doc('players').set(
+  { [cred.user.uid]: pseudo },
+  { merge: true }
+);
+
+console.log("TEST 2 OK");
     errEl.textContent = '';
     okEl.textContent = '✓ Compte créé ! Connexion en cours...';
     // onAuthStateChanged will fire and boot the app automatically
