@@ -422,7 +422,6 @@ async function loadPlayers() {
     }
   } catch(e) {
   console.error("ERREUR COMPLETE :", e);
-  errEl.textContent = e.code + " : " + e.message;
 }
 }
 
@@ -498,7 +497,6 @@ async function save() {
     });
   } catch(e) {
   console.error("ERREUR COMPLETE :", e);
-  errEl.textContent = e.code + " : " + e.message;
 }
 }
 
@@ -508,7 +506,6 @@ async function saveActuals() {
     await window._db.collection('shared').doc('actuals').set({ actuals: D.actual || {} });
   } catch(e) {
   console.error("ERREUR COMPLETE :", e);
-  errEl.textContent = e.code + " : " + e.message;
 }
 }
 
@@ -527,7 +524,6 @@ async function saveBet(matchId, pote, field, value) {
     await ref.set({ bets: existing });
   } catch(e) {
   console.error("ERREUR COMPLETE :", e);
-  errEl.textContent = e.code + " : " + e.message;
 }
 }
 
