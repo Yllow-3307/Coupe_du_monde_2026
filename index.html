@@ -361,8 +361,13 @@ okEl.textContent = 'Compte créé';
     errEl.textContent = '';
     okEl.textContent = '✓ Compte créé ! Connexion en cours...';
     // onAuthStateChanged will fire and boot the app automatically
-  } catch(e) {
-  console.error("ERREUR COMPLETE :", e);
+  catch(e) {
+  console.error("CODE :", e.code);
+  console.error("MESSAGE :", e.message);
+  console.error("OBJET COMPLET :", e);
+
+  errEl.textContent = e.code + " : " + e.message;
+}
 
   const msgs = {
     'auth/email-already-in-use': 'Cet email est déjà utilisé.',
@@ -370,8 +375,7 @@ okEl.textContent = 'Compte créé';
     'auth/weak-password': 'Mot de passe trop faible (6 caractères min.).'
   };
 
-  errEl.textContent = msgs[e.code] || ('Erreur : ' + e.message);
-}
+  
 }
 
 // ===== LOGOUT =====
