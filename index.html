@@ -346,6 +346,9 @@ async function doSignup() {
     }
     // Create Firebase Auth account
     const cred = await window._auth.createUserWithEmailAndPassword(email, pwd);
+    console.log("Utilisateur créé :", cred.user);
+    console.log("UID :", cred.user.uid);
+    console.log("Utilisateur actuel :", firebase.auth().currentUser);
     // Save user profile
     await db.collection('users').doc(cred.user.uid).set({
       pseudo, email, createdAt: Date.now()
@@ -358,6 +361,9 @@ async function doSignup() {
     okEl.textContent = '✓ Compte créé ! Connexion en cours...';
     // onAuthStateChanged will fire and boot the app automatically
   } catch(e) {
+  console.error("ERREUR COMPLETE :", e);
+  errEl.textContent = e.code + " : " + e.message;
+}
     const msgs = {
       'auth/email-already-in-use': 'Cet email est déjà utilisé.',
       'auth/invalid-email'       : 'Email invalide.',
@@ -416,7 +422,10 @@ async function loadPlayers() {
         AV_TX.push(palette_tx[i % palette_tx.length]);
       });
     }
-  } catch(e) { console.error('loadPlayers:', e); }
+  } catch(e) {
+  console.error("ERREUR COMPLETE :", e);
+  errEl.textContent = e.code + " : " + e.message;
+}
 }
 
 function bootApp() {
@@ -489,14 +498,20 @@ async function save() {
       rdvList: D.rdvList || [],
       pts: D.pts || {}
     });
-  } catch(e) { console.error('Save error:', e); }
+  } catch(e) {
+  console.error("ERREUR COMPLETE :", e);
+  errEl.textContent = e.code + " : " + e.message;
+}
 }
 
 async function saveActuals() {
   if (!isAdmin) return;
   try {
     await window._db.collection('shared').doc('actuals').set({ actuals: D.actual || {} });
-  } catch(e) { console.error(e); }
+  } catch(e) {
+  console.error("ERREUR COMPLETE :", e);
+  errEl.textContent = e.code + " : " + e.message;
+}
 }
 
 async function saveBet(matchId, pote, field, value) {
@@ -512,7 +527,10 @@ async function saveBet(matchId, pote, field, value) {
     if (!existing[key]) existing[key] = {s1:'',s2:'',top:''};
     existing[key][field] = value;
     await ref.set({ bets: existing });
-  } catch(e) { console.error(e); }
+  } catch(e) {
+  console.error("ERREUR COMPLETE :", e);
+  errEl.textContent = e.code + " : " + e.message;
+}
 }
 
 // POTES built dynamically from Firestore players list
