@@ -534,7 +534,7 @@ let AV_TX  = [];
 const GROUPS = {
   A: {teams: [["🇲🇽","Mexique"], ["🇿🇦","Afrique du Sud"], ["🇰🇷","Corée du Sud"], ["🇨🇿","Tchéquie"]]},
   B: {teams: [["🇨🇦","Canada"], ["🇧🇦","Bosnie-Herz."], ["🇶🇦","Qatar"], ["🇨🇭","Suisse"]]},
-  C: {teams: [["🇧🇷","Brésil"], ["🇲🇦","Maroc"], ["🇭🇹","Haïti"], ["🏴󠁧󠁢󠁳󠁣󠁴󠁿","Écosse"]]},
+  C: {teams: [["🇧🇷","Brésil"], ["🇲🇦","Maroc"], ["🇭🇹","Haïti"], ["🏴󠁧󠁢󠁳󠁣󠁴","Écosse"]]},
   D: {teams: [["🇺🇸","États-Unis"], ["🇵🇾","Paraguay"], ["🇦🇺","Australie"], ["🇹🇷","Turquie"]]},
   E: {teams: [["🇩🇪","Allemagne"], ["🇨🇼","Curaçao"], ["🇨🇮","Côte d'Ivoire"], ["🇪🇨","Équateur"]]},
   F: {teams: [["🇳🇱","Pays-Bas"], ["🇯🇵","Japon"], ["🇸🇪","Suède"], ["🇹🇳","Tunisie"]]},
@@ -1464,6 +1464,14 @@ function setActual(mid,f,v){
   const el = document.getElementById('pronos');
   if(el && el.classList.contains('active')) renderPronos();
 }
+
+function isMatchLocked(matchId) {
+  if (isAdmin) return false; // admin peut toujours modifier
+  const m = PRONO_MATCHES.find(m => m.id === matchId);
+  if (!m || !m.kickoff) return false;
+  return new Date() >= new Date(m.kickoff);
+}
+  
 function setBet(mid,p,f,v){
   if(!currentUser) return;
   if(p !== currentPote && !isAdmin) return; // Can only edit own bets
