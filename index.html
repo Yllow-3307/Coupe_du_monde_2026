@@ -1374,7 +1374,6 @@ function renderPronos(){
   ${PRONO_MATCHES.map(m=>{
     const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
     return`<div class="prog-match">
-      <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
       <div class="prog-match-hdr"><span ...>${m.label}</span><span>${m.date} · ${m.group} ${locked ? '🔒' : '✏️'}</span></div>
       <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
         <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Score réel :</div>
