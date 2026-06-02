@@ -1373,6 +1373,7 @@ function renderPronos(){
   <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">2 pts</span> score exact &nbsp;<span class="pts-chip pts-3">3 pts</span> + buteur</div>
   ${PRONO_MATCHES.map(m=>{
     const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
+    const locked = isLocked(m.id);
     return`<div class="prog-match">
       <div class="prog-match-hdr"><span ...>${m.label}</span><span>${m.date} · ${m.group} ${locked ? '🔒' : '✏️'}</span></div>
       <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
@@ -1388,7 +1389,6 @@ function renderPronos(){
       <div>${POTES.map((pote)=>{
         const bet=D.pronos[m.id+pote]||{s1:'',s2:'',top:''};
         const pts=calcPts(m.id,pote);
-       const locked = isLocked(m.id);
       const canEdit = !locked && (isAdmin || pote === currentPote);
         return`<div class="prog-bet-row" style="${pote===currentPote?'background:var(--color-background-info);':''}">
           <span style="min-width:65px;color:var(--color-text-secondary);font-weight:${pote===currentPote?'600':'400'}">${pote}${pote===currentPote?' 👤':''}</span>
