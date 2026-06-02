@@ -552,7 +552,7 @@ const GROUPS = {
 
 const PRONO_MATCHES = [
   // --- GROUPE A ---
-  {id:"p1", label:"🇲🇽 Mexique vs 🇿🇦 Afrique du Sud",      date:"11 Juin", group:"Gr. A", kickoff:"2026-05-31T21:07:00+02:00"},
+  {id:"p1", label:"🇲🇽 Mexique vs 🇿🇦 Afrique du Sud",      date:"11 Juin", group:"Gr. A", kickoff:"2026-06-11T21:00:00+02:00"},
   {id:"p2", label:"🇰🇷 Corée du Sud vs 🇨🇿 Tchéquie",        date:"12 Juin", group:"Gr. A", kickoff:"2026-06-12T04:00:00+02:00"},
   {id:"p3", label:"🇨🇿 Tchéquie vs 🇿🇦 Afrique du Sud",      date:"18 Juin", group:"Gr. A", kickoff:"2026-06-18T19:00:00+02:00"},
   {id:"p4", label:"🇲🇽 Mexique vs 🇰🇷 Corée du Sud",          date:"19 Juin", group:"Gr. A", kickoff:"2026-06-19T03:00:00+02:00"},
@@ -659,6 +659,13 @@ const PRONO_MATCHES = [
   {id:"p81", label:"Petite Finale (3e place)", date:"18 Juillet", group:"Élim.", kickoff:"2026-07-18T23:00:00+02:00"},
   {id:"p82", label:"Finale",           date:"19 Juillet", group:"Élim.", kickoff:"2026-07-19T21:00:00+02:00"},
 ];
+
+function isLocked(matchId) {
+  const m = PRONO_MATCHES.find(m => m.id === matchId);
+  if (!m || !m.kickoff) return false;
+  return new Date() >= new Date(m.kickoff);
+}
+  
 const MATCHS_DATA = [
   // --- GROUPE A ---
   { day: "11 Juin", stage: "Phase de Groupes", g: "A", t1: "🇲🇽 Mexique", t2: "🇿🇦 Afrique du Sud", heure: "21:00" },
@@ -1368,13 +1375,7 @@ function renderPronos(){
     const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
     return`<div class="prog-match">
       <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
-      <div class="prog-match-hdr">
-  <span style="font-weight:500;color:var(--color-text-primary)">
-    ${m.label}
-    ${isMatchLocked(m.id) ? ' <span style="font-size:11px;padding:2px 6px;border-radius:8px;background:#FFF3CD;color:#856404">🔒 Fermé</span>' : ''}
-  </span>
-  <span>${m.date} · ${m.group}</span>
-</div>
+      <div class="prog-match-hdr"><span ...>${m.label}</span><span>${m.date} · ${m.group} ${locked ? '🔒' : '✏️'}</span></div>
       <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
         <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Score réel :</div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
@@ -1388,8 +1389,8 @@ function renderPronos(){
       <div>${POTES.map((pote)=>{
         const bet=D.pronos[m.id+pote]||{s1:'',s2:'',top:''};
         const pts=calcPts(m.id,pote);
-        const locked = isMatchLocked(m.id);
-        const canEdit = (isAdmin || pote === currentPote) && !locked;
+       const locked = isLocked(m.id);
+      const canEdit = !locked && (isAdmin || pote === currentPote);
         return`<div class="prog-bet-row" style="${pote===currentPote?'background:var(--color-background-info);':''}">
           <span style="min-width:65px;color:var(--color-text-secondary);font-weight:${pote===currentPote?'600':'400'}">${pote}${pote===currentPote?' 👤':''}</span>
           <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="setBet('${m.id}','${pote}','s1',this.value)" style="width:28px;height:24px;font-size:12px" ${canEdit?'':'disabled'}>
@@ -1472,17 +1473,10 @@ function setActual(mid,f,v){
   const el = document.getElementById('pronos');
   if(el && el.classList.contains('active')) renderPronos();
 }
-
-function isMatchLocked(matchId) {
-  if (isAdmin) return false; // admin peut toujours modifier
-  const m = PRONO_MATCHES.find(m => m.id === matchId);
-  if (!m || !m.kickoff) return false;
-  return new Date() >= new Date(m.kickoff);
-}
   
-function setBet(mid,p,f,v){
-  if(p !== currentPote && !isAdmin) return;
-  if(isMatchLocked(mid)) return; // 🔒 match commencé
+
+function setBet(mid, p, f, v) {
+  if (isLocked(mid) && !isAdmin) return;
   saveBet(mid, p, f, v);
 }
   
