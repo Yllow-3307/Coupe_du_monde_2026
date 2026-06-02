@@ -697,109 +697,141 @@ function isLocked(matchId) {
   
 const MATCHS_DATA = [
   // --- GROUPE A ---
-  { day: "11 Juin", stage: "Phase de Groupes", g: "A", t1: "🇲🇽 Mexique", t2: "🇿🇦 Afrique du Sud", heure: "21:00" },
-  { day: "12 Juin", stage: "Phase de Groupes", g: "A", t1: "🇰🇷 Corée du Sud", t2: "🇨🇿 Tchéquie", heure: "04:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "A", t1: "🇨🇿 Tchéquie", t2: "🇿🇦 Afrique du Sud", heure: "17:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "A", t1: "🇲🇽 Mexique", t2: "🇰🇷 Corée du Sud", heure: "02:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "A", t1: "🇨🇿 Tchéquie", t2: "🇲🇽 Mexique", heure: "02:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "A", t1: "🇿🇦 Afrique du Sud", t2: "🇰🇷 Corée du Sud", heure: "09:00" },
+  {id:"p1", label:"🇲🇽 Mexique vs 🇿🇦 Afrique du Sud",      date:"11 Juin", group:"Gr. A", kickoff:"2026-06-11T21:00:00+02:00"},
+  {id:"p2", label:"🇰🇷 Corée du Sud vs 🇨🇿 Tchéquie",        date:"12 Juin", group:"Gr. A", kickoff:"2026-06-12T04:00:00+02:00"},
+  {id:"p3", label:"🇨🇿 Tchéquie vs 🇿🇦 Afrique du Sud",      date:"18 Juin", group:"Gr. A", kickoff:"2026-06-18T18:00:00+02:00"},
+  {id:"p4", label:"🇲🇽 Mexique vs 🇰🇷 Corée du Sud",          date:"19 Juin", group:"Gr. A", kickoff:"2026-06-19T03:00:00+02:00"},
+  {id:"p5", label:"🇨🇿 Tchéquie vs 🇲🇽 Mexique",              date:"25 Juin", group:"Gr. A", kickoff:"2026-06-25T03:00:00+02:00"},
+  {id:"p6", label:"🇿🇦 Afrique du Sud vs 🇰🇷 Corée du Sud",  date:"25 Juin", group:"Gr. A", kickoff:"2026-06-25T03:00:00+02:00"},
 
   // --- GROUPE B ---
-  { day: "12 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇧🇦 Bosnie-Herz.", heure: "21:00" },
-  { day: "13 Juin", stage: "Phase de Groupes", g: "B", t1: "🇶🇦 Qatar", t2: "🇨🇭 Suisse", heure: "15:00" },
-  { day: "17 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇶🇦 Qatar", heure: "21:00" },
-  { day: "17 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇧🇦 Bosnie-Herz.", heure: "03:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇨🇦 Canada", heure: "03:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "B", t1: "🇧🇦 Bosnie-Herz.", t2: "🇶🇦 Qatar", heure: "09:00" },
+  {id:"p7",  label:"🇨🇦 Canada vs 🇧🇦 Bosnie-Herz.",          date:"12 Juin", group:"Gr. B", kickoff:"2026-06-12T21:00:00+02:00"},
+  {id:"p8",  label:"🇶🇦 Qatar vs 🇨🇭 Suisse",                  date:"13 Juin", group:"Gr. B", kickoff:"2026-06-13T21:00:00+02:00"},
+  {id:"p9", label:"🇨🇭 Suisse vs 🇧🇦 Bosnie-Herz.",           date:"18 Juin", group:"Gr. B", kickoff:"2026-06-18T21:00:00+02:00"},
+  {id:"p10",  label:"🇨🇦 Canada vs 🇶🇦 Qatar",                  date:"19 Juin", group:"Gr. B", kickoff:"2026-06-19T00:00:00+02:00"},
+  {id:"p11", label:"🇨🇭 Suisse vs 🇨🇦 Canada",                 date:"25 Juin", group:"Gr. B", kickoff:"2026-06-24T21:00:00+02:00"},
+  {id:"p12", label:"🇧🇦 Bosnie-Herz. vs 🇶🇦 Qatar",           date:"25 Juin", group:"Gr. B", kickoff:"2026-06-24T21:00:00+02:00"},
 
-  // --- GROUPE C ---
-  { day: "13 Juin", stage: "Phase de Groupes", g: "C", t1: "🇺🇸 États-Unis", t2: "🇵🇾 Paraguay", heure: "21:00" },
-  { day: "13 Juin", stage: "Phase de Groupes", g: "C", t1: "🇬🇭 Ghana", t2: "🇬🇪 Géorgie", heure: "03:00" },
-  { day: "19 Juin", stage: "Phase de Groupes", g: "C", t1: "🇺🇸 États-Unis", t2: "🇬🇭 Ghana", heure: "03:00" },
-  { day: "19 Juin", stage: "Phase de Groupes", g: "C", t1: "🇬🇪 Géorgie", t2: "🇵🇾 Paraguay", heure: "09:00" },
-  { day: "24 Juin", stage: "Phase de Groupes", g: "C", t1: "🇬🇪 Géorgie", t2: "🇺🇸 États-Unis", heure: "03:00" },
-  { day: "24 Juin", stage: "Phase de Groupes", g: "C", t1: "🇵🇾 Paraguay", t2: "🇬🇭 Ghana", heure: "09:00" },
+  // --- GROUPE C (FIFA: Brésil, Maroc, Haïti, Écosse) ---
+  {id:"p13", label:"🇧🇷 Brésil vs 🇲🇦 Maroc",                 date:"14 Juin", group:"Gr. C", kickoff:"2026-06-14T00:00:00+02:00"},
+  {id:"p14", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse vs 🇭🇹 Haïti",            date:"14 Juin", group:"Gr. C", kickoff:"2026-06-14T03:00:00+02:00"},
+  {id:"p15", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse vs 🇲🇦 Maroc",             date:"20 Juin", group:"Gr. C", kickoff:"2026-06-20T00:00:00+02:00"},
+  {id:"p16", label:"🇧🇷 Brésil vs 🇭🇹 Haïti",                  date:"20 Juin", group:"Gr. C", kickoff:"2026-06-20T02:30:00+02:00"},
+  {id:"p17", label:"🇲🇦 Maroc vs 🇭🇹 Haïti",                   date:"25 Juin", group:"Gr. C", kickoff:"2026-06-25T00:00:00+02:00"},
+  {id:"p18", label:"🇧🇷 Brésil vs 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse",            date:"25 Juin", group:"Gr. C", kickoff:"2026-06-25T00:00:00+02:00"},
 
-  // --- GROUPE D ---
-  { day: "14 Juin", stage: "Phase de Groupes", g: "D", t1: "🇦🇷 Argentine", t2: "🇵🇪 Pérou", heure: "15:00" },
-  { day: "14 Juin", stage: "Phase de Groupes", g: "D", t1: "🇨🇮 Côte d'Ivoire", t2: "🇸🇮 Slovénie", heure: "18:00" },
-  { day: "20 Juin", stage: "Phase de Groupes", g: "D", t1: "🇦🇷 Argentine", t2: "🇨🇮 Côte d'Ivoire", heure: "21:00" },
-  { day: "20 Juin", stage: "Phase de Groupes", g: "D", t1: "🇸🇮 Slovénie", t2: "🇵🇪 Pérou", heure: "03:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "D", t1: "🇸🇮 Slovénie", t2: "🇦🇷 Argentine", heure: "03:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "D", t1: "🇵🇪 Pérou", t2: "🇨🇮 Côte d'Ivoire", heure: "09:00" },
+  // --- GROUPE D (FIFA: USA, Paraguay, Australie, Turquie) ---
+  {id:"p19", label:"🇺🇸 États-Unis vs 🇵🇾 Paraguay",           date:"13 Juin", group:"Gr. D", kickoff:"2026-06-13T03:00:00+02:00"},
+  {id:"p20", label:"🇦🇺 Australie vs 🇹🇷 Turquie",              date:"14 Juin", group:"Gr. D", kickoff:"2026-06-14T06:00:00+02:00"},
+  {id:"p21", label:"🇺🇸 États-Unis vs 🇦🇺 Australie",           date:"19 Juin", group:"Gr. D", kickoff:"2026-06-19T21:00:00+02:00"},
+  {id:"p22", label:"🇹🇷 Turquie vs 🇵🇾 Paraguay",               date:"20 Juin", group:"Gr. D", kickoff:"2026-06-20T05:00:00+02:00"},
+  {id:"p23", label:"🇹🇷 Turquie vs 🇺🇸 États-Unis",             date:"26 Juin", group:"Gr. D", kickoff:"2026-06-26T04:00:00+02:00"},
+  {id:"p24", label:"🇵🇾 Paraguay vs 🇦🇺 Australie",             date:"26 Juin", group:"Gr. D", kickoff:"2026-06-26T04:00:00+02:00"},
 
-  // --- GROUPE E ---
-  { day: "14 Juin", stage: "Phase de Groupes", g: "E", t1: "🇧🇷 Brésil", t2: "🇲🇦 Maroc", heure: "18:00" },
-  { day: "15 Juin", stage: "Phase de Groupes", g: "E", t1: "🇯🇵 Japon", t2: "🇨🇴 Colombie", heure: "03:00" },
-  { day: "20 Juin", stage: "Phase de Groupes", g: "E", t1: "🇧🇷 Brésil", t2: "🇨🇴 Colombie", heure: "03:00" },
-  { day: "20 Juin", stage: "Phase de Groupes", g: "E", t1: "🇲🇦 Maroc", t2: "🇯🇵 Japon", heure: "09:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "E", t1: "🇲🇦 Maroc", t2: "🇧🇷 Brésil", heure: "03:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "E", t1: "🇯🇵 Japon", t2: "🇨🇴 Colombie", heure: "09:00" },
+  // --- GROUPE E (FIFA: Allemagne, Curaçao, Côte d'Ivoire, Équateur) ---
+  {id:"p25", label:"🇩🇪 Allemagne vs 🇨🇼 Curaçao",             date:"14 Juin", group:"Gr. E", kickoff:"2026-06-14T19:00:00+02:00"},
+  {id:"p26", label:"🇨🇮 Côte d'Ivoire vs 🇪🇨 Équateur",        date:"15 Juin", group:"Gr. E", kickoff:"2026-06-15T01:00:00+02:00"},
+  {id:"p27", label:"🇩🇪 Allemagne vs 🇨🇮 Côte d'Ivoire",        date:"20 Juin", group:"Gr. E", kickoff:"2026-06-20T22:00:00+02:00"},
+  {id:"p28", label:"🇪🇨 Équateur vs 🇨🇼 Curaçao",               date:"21 Juin", group:"Gr. E", kickoff:"2026-06-21T02:00:00+02:00"},
+  {id:"p29", label:"🇪🇨 Équateur vs 🇩🇪 Allemagne",             date:"25 Juin", group:"Gr. E", kickoff:"2026-06-25T22:00:00+02:00"},
+  {id:"p30", label:"🇨🇼 Curaçao vs 🇨🇮 Côte d'Ivoire",         date:"25 Juin", group:"Gr. E", kickoff:"2026-06-25T22:00:00+02:00"},
 
-  // --- GROUPE F ---
-  { day: "15 Juin", stage: "Phase de Groupes", g: "F", t1: "🇪🇸 Espagne", t2: "🇩🇰 Danemark", heure: "12:00" },
-  { day: "15 Juin", stage: "Phase de Groupes", g: "F", t1: "🇷🇸 Serbie", t2: "🇹🇳 Tunisie", heure: "15:00" },
-  { day: "21 Juin", stage: "Phase de Groupes", g: "F", t1: "🇪🇸 Espagne", t2: "🇷🇸 Serbie", heure: "03:00" },
-  { day: "21 Juin", stage: "Phase de Groupes", g: "F", t1: "🇹🇳 Tunisie", t2: "🇩🇰 Danemark", heure: "09:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "F", t1: "🇹🇳 Tunisie", t2: "🇪🇸 Espagne", heure: "03:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "F", t1: "🇩🇰 Danemark", t2: "🇷🇸 Serbie", heure: "09:00" },
+  // --- GROUPE F (FIFA: Pays-Bas, Japon, Suède, Tunisie) ---
+  {id:"p31", label:"🇳🇱 Pays-Bas vs 🇯🇵 Japon",                date:"14 Juin", group:"Gr. F", kickoff:"2026-06-14T22:00:00+02:00"},
+  {id:"p32", label:"🇸🇪 Suède vs 🇹🇳 Tunisie",                  date:"15 Juin", group:"Gr. F", kickoff:"2026-06-15T04:00:00+02:00"},
+  {id:"p33", label:"🇳🇱 Pays-Bas vs 🇸🇪 Suède",                 date:"20 Juin", group:"Gr. F", kickoff:"2026-06-20T19:00:00+02:00"},
+  {id:"p34", label:"🇹🇳 Tunisie vs 🇯🇵 Japon",                   date:"21 Juin", group:"Gr. F", kickoff:"2026-06-21T06:00:00+02:00"},
+  {id:"p35", label:"🇯🇵 Japon vs 🇸🇪 Suède",                    date:"26 Juin", group:"Gr. F", kickoff:"2026-06-26T01:00:00+02:00"},
+  {id:"p36", label:"🇹🇳 Tunisie vs 🇳🇱 Pays-Bas",               date:"26 Juin", group:"Gr. F", kickoff:"2026-06-26T01:00:00+02:00"},
 
-  // --- GROUPE G ---
-  { day: "15 Juin", stage: "Phase de Groupes", g: "G", t1: "🇬🇧 Angleterre", t2: "🇸🇰 Slovaquie", heure: "21:00" },
-  { day: "16 Juin", stage: "Phase de Groupes", g: "G", t1: "🇺🇾 Uruguay", t2: "🇮🇷 Iran", heure: "03:00" },
-  { day: "21 Juin", stage: "Phase de Groupes", g: "G", t1: "🇬🇧 Angleterre", t2: "🇺🇾 Uruguay", heure: "03:00" },
-  { day: "21 Juin", stage: "Phase de Groupes", g: "G", t1: "🇮🇷 Iran", t2: "🇸🇰 Slovaquie", heure: "09:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "G", t1: "🇮🇷 Iran", t2: "🇬🇧 Angleterre", heure: "03:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "G", t1: "🇸🇰 Slovaquie", t2: "🇺🇾 Uruguay", heure: "09:00" },
+  // --- GROUPE G (FIFA: Belgique, Égypte, Iran, Nouvelle-Zélande) ---
+  {id:"p37", label:"🇧🇪 Belgique vs 🇪🇬 Égypte",               date:"15 Juin", group:"Gr. G", kickoff:"2026-06-15T21:00:00+02:00"},
+  {id:"p38", label:"🇮🇷 Iran vs 🇳🇿 Nouvelle-Zélande",          date:"16 Juin", group:"Gr. G", kickoff:"2026-06-16T03:00:00+02:00"},
+  {id:"p39", label:"🇧🇪 Belgique vs 🇮🇷 Iran",                   date:"21 Juin", group:"Gr. G", kickoff:"2026-06-21T21:00:00+02:00"},
+  {id:"p40", label:"🇳🇿 Nouvelle-Zélande vs 🇪🇬 Égypte",       date:"22 Juin", group:"Gr. G", kickoff:"2026-06-22T03:00:00+02:00"},
+  {id:"p41", label:"🇪🇬 Égypte vs 🇮🇷 Iran",                    date:"27 Juin", group:"Gr. G", kickoff:"2026-06-27T05:00:00+02:00"},
+  {id:"p42", label:"🇳🇿 Nouvelle-Zélande vs 🇧🇪 Belgique",     date:"27 Juin", group:"Gr. G", kickoff:"2026-06-27T05:00:00+02:00"},
 
-  // --- GROUPE H ---
-  { day: "16 Juin", stage: "Phase de Groupes", g: "H", t1: "🇵🇹 Portugal", t2: "🇰🇪 Kenya", heure: "03:00" },
-  { day: "16 Juin", stage: "Phase de Groupes", g: "H", t1: "🇭🇷 Croatie", t2: "🇺🇿 Ouzbékistan", heure: "12:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "H", t1: "🇵🇹 Portugal", t2: "🇭🇷 Croatie", heure: "03:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "H", t1: "🇺🇿 Ouzbékistan", t2: "🇰🇪 Kenya", heure: "09:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "H", t1: "🇺🇿 Ouzbékistan", t2: "🇵🇹 Portugal", heure: "03:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "H", t1: "🇰🇪 Kenya", t2: "🇭🇷 Croatie", heure: "09:00" },
+  // --- GROUPE H (FIFA: Espagne, Cap-Vert, Arabie Saoudite, Uruguay) ---
+  {id:"p43", label:"🇪🇸 Espagne vs 🇨🇻 Cap-Vert",              date:"15 Juin", group:"Gr. H", kickoff:"2026-06-15T18:00:00+02:00"},
+  {id:"p44", label:"🇸🇦 Arabie Saoudite vs 🇺🇾 Uruguay",        date:"16 Juin", group:"Gr. H", kickoff:"2026-06-16T00:00:00+02:00"},
+  {id:"p45", label:"🇪🇸 Espagne vs 🇸🇦 Arabie Saoudite",        date:"21 Juin", group:"Gr. H", kickoff:"2026-06-21T18:00:00+02:00"},
+  {id:"p46", label:"🇺🇾 Uruguay vs 🇨🇻 Cap-Vert",               date:"22 Juin", group:"Gr. H", kickoff:"2026-06-22T00:00:00+02:00"},
+  {id:"p47", label:"🇨🇻 Cap-Vert vs 🇸🇦 Arabie Saoudite",       date:"27 Juin", group:"Gr. H", kickoff:"2026-06-27T02:00:00+02:00"},
+  {id:"p48", label:"🇺🇾 Uruguay vs 🇪🇸 Espagne",                date:"27 Juin", group:"Gr. H", kickoff:"2026-06-27T02:00:00+02:00"},
 
-  // --- GROUPE I ---
-  { day: "16 Juin", stage: "Phase de Groupes", g: "I", t1: "🇫🇷 France", t2: "🇸🇳 Sénégal", heure: "03:00" },
-  { day: "17 Juin", stage: "Phase de Groupes", g: "I", t1: "🇳🇴 Norvège", t2: "🇮🇶 Irak", heure: "03:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "I", t1: "🇫🇷 France", t2: "🇳🇴 Norvège", heure: "03:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "I", t1: "🇮🇶 Irak", t2: "🇸🇳 Sénégal", heure: "09:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "I", t1: "🇮🇶 Irak", t2: "🇫🇷 France", heure: "03:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "I", t1: "🇸🇳 Sénégal", t2: "🇳🇴 Norvège", heure: "09:00" },
+  // --- GROUPE I (FIFA: France, Sénégal, Irak, Norvège) ---
+  {id:"p49", label:"🇫🇷 France vs 🇸🇳 Sénégal",                date:"16 Juin", group:"Gr. I", kickoff:"2026-06-16T21:00:00+02:00"},
+  {id:"p50", label:"🇮🇶 Irak vs 🇳🇴 Norvège",                   date:"17 Juin", group:"Gr. I", kickoff:"2026-06-17T00:00:00+02:00"},
+  {id:"p51", label:"🇫🇷 France vs 🇮🇶 Irak",                    date:"22 Juin", group:"Gr. I", kickoff:"2026-06-22T23:00:00+02:00"},
+  {id:"p52", label:"🇳🇴 Norvège vs 🇸🇳 Sénégal",                date:"23 Juin", group:"Gr. I", kickoff:"2026-06-23T02:00:00+02:00"},
+  {id:"p53", label:"🇳🇴 Norvège vs 🇫🇷 France",                  date:"26 Juin", group:"Gr. I", kickoff:"2026-06-26T21:00:00+02:00"},
+  {id:"p54", label:"🇸🇳 Sénégal vs 🇮🇶 Irak",                   date:"26 Juin", group:"Gr. I", kickoff:"2026-06-26T21:00:00+02:00"},
 
-  // --- GROUPE J ---
-  { day: "17 Juin", stage: "Phase de Groupes", g: "J", t1: "🇩🇪 Allemagne", t2: "🇦🇺 Australie", heure: "03:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "J", t1: "🇺🇦 Ukraine", t2: "🇯🇴 Jordanie", heure: "03:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "J", t1: "🇩🇪 Allemagne", t2: "🇺🇦 Ukraine", heure: "03:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "J", t1: "🇯🇴 Jordanie", t2: "🇦🇺 Australie", heure: "09:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "J", t1: "🇯🇴 Jordanie", t2: "🇩🇪 Allemagne", heure: "03:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "J", t1: "🇦🇺 Australie", t2: "🇺🇦 Ukraine", heure: "09:00" },
+  // --- GROUPE J (FIFA: Argentine, Algérie, Autriche, Jordanie) ---
+  {id:"p55", label:"🇦🇷 Argentine vs 🇩🇿 Algérie",              date:"17 Juin", group:"Gr. J", kickoff:"2026-06-17T03:00:00+02:00"},
+  {id:"p56", label:"🇦🇹 Autriche vs 🇯🇴 Jordanie",              date:"17 Juin", group:"Gr. J", kickoff:"2026-06-17T06:00:00+02:00"},
+  {id:"p57", label:"🇦🇷 Argentine vs 🇦🇹 Autriche",             date:"22 Juin", group:"Gr. J", kickoff:"2026-06-22T19:00:00+02:00"},
+  {id:"p58", label:"🇯🇴 Jordanie vs 🇩🇿 Algérie",               date:"23 Juin", group:"Gr. J", kickoff:"2026-06-23T05:00:00+02:00"},
+  {id:"p59", label:"🇩🇿 Algérie vs 🇦🇹 Autriche",               date:"28 Juin", group:"Gr. J", kickoff:"2026-06-28T04:00:00+02:00"},
+  {id:"p60", label:"🇯🇴 Jordanie vs 🇦🇷 Argentine",              date:"28 Juin", group:"Gr. J", kickoff:"2026-06-28T04:00:00+02:00"},
 
-  // --- GROUPE K ---
-  { day: "18 Juin", stage: "Phase de Groupes", g: "K", t1: "🇳🇱 Pays-Bas", t2: "🇲🇾 Malaisie", heure: "03:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "K", t1: "🇨🇱 Chili", t2: "🇸🇦 Arabie Saoudite", heure: "03:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "K", t1: "🇳🇱 Pays-Bas", t2: "🇨🇱 Chili", heure: "03:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "K", t1: "🇸🇦 Arabie Saoudite", t2: "🇲🇾 Malaisie", heure: "09:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "K", t1: "🇸🇦 Arabie Saoudite", t2: "🇳🇱 Pays-Bas", heure: "03:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "K", t1: "🇲🇾 Malaisie", t2: "🇨🇱 Chili", heure: "09:00" },
+  // --- GROUPE K (FIFA: Portugal, RD Congo, Ouzbékistan, Colombie) ---
+  {id:"p61", label:"🇵🇹 Portugal vs 🇨🇩 RD Congo",              date:"17 Juin", group:"Gr. K", kickoff:"2026-06-17T19:00:00+02:00"},
+  {id:"p62", label:"🇺🇿 Ouzbékistan vs 🇨🇴 Colombie",           date:"18 Juin", group:"Gr. K", kickoff:"2026-06-18T04:00:00+02:00"},
+  {id:"p63", label:"🇵🇹 Portugal vs 🇺🇿 Ouzbékistan",           date:"23 Juin", group:"Gr. K", kickoff:"2026-06-23T19:00:00+02:00"},
+  {id:"p64", label:"🇨🇴 Colombie vs 🇨🇩 RD Congo",               date:"24 Juin", group:"Gr. K", kickoff:"2026-06-24T04:00:00+02:00"},
+  {id:"p65", label:"🇨🇴 Colombie vs 🇵🇹 Portugal",               date:"28 Juin", group:"Gr. K", kickoff:"2026-06-28T01:30:00+02:00"},
+  {id:"p66", label:"🇨🇩 RD Congo vs 🇺🇿 Ouzbékistan",           date:"28 Juin", group:"Gr. K", kickoff:"2026-06-28T01:30:00+02:00"},
 
-  // --- GROUPE L ---
-  { day: "19 Juin", stage: "Phase de Groupes", g: "L", t1: "🇧🇪 Belgique", t2: "🇨🇺 Cuba", heure: "03:00" },
-  { day: "19 Juin", stage: "Phase de Groupes", g: "L", t1: "🇷🇴 Roumanie", t2: "🇨🇻 Cap-Vert", heure: "09:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "L", t1: "🇧🇪 Belgique", t2: "🇷🇴 Roumanie", heure: "03:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "L", t1: "🇨🇻 Cap-Vert", t2: "🇨🇺 Cuba", heure: "09:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "L", t1: "🇨🇻 Cap-Vert", t2: "🇧🇪 Belgique", heure: "03:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "L", t1: "🇨🇺 Cuba", t2: "🇷🇴 Roumanie", heure: "09:00" },
+  // --- GROUPE L (FIFA: Angleterre, Croatie, Ghana, Panama) ---
+  {id:"p67", label:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre vs 🇭🇷 Croatie",       date:"17 Juin", group:"Gr. L", kickoff:"2026-06-17T22:00:00+02:00"},
+  {id:"p68", label:"🇬🇭 Ghana vs 🇵🇦 Panama",                   date:"18 Juin", group:"Gr. L", kickoff:"2026-06-18T01:00:00+02:00"},
+  {id:"p69", label:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre vs 🇬🇭 Ghana",         date:"23 Juin", group:"Gr. L", kickoff:"2026-06-23T22:00:00+02:00"},
+  {id:"p70", label:"🇵🇦 Panama vs 🇭🇷 Croatie",                  date:"24 Juin", group:"Gr. L", kickoff:"2026-06-24T01:00:00+02:00"},
+  {id:"p71", label:"🇵🇦 Panama vs 🏴󠁧󠁢󠁥󠁮󠁧󠁿 Angleterre",         date:"27 Juin", group:"Gr. L", kickoff:"2026-06-27T23:00:00+02:00"},
+  {id:"p72", label:"🇭🇷 Croatie vs 🇬🇭 Ghana",                   date:"27 Juin", group:"Gr. L", kickoff:"2026-06-27T23:00:00+02:00"},
 
   // --- PHASES ÉLIMINATOIRES ---
-  { day: "28 Juin - 03 Juillet", stage: "16es de Finale", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 16e" },
-  { day: "04 - 07 Juillet", stage: "16es de Finale", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 8e" },
-  { day: "09 - 11 Juillet", stage: "Quarts de Finale", g: "", t1: "Qualifié", t2: "Qualifié", info: "Top 8 mondial" },
-  { day: "14 Juillet", stage: "Demi-Finale 1", g: "", t1: "Qualifié", t2: "Qualifié" },
-  { day: "15 Juillet", stage: "Demi-Finale 2", g: "", t1: "Qualifié", t2: "Qualifié" },
-  { day: "18 Juillet", stage: "Petite Finale (3e place)", g: "", t1: "Perdant DF1", t2: "Perdant DF2" },
-  { day: "19 Juillet", stage: "Finale", g: "", t1: "Vainqueur DF1", t2: "Vainqueur DF2" }
+  {id:"p73", label:"16es de Finale 1", date:"28 Juin", group:"Élim.", kickoff:"2026-06-28T21:00:00+02:00"},
+  {id:"p74", label:"16es de Finale 2", date:"29 Juin", group:"Élim.", kickoff:"2026-06-29T19:00:00+02:00"},
+  {id:"p75", label:"16es de Finale 3", date:"29 Juin", group:"Élim.", kickoff:"2026-06-29T22:30:00+02:00"},
+  {id:"p76", label:"16es de Finale 4", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T03:00:00+02:00"},
+  {id:"p77", label:"16es de Finale 5", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T19:00:00+02:00"},
+  {id:"p78", label:"16es de Finale 6", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T23:00:00+02:00"},
+  {id:"p79", label:"16es de Finale 7", date:"1e Juillet", group:"Élim.", kickoff:"2026-07-01T03:00:00+02:00"},
+  {id:"p80", label:"16es de Finale 8", date:"1e Juillet", group:"Élim.", kickoff:"2026-07-01T18:00:00+02:00"},
+  {id:"p81", label:"16es de Finale 9", date:"1e Juillet", group:"Élim.", kickoff:"2026-07-01T22:00:00+02:00"},
+  {id:"p82", label:"16es de Finale 10", date:"2 Juillet", group:"Élim.", kickoff:"2026-07-02T02:00:00+02:00"},
+  {id:"p83", label:"16es de Finale 11", date:"2 Juillet", group:"Élim.", kickoff:"2026-07-02T21:00:00+02:00"},
+  {id:"p84", label:"16es de Finale 12", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T01:00:00+02:00"},
+  {id:"p85", label:"16es de Finale 13", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T05:00:00+02:00"},
+  {id:"p86", label:"16es de Finale 14", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T20:00:00+02:00"},
+  {id:"p87", label:"16es de Finale 15", date:"4 Juillet", group:"Élim.", kickoff:"2026-07-04T00:00:00+02:00"},
+  {id:"p88", label:"16es de Finale 16", date:"4 Juillet", group:"Élim.", kickoff:"2026-07-04T03:30:00+02:00"},
+
+
+  
+  {id:"p89", label:"8es de Finale 1",  date:"04 Juillet", group:"Élim.", kickoff:"2026-07-04T19:00:00+02:00"},
+  {id:"p90", label:"8es de Finale 2",  date:"04 Juillet", group:"Élim.", kickoff:"2026-07-04T23:00:00+02:00"},
+  {id:"p91", label:"8es de Finale 3",  date:"05 Juillet", group:"Élim.", kickoff:"2026-07-05T22:00:00+02:00"},
+  {id:"p92", label:"8es de Finale 4",  date:"06 Juillet", group:"Élim.", kickoff:"2026-07-06T02:00:00+02:00"},
+  {id:"p93", label:"8es de Finale 5",  date:"06 Juillet", group:"Élim.", kickoff:"2026-07-06T21:00:00+02:00"},
+  {id:"p94", label:"8es de Finale 6",  date:"07 Juillet", group:"Élim.", kickoff:"2026-07-07T02:00:00+02:00"},
+  {id:"p95", label:"8es de Finale 7",  date:"07 Juillet", group:"Élim.", kickoff:"2026-07-07T18:00:00+02:00"},
+  {id:"p96", label:"8es de Finale 8",  date:"07 Juillet", group:"Élim.", kickoff:"2026-07-07T22:00:00+02:00"},
+  
+  {id:"p97", label:"Quarts de Finale 1", date:"09 Juillet", group:"Élim.", kickoff:"2026-07-09T22:00:00+02:00"},
+  {id:"p98", label:"Quarts de Finale 2", date:"10 Juillet", group:"Élim.", kickoff:"2026-07-10T21:00:00+02:00"},
+  {id:"p99", label:"Quarts de Finale 3", date:"11 Juillet", group:"Élim.", kickoff:"2026-07-11T23:00:00+02:00"},
+  {id:"p100", label:"Quarts de Finale 4", date:"12 Juillet", group:"Élim.", kickoff:"2026-07-12T03:00:00+02:00"},
+  
+  {id:"p101", label:"Demi-Finale 1",    date:"14 Juillet", group:"Élim.", kickoff:"2026-07-14T21:00:00+02:00"},
+  {id:"p102", label:"Demi-Finale 2",    date:"15 Juillet", group:"Élim.", kickoff:"2026-07-15T21:00:00+02:00"},
+  
+  {id:"p104", label:"Petite Finale (3e place)", date:"18 Juillet", group:"Élim.", kickoff:"2026-07-18T23:00:00+02:00"},
+  
+  {id:"p105", label:"Finale",           date:"19 Juillet", group:"Élim.", kickoff:"2026-07-19T21:00:00+02:00"},
 ];
 
 const TEAMS_DATA = [
