@@ -486,7 +486,6 @@ function subscribeFirestore() {
     const activeTab = document.querySelector('.tab.active');
     if (activeTab) activeTab.click();
   }
-});
 
 async function save() {
   if (!currentUser) { localStorage.setItem('wc26v3', JSON.stringify(D)); return; }
