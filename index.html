@@ -1539,6 +1539,18 @@ function calcPts(matchId, pote){
   const bet = D.pronos[matchId+pote] || {s1:'', s2:'', top:''};
   
   let pts = 0;
+
+   // Aucun pronostic = 0 point
+  if(
+    bet.s1 === '' &&
+    bet.s2 === '' &&
+    (!bet.top || bet.top.trim() === '')
+  ){
+    return 0;
+  }
+
+  let pts = 0;
+
   
   // Score exact = 2 pts
   if(bet.s1 === actual.s1 && bet.s2 === actual.s2){
