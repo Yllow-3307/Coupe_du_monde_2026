@@ -1287,81 +1287,76 @@ function renderBracket() {
   const el = document.getElementById('bracket');
   if (!el) return;
 
-  // Hauteur totale du bracket (hors titres). Toutes les colonnes partagent cette même hauteur.
-  const TOTAL_H = 640; // px
-  const MATCH_H = 46;  // px — hauteur d'un b-match (2 équipes × 23px)
-
-  // Génère les matchs d'une colonne avec margin-top calculé pour centrer chaque match
-  // à cheval sur les deux matchs parents du round précédent.
-  // n = nombre de matchs dans cette colonne
-  // La formule : slot = TOTAL_H / n, premier match centré dans son slot
-  function colMatches(side, phase, n, startIdx) {
-    const slotH = TOTAL_H / n;
-    const firstTop = (slotH - MATCH_H) / 2;
-    const gap = slotH - MATCH_H;
-    let html = '';
-    for (let i = 0; i < n; i++) {
-      const mi = startIdx + i;
-      const k = `${side}_${phase}_${mi}`;
-      const t1 = D.bracket[k+'_t1'] || '?';
-      const t2 = D.bracket[k+'_t2'] || '?';
-      const winner = D.bracket[k+'_w'];
-      const mt = i === 0 ? firstTop : gap;
-      html += `<div class="b-match" style="margin-top:${mt}px" data-key="${k}">
-        <div class="b-team${winner===t1&&t1!=='?'?' winner':''}" onclick="pickWinner('${k}',1)">${t1}</div>
-        <div class="b-team${winner===t2&&t2!=='?'?' winner':''}" onclick="pickWinner('${k}',2)">${t2}</div>
-      </div>`;
-    }
-    return html;
-  }
-
-  function col(side, phase, label, n, startIdx=0) {
-    return `<div class="b-col" style="min-width:120px;padding:0 4px">
-      <div class="b-col-title" style="height:28px;display:flex;align-items:center;justify-content:center">${label}</div>
-      <div style="height:${TOTAL_H}px;display:flex;flex-direction:column">
-        ${colMatches(side, phase, n, startIdx)}
-      </div>
-    </div>`;
-  }
-
-  // Finale au centre
-  const fk = 'finale';
-  const ft1 = D.bracket[fk+'_t1'] || '?';
-  const ft2 = D.bracket[fk+'_t2'] || '?';
-  const fw  = D.bracket[fk+'_w'];
-  const finaleCol = `<div class="b-col" style="min-width:120px;padding:0 4px">
-    <div class="b-col-title" style="height:28px;display:flex;align-items:center;justify-content:center">Finale</div>
-    <div style="height:${TOTAL_H}px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px">
-      <div class="b-match">
-        <div class="b-team${fw===ft1&&ft1!=='?'?' winner':''}" onclick="pickWinner('${fk}',1)">${ft1}</div>
-        <div class="b-team${fw===ft2&&ft2!=='?'?' winner':''}" onclick="pickWinner('${fk}',2)">${ft2}</div>
-      </div>
-      ${fw && fw !== '?' ? `<div style="text-align:center;margin-top:8px"><div style="font-size:20px">🏆</div><div style="font-size:11px;font-weight:500;color:var(--color-text-primary);padding:4px 8px;background:var(--color-background-warning);border-radius:6px;margin-top:4px">${fw}</div></div>` : ''}
-    </div>
-  </div>`;
-
   el.innerHTML = `
     <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">
-      Renseigne les équipes dans les cases des 16es, puis clique sur le vainqueur de chaque match pour faire avancer le bracket.
+      Remplis les 16es de finale, puis clique sur le vainqueur de chaque match pour faire avancer le bracket.
     </p>
-    <div style="overflow-x:auto;padding-bottom:12px">
-      <div style="display:flex;align-items:flex-start;gap:0;min-width:1400px">
-        <div style="display:flex">
-          ${col('L','16','16es',8,0)}
-          ${col('L','8','8es',4,0)}
-          ${col('L','QF','Quarts',2,0)}
-          ${col('L','SF','Demies',1,0)}
+    <div style="overflow-x:auto;padding:10px 0;background:#f8f9fa;border-radius:8px">
+      <div style="display:flex;gap:20px;min-width:1350px;justify-content:center;align-items:flex-start">
+        
+        <!-- Colonne Gauche -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${createRound('L', '16', '16es de finale', 8)}
+          ${createRound('L', '8', '8es de finale', 4)}
+          ${createRound('L', 'QF', 'Quarts de finale', 2)}
+          ${createRound('L', 'SF', 'Demi-finales', 1)}
         </div>
-        <div style="width:8px"></div>
-        ${finaleCol}
-        <div style="width:8px"></div>
-        <div style="display:flex">
-          ${col('R','SF','Demies',1,0)}
-          ${col('R','QF','Quarts',2,0)}
-          ${col('R','8','8es',4,0)}
-          ${col('R','16','16es',8,0)}
+
+        <!-- Finale -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:20px;margin-top:180px">
+          <div style="font-size:11px;font-weight:600;color:var(--color-text-secondary);letter-spacing:0.5px">FINALE</div>
+          ${createFinalMatch()}
+        </div>
+
+        <!-- Colonne Droite -->
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${createRound('R', 'SF', 'Demi-finales', 1)}
+          ${createRound('R', 'QF', 'Quarts de finale', 2)}
+          ${createRound('R', '8', '8es de finale', 4)}
+          ${createRound('R', '16', '16es de finale', 8)}
         </div>
       </div>
+    </div>`;
+}
+
+// Fonction pour créer un round complet
+function createRound(side, phase, title, matchCount) {
+  let html = `<div style="min-width:210px">
+    <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-secondary);margin-bottom:8px">${title}</div>`;
+  
+  for (let i = 0; i < matchCount; i++) {
+    const key = `${side}_${phase}_${i}`;
+    const t1 = D.bracket[key + '_t1'] || '?';
+    const t2 = D.bracket[key + '_t2'] || '?';
+    const winner = D.bracket[key + '_w'];
+
+    html += `
+      <div style="background:white;border:1px solid #e0e0e0;border-radius:8px;padding:6px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
+        <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}" 
+             style="margin-bottom:4px">${t1}</div>
+        <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}">
+          ${t2}
+        </div>
+      </div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+// Match de finale spécial
+function createFinalMatch() {
+  const key = 'finale';
+  const t1 = D.bracket[key + '_t1'] || '?';
+  const t2 = D.bracket[key + '_t2'] || '?';
+  const winner = D.bracket[key + '_w'];
+
+  return `
+    <div style="background:white;border:2px solid #ffd700;border-radius:12px;padding:12px 20px;width:240px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.1)">
+      <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}" 
+           style="font-size:15px;margin-bottom:8px;padding:8px">${t1}</div>
+      <div style="font-size:22px;margin:8px 0;color:#ffd700">🏆</div>
+      <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}" 
+           style="font-size:15px;padding:8px">${t2}</div>
     </div>`;
 }
 
