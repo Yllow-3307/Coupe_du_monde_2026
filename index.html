@@ -481,7 +481,12 @@ function subscribeFirestore() {
   unsubscribers['myPronos'] = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
     if (snap.exists) Object.assign(D.pronos, snap.data().bets || {});
   });
-}
+  
+  syncActualsFromScores(); // ← AJOUTER ICI
+    const activeTab = document.querySelector('.tab.active');
+    if (activeTab) activeTab.click();
+  }
+});
 
 async function save() {
   if (!currentUser) { localStorage.setItem('wc26v3', JSON.stringify(D)); return; }
@@ -693,6 +698,21 @@ function isLocked(matchId) {
   const m = PRONO_MATCHES.find(m => m.id === matchId);
   if (!m || !m.kickoff) return false;
   return new Date() >= new Date(m.kickoff);
+}
+
+function syncActualsFromScores() {
+  PRONO_MATCHES.forEach(m => {
+    if (m.matchIdx === undefined || m.matchIdx === null) return;
+    const s1 = D.scores[m.matchIdx + 'a'];
+    const s2 = D.scores[m.matchIdx + 'b'];
+    const top = D.scores[m.matchIdx + 'buteur1'] || '';
+    if (s1 !== undefined || s2 !== undefined) {
+      if (!D.actual[m.id]) D.actual[m.id] = {};
+      if (s1 !== undefined) D.actual[m.id].s1 = s1;
+      if (s2 !== undefined) D.actual[m.id].s2 = s2;
+      if (top) D.actual[m.id].top = top;
+    }
+  });
 }
   
 const MATCHS_DATA = [
@@ -1549,16 +1569,16 @@ function calcPts(matchId, pote){
     return 0;
   }
 
-  
-  // Score exact = 2 pts
-  if(bet.s1 === actual.s1 && bet.s2 === actual.s2){
-    pts += 2;
-  }
   // Juste le résultat = 1 pt
   else if((bet.s1 > bet.s2 && actual.s1 > actual.s2) ||
           (bet.s1 < bet.s2 && actual.s1 < actual.s2) ||
           (bet.s1 == bet.s2 && actual.s1 == actual.s2)){
     pts += 1;
+  }
+  
+  // Score exact = 2 pts
+  if(bet.s1 === actual.s1 && bet.s2 === actual.s2){
+    pts += 2;
   }
   
   // Buteur exact = 3 pts bonus
@@ -1575,6 +1595,7 @@ function calcPts(matchId, pote){
   
   return pts;
 }
+
 function calcLB(){
   return POTES.map(p=>({name:p,pts:PRONO_MATCHES.reduce((s,m)=>s+calcPts(m.id,p),0)})).sort((a,b)=>b.pts-a.pts);
 }
