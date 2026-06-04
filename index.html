@@ -1516,50 +1516,89 @@ function renderBracket() {
   if (!el) return;
 
   el.innerHTML = `
-    <div style="background:#0f172a;color:white;border-radius:12px;padding:16px 12px;margin-bottom:20px">
-      <!-- Tabs comme dans la vidéo -->
-      <div style="display:flex;background:#1e2937;border-radius:9999px;padding:4px;margin-bottom:20px;overflow-x:auto">
-        ${['PG','16e','8e','QF','DF','F'].map((label, i) => `
+    <div class="card" style="padding:20px">
+      <div class="section-title" style="margin-bottom:16px">Bracket - Phases finales</div>
+      
+      <div style="display:flex;gap:12px;margin-bottom:20px;border-bottom:1px solid var(--color-border-tertiary);padding-bottom:12px;overflow-x:auto">
+        ${['16es', 'Quarts', 'Demies', 'Finale'].map((label, i) => `
           <button onclick="switchBracketTab(${i})" 
                   id="bracket-tab-${i}"
-                  style="flex:1;padding:10px 12px;border-radius:9999px;font-size:13px;font-weight:500;white-space:nowrap;transition:all 0.2s;
-                         ${currentBracketTab === i ? 'background:#3b82f6;color:white' : 'background:transparent;color:#94a3b8'}">
+                  class="btn ${currentBracketTab === i ? 'btn-primary' : ''}"
+                  style="font-weight:500;white-space:nowrap">
             ${label}
           </button>
         `).join('')}
       </div>
 
-      <div id="bracket-content" style="min-height:600px"></div>
+      <div id="bracket-content"></div>
     </div>
   `;
 
   renderBracketContent();
 }
 
-let currentBracketTab = 1; // 1 = 16es de finale par défaut
+let currentBracketTab = 0;
 
 function switchBracketTab(tab) {
   currentBracketTab = tab;
-  document.querySelectorAll('[id^="bracket-tab-"]').forEach((el, i) => {
-    const isActive = i === tab;
-    el.style.background = isActive ? '#3b82f6' : 'transparent';
-    el.style.color = isActive ? 'white' : '#94a3b8';
-  });
   renderBracketContent();
 }
 
 function renderBracketContent() {
   const content = document.getElementById('bracket-content');
   
-  // Pour l'instant on se concentre sur les 16es (comme dans la vidéo)
-  if (currentBracketTab === 1) {
+  if (currentBracketTab === 0) {
     content.innerHTML = createRound16Bracket();
+  } else if (currentBracketTab === 1) {
+    content.innerHTML = createRoundBracket('Quarts de finale', 4, 'qf');
+  } else if (currentBracketTab === 2) {
+    content.innerHTML = createRoundBracket('Demi-finales', 2, 'sf');
   } else {
-    content.innerHTML = `
-      <div style="text-align:center;padding:80px 20px;color:#64748b">
-        <p>Phase ${['PG','16e','8e','QF','DF','F'][currentBracketTab]} à venir...</p>
-      </div>`;
+    content.innerHTML = createFinalBracket();
   }
+}
+
+function createRound16Bracket() {
+  return `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px">
+      ${Array.from({length: 8}, (_, i) => createMatchCard(`16_${i}`, true)).join('')}
+    </div>`;
+}
+
+function createRoundBracket(title, count, prefix) {
+  return `
+    <div style="margin-bottom:12px;font-weight:500;color:var(--color-text-secondary)">${title}</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px">
+      ${Array.from({length: count}, (_, i) => createMatchCard(`${prefix}_${i}`)).join('')}
+    </div>`;
+}
+
+function createFinalBracket() {
+  return `
+    <div style="max-width:420px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:16px">
+        <span style="font-size:18px">🏆 FINALE</span>
+      </div>
+      ${createMatchCard('final', false, true)}
+    </div>`;
+}
+
+function createMatchCard(key, is16 = false, isFinal = false) {
+  const t1 = D.bracket[key + '_t1'] || 'À déterminer';
+  const t2 = D.bracket[key + '_t2'] || 'À déterminer';
+  const winner = D.bracket[key + '_w'];
+
+  return `
+    <div class="card" style="padding:14px">
+      <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== 'À déterminer' ? 'selected' : ''}">
+        ${t1}
+      </div>
+      <div style="text-align:center;margin:8px 0;color:var(--color-text-tertiary);font-size:13px">VS</div>
+      <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== 'À déterminer' ? 'selected' : ''}">
+        ${t2}
+      </div>
+      ${isFinal ? `<div style="text-align:center;margin-top:12px;font-size:24px">🏆</div>` : ''}
+    </div>`;
 }
 
 function createRound16Bracket() {
@@ -1680,20 +1719,40 @@ function createFinalMatch() {
 }
 
 function pickWinner(key, teamNum) {
-  const t1 = D.bracket[key + '_t1'] || 'À dét.';
-  const t2 = D.bracket[key + '_t2'] || 'À dét.';
+  const t1 = D.bracket[key + '_t1'] || 'À déterminer';
+  const t2 = D.bracket[key + '_t2'] || 'À déterminer';
   
   const winner = teamNum === 1 ? t1 : t2;
   
-  if (winner === 'À dét.') return;
+  if (winner === 'À déterminer') return;
 
   D.bracket[key + '_w'] = winner;
-
-  // Propagation automatique vers le tour suivant (optionnel mais utile)
-  propagateWinner(key, winner);
-
+  
+  propagateWinner(key, winner); // propagation automatique
+  
   save();
-  renderBracket();   // On rafraîchit le bracket
+  renderBracket();
+}
+
+function propagateWinner(key, winner) {
+  const parts = key.split('_');
+  const phase = parts[0];
+  const index = parseInt(parts[1] || 0);
+
+  if (phase === '16') {
+    const nextKey = `qf_${Math.floor(index / 2)}`;
+    const slot = (index % 2 === 0) ? '_t1' : '_t2';
+    D.bracket[nextKey + slot] = winner;
+  } 
+  else if (phase === 'qf') {
+    const nextKey = `sf_${Math.floor(index / 2)}`;
+    const slot = (index % 2 === 0) ? '_t1' : '_t2';
+    D.bracket[nextKey + slot] = winner;
+  } 
+  else if (phase === 'sf') {
+    const slot = (index % 2 === 0) ? '_t1' : '_t2';
+    D.bracket['final' + slot] = winner;
+  }
 }
 
 // Fonction bonus pour propager automatiquement le vainqueur
