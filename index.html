@@ -1734,7 +1734,7 @@ function getGroupeClassement(groupe) {
 function renderRdv(){
   const el=document.getElementById('rdv');
   el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-    <p style="font-size:12px;color:var(--color-text-secondary)">Organise vos soirées matchs. Tu peux confirmer uniquement ta présence et modifier uniquement tes RDV.</p>
+    <p style="font-size:12px;color:var(--color-text-secondary)">Organisez vos soirées matchs.</p>
     <button class="btn btn-primary" onclick="addRdv()"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button>
   </div>
   ${D.rdvList.map((r,ri)=>{
