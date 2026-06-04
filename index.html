@@ -214,6 +214,12 @@
     .login-tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary)}
     .login-panel{display:none}.login-panel.active{display:block}
     .login-ok{font-size:12px;color:#2b8a3e;margin-top:8px;text-align:center;min-height:16px}
+    
+.eliminated {
+  color: red;
+}
+
+    
   </style>
 </head>
 <body>
@@ -1318,24 +1324,59 @@ function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
 
 // Scores are now synced via Firestore real-time listeners (see subscribeFirestore)
   
-function renderGroups(){
-  const el=document.getElementById('groupes');
-  el.innerHTML=`<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
-    <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#1D9E75;border-radius:2px;display:inline-block"></span>Qualifié direct</span>
-    <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)"><span style="width:8px;height:8px;background:#EF9F27;border-radius:2px;display:inline-block"></span>Potentiel meilleur 3e</span>
-  </div>
-  <div class="grp-grid">${Object.entries(GROUPS).map(([g])=>{
-    const sorted = getGroupeClassement(g);
-    return`<div class="grp-card"><div class="grp-title">Groupe ${g}</div>
-      <table class="group-table">
-        <thead><tr><th style="text-align:left">Equipe</th><th>MJ</th><th>G</th><th>N</th><th>P</th><th>BP</th><th>BC</th><th>DB</th><th>Pts</th></tr></thead>
-        <tbody>${sorted.map((item,rank)=>{
-          const cls=rank<2?'q1':rank===2?'q3':'qn';
-          return`<tr class="${cls}"><td class="team-name"><span style="font-size:15px;width:22px;display:inline-block">${item.flag}</span>${item.nom}</td><td>${item.mj}</td><td>${item.g}</td><td>${item.n}</td><td>${item.p}</td><td>${item.bp}</td><td>${item.bc}</td><td>${item.db}</td><td><strong>${item.pt}</strong></td></tr>`;
-        }).join('')}</tbody>
-      </table>
-    </div>`;
-  }).join('')}</div>`;
+function renderGroups() {
+  const el = document.getElementById('groupes');
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+      <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)">
+        <span style="width:8px;height:8px;background:#1D9E75;border-radius:2px;display:inline-block"></span>Qualifié direct
+      </span>
+      <span style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)">
+        <span style="width:8px;height:8px;background:#EF9F27;border-radius:2px;display:inline-block"></span>Potentiel meilleur 3e
+      </span>
+    </div>
+    <div class="grp-grid">
+      ${Object.entries(GROUPS).map(([g]) => {
+        const sorted = getGroupeClassement(g);
+        return `
+          <div class="grp-card">
+            <div class="grp-title">Groupe ${g}</div>
+            <table class="group-table">
+              <thead>
+                <tr>
+                  <th style="text-align:left">Equipe</th>
+                  <th>MJ</th>
+                  <th>G</th>
+                  <th>N</th>
+                  <th>P</th>
+                  <th>Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sorted.map((item, rank) => {
+                  const cls = rank < 2 ? 'q1' : rank === 2 ? 'q3' : 'qn';
+                  const isLast = rank === sorted.length - 1;
+                  return `
+                    <tr class="${cls}${isLast ? ' eliminated' : ''}">
+                      <td class="team-name" style="${isLast ? 'color: red;' : ''}">
+                        <span style="font-size:15px;width:22px;display:inline-block">${item.flag}</span>
+                        ${item.nom}${isLast ? ' <span style=\"color: red;\">(éliminé)</span>' : ''}
+                      </td>
+                      <td>${item.mj}</td>
+                      <td>${item.g}</td>
+                      <td>${item.n}</td>
+                      <td>${item.p}</td>
+                      <td><strong>${item.pt}</strong></td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
 }
 function saveG(){if(!isAdmin){alert("Seul  peut modifier les points.");return;}save();const b=document.querySelector('#groupes .btn');const n=document.createElement('span');n.style.cssText='font-size:12px;color:var(--color-text-success);margin-left:8px';n.textContent='✓ Sauvegardé';b.after(n);setTimeout(()=>n.remove(),2000)}
 function editPts(el,g,i){
