@@ -33,6 +33,81 @@
   </script>
   <style>
 
+    /* Styles pour le bracket */
+.bracket-container {
+  display: flex;
+  overflow-x: auto;
+  padding: 10px 0;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.bracket-phase {
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.phase-title {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+  color: white;
+  background: #1a3a6a;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.phase-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.match {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 5px;
+  min-height: 60px;
+  justify-content: space-around;
+}
+
+.team {
+  font-size: 12px;
+  color: white;
+  text-align: center;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.final {
+  background: rgba(255, 215, 0, 0.3);
+}
+
+.third-place {
+  background: rgba(205, 127, 50, 0.3);
+}
+
+/* Ajoute des lignes pour relier les matchs (optionnel) */
+.match::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -15px;
+  width: 10px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.5);
+  z-index: -1;
+}
+
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--color-background-secondary);color:var(--color-text-primary);padding:20px;max-width:1200px;margin:0 auto}
     
@@ -370,7 +445,65 @@
 
 <div id="groupes" class="sec active"></div>
 <div id="matchs" class="sec"></div>
-<div class="bracket-wrapper">
+<div id="bracket" class="sec">
+  <div class="bracket-container">
+    <!-- Phase de groupes (optionnel) -->
+    <div class="bracket-phase">
+      <div class="phase-title">PG</div>
+      <div class="phase-matches">
+        <div class="match"><div class="team">1A</div><div class="team">2B</div></div>
+        <div class="match"><div class="team">1C</div><div class="team">2D</div></div>
+        <!-- Ajoute les autres matchs des phases de groupes -->
+      </div>
+    </div>
+
+    <!-- 16e de finale -->
+    <div class="bracket-phase">
+      <div class="phase-title">16e de finale</div>
+      <div class="phase-matches">
+        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
+        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
+        <!-- Ajoute les 16 matchs -->
+      </div>
+    </div>
+
+    <!-- 8e de finale -->
+    <div class="bracket-phase">
+      <div class="phase-title">8e de finale</div>
+      <div class="phase-matches">
+        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
+        <!-- Ajoute les 8 matchs -->
+      </div>
+    </div>
+
+    <!-- Quarts de finale -->
+    <div class="bracket-phase">
+      <div class="phase-title">QF</div>
+      <div class="phase-matches">
+        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
+        <!-- Ajoute les 4 matchs -->
+      </div>
+    </div>
+
+    <!-- Demi-finales -->
+    <div class="bracket-phase">
+      <div class="phase-title">DF</div>
+      <div class="phase-matches">
+        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
+        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
+      </div>
+    </div>
+
+    <!-- Finale et Petite Finale -->
+    <div class="bracket-phase">
+      <div class="phase-title">F</div>
+      <div class="phase-matches">
+        <div class="match final"><div class="team">À dét.</div><div class="team">À dét.</div></div>
+        <div class="match third-place"><div class="team">À dét.</div><div class="team">À dét.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="pronos" class="sec"></div>
 <div id="stats" class="sec"></div>
 <div id="equipes" class="sec"></div>
