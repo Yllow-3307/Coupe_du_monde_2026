@@ -33,80 +33,7 @@
   </script>
   <style>
 
-    /* Styles pour le bracket */
-.bracket-container {
-  display: flex;
-  overflow-x: auto;
-  padding: 10px 0;
-  gap: 20px;
-  align-items: flex-start;
-}
 
-.bracket-phase {
-  display: flex;
-  flex-direction: column;
-  min-width: 150px;
-}
-
-.phase-title {
-  font-size: 12px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 10px;
-  color: white;
-  background: #1a3a6a;
-  padding: 5px;
-  border-radius: 4px;
-}
-
-.phase-matches {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.match {
-  display: flex;
-  flex-direction: column;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  padding: 5px;
-  min-height: 60px;
-  justify-content: space-around;
-}
-
-.team {
-  font-size: 12px;
-  color: white;
-  text-align: center;
-  padding: 5px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  min-height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.final {
-  background: rgba(255, 215, 0, 0.3);
-}
-
-.third-place {
-  background: rgba(205, 127, 50, 0.3);
-}
-
-/* Ajoute des lignes pour relier les matchs (optionnel) */
-.match::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: -15px;
-  width: 10px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.5);
-  z-index: -1;
-}
 
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--color-background-secondary);color:var(--color-text-primary);padding:20px;max-width:1200px;margin:0 auto}
@@ -195,16 +122,6 @@
     .stat-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
     .stat-sub{font-size:11px;color:var(--color-text-secondary)}
     
-    .bracket-wrap{overflow-x:auto;padding-bottom:12px}
-    .bracket-tree{display:flex;align-items:center;gap:0;min-width:1100px}
-    .b-col{display:flex;flex-direction:column;justify-content:space-around;padding:0 4px}
-    .b-col-title{font-size:10px;font-weight:500;color:var(--color-text-secondary);letter-spacing:0.05em;text-transform:uppercase;text-align:center;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:8px;white-space:nowrap}
-    .b-match{display:flex;flex-direction:column}
-    .b-team{font-size:11px;padding:0 7px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);cursor:pointer;width:115px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--color-text-secondary);transition:background 0.1s;height:23px;display:flex;align-items:center}
-    .b-team:first-child{border-radius:6px 6px 0 0}
-    .b-team:last-child{border-radius:0 0 6px 6px;border-top:none}
-    .b-team:hover{background:var(--color-background-secondary)}
-    .b-team.winner{color:var(--color-text-success);font-weight:500;background:var(--color-background-success)}
     
     .teams-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
     .team-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
@@ -223,26 +140,7 @@
     .rdv-date-m{font-size:10px;color:var(--color-text-info)}
     .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
     
-    .bracket-wrapper {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-    .b-side { 
-      display: flex; 
-      flex-direction: row; /* Aligne les colonnes côte à côte */
-    }
-    .b-col { 
-      display: flex; 
-      flex-direction: column; 
-      justify-content: space-around; /* C'est la clé : force l'espacement égal */
-      height: 600px; /* Donne une hauteur fixe à ton bracket */
-    }
-    .b-match { 
-      margin: 10px 0; 
-      border: 1px solid #ddd; 
-      padding: 5px; 
-    }
+    
     /* Amélioration visuelle : chemin et interactivité */
     .b-match { background: white; border: 1px solid #ddd; padding: 5px; border-radius: 4px; transition: all 0.2s; }
     .b-team { cursor: pointer; padding: 4px; border-bottom: 1px solid #eee; border-radius: 2px; }
@@ -290,80 +188,78 @@
     .login-panel{display:none}.login-panel.active{display:block}
     .login-ok{font-size:12px;color:#2b8a3e;margin-top:8px;text-align:center;min-height:16px}
 
+/* ===== BRACKET FIFA ===== */
 
-    .bracket-wrapper {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  overflow-x: auto;
+.bracket-wrapper{
+    display:flex;
+    gap:70px;
+    overflow-x:auto;
+    padding:30px;
+    min-width:max-content;
 }
 
-.b-side {
-  display: flex;
-  flex-direction: row;
+.round{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-around;
+    position:relative;
 }
 
-.b-col {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  height: 600px;
-  padding: 0 4px;
+.round-title{
+    text-align:center;
+    font-size:12px;
+    font-weight:600;
+    margin-bottom:20px;
+    color:#666;
 }
 
-.b-col-title {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  text-align: center;
-  padding-bottom: 8px;
-  border-bottom: 0.5px solid var(--color-border-tertiary);
-  margin-bottom: 8px;
+.match{
+    width:180px;
+    position:relative;
+    margin:40px 0;
 }
 
-.b-match {
-  display: flex;
-  flex-direction: column;
-  margin: 10px 0;
+.team{
+    height:42px;
+    display:flex;
+    align-items:center;
+    padding:0 12px;
+    background:white;
+    border:1px solid #ddd;
+    font-size:13px;
 }
 
-.b-team {
-  font-size: 11px;
-  padding: 0 7px;
-  background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-tertiary);
-  cursor: pointer;
-  width: 115px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--color-text-secondary);
-  transition: background 0.1s;
-  height: 23px;
-  display: flex;
-  align-items: center;
+.team:first-child{
+    border-radius:8px 8px 0 0;
 }
 
-.b-team:first-child {
-  border-radius: 6px 6px 0 0;
+.team:last-child{
+    border-radius:0 0 8px 8px;
+    border-top:none;
 }
 
-.b-team:last-child {
-  border-radius: 0 0 6px 6px;
-  border-top: none;
+/* liaison horizontale */
+
+.match::after{
+    content:"";
+    position:absolute;
+    right:-35px;
+    top:50%;
+    width:35px;
+    border-top:2px solid #d0d0d0;
 }
 
-.b-team:hover {
-  background: var(--color-background-secondary);
-}
+/* liaison verticale */
 
-.b-team.winner {
-  color: var(--color-text-success);
-  font-weight: 500;
-  background: var(--color-background-success);
+.match::before{
+    content:"";
+    position:absolute;
+    right:-35px;
+    top:50%;
+    height:85px;
+    border-right:2px solid #d0d0d0;
 }
+ 
     
   </style>
 </head>
@@ -445,64 +341,45 @@
 
 <div id="groupes" class="sec active"></div>
 <div id="matchs" class="sec"></div>
-<div id="bracket" class="sec">
-  <div class="bracket-container">
-    <!-- Phase de groupes (optionnel) -->
-    <div class="bracket-phase">
-      <div class="phase-title">PG</div>
-      <div class="phase-matches">
-        <div class="match"><div class="team">1A</div><div class="team">2B</div></div>
-        <div class="match"><div class="team">1C</div><div class="team">2D</div></div>
-        <!-- Ajoute les autres matchs des phases de groupes -->
-      </div>
+<div class="bracket-wrapper">
+
+  <div class="round">
+    <h3>16e</h3>
+
+    <div class="match">
+      <div class="team">1A</div>
+      <div class="team">2B</div>
     </div>
 
-    <!-- 16e de finale -->
-    <div class="bracket-phase">
-      <div class="phase-title">16e de finale</div>
-      <div class="phase-matches">
-        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
-        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
-        <!-- Ajoute les 16 matchs -->
-      </div>
+    <div class="match">
+      <div class="team">1C</div>
+      <div class="team">2D</div>
     </div>
 
-    <!-- 8e de finale -->
-    <div class="bracket-phase">
-      <div class="phase-title">8e de finale</div>
-      <div class="phase-matches">
-        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
-        <!-- Ajoute les 8 matchs -->
-      </div>
-    </div>
-
-    <!-- Quarts de finale -->
-    <div class="bracket-phase">
-      <div class="phase-title">QF</div>
-      <div class="phase-matches">
-        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
-        <!-- Ajoute les 4 matchs -->
-      </div>
-    </div>
-
-    <!-- Demi-finales -->
-    <div class="bracket-phase">
-      <div class="phase-title">DF</div>
-      <div class="phase-matches">
-        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
-        <div class="match"><div class="team">À dét.</div><div class="team">À dét.</div></div>
-      </div>
-    </div>
-
-    <!-- Finale et Petite Finale -->
-    <div class="bracket-phase">
-      <div class="phase-title">F</div>
-      <div class="phase-matches">
-        <div class="match final"><div class="team">À dét.</div><div class="team">À dét.</div></div>
-        <div class="match third-place"><div class="team">À dét.</div><div class="team">À dét.</div></div>
-      </div>
-    </div>
   </div>
+
+  <div class="round">
+    <h3>8e</h3>
+
+    <div class="match">
+      <div class="team">V1</div>
+      <div class="team">V2</div>
+    </div>
+
+  </div>
+
+  <div class="round">
+    <h3>QF</h3>
+  </div>
+
+  <div class="round">
+    <h3>DF</h3>
+  </div>
+
+  <div class="round">
+    <h3>F</h3>
+  </div>
+
 </div>
 <div id="pronos" class="sec"></div>
 <div id="stats" class="sec"></div>
