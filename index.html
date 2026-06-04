@@ -1419,18 +1419,6 @@ function renderPronos(){
   const el=document.getElementById('pronos');
   const lb=calcLB();
   
-  // Interface des filtres
-  let htmlFilters = `
-  <div class="filter-container">
-    <div style="display:flex;align-items:center;gap:6px">
-      <label for="filter-pronos-pote" style="font-size:12px;color:var(--color-text-secondary);font-weight:500">Pronostiqueur :</label>
-      <select id="filter-pronos-pote" class="select-sm" onchange="updatePronosFilters()">
-        <option value="all">Tous les pronos</option>
-        ${POTES.map(p => `<option value="${p}">${p}</option>`).join('')}
-      </select>
-    </div>
-  </div>
-  `;
   
   el.innerHTML=`<div style="margin-bottom:16px">
     <div class="section-title">Classement</div>
