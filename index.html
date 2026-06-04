@@ -181,7 +181,7 @@
 
     /* NOUVEAU DESIGN BRACKET - STYLE PROFESSIONNEL */
     :root {
-      --bracket-height: 800px;
+      --bracket-height: 1200px;
       --bracket-bg: #1a1a1a;
       --match-bg: #2a2a2a;
       --match-border: #444;
@@ -189,11 +189,7 @@
       --win-bg: #1D9E75;
     }
     .bracket-scroll { overflow-x: auto; padding: 40px 0; background: var(--bracket-bg); color: #fff; border-radius: 12px; margin-top: 10px; }
-    .bracket-container { display: flex; align-items: center; justify-content: center; min-width: fit-content; padding: 0 20px; }
-
-    .b-side { display: flex; align-items: center; }
-    .b-side-left { flex-direction: row; }
-    .b-side-right { flex-direction: row-reverse; }
+    .bracket-container { display: flex; align-items: center; justify-content: flex-start; min-width: fit-content; padding: 0 20px; }
 
     .b-round { display: flex; flex-direction: column; justify-content: space-around; height: var(--bracket-height); width: 220px; position: relative; }
 
@@ -214,28 +210,17 @@
     .b-team:hover { background: #3a3a3a; color: #fff; }
     .b-team.winner { background: var(--win-bg); color: #fff; font-weight: 600; }
 
-    /* Connecteurs Robustes */
-    .connector-horizontal { position: absolute; width: 30px; height: 2px; background: var(--connector-color); top: 50%; transform: translateY(-50%); }
-    .b-side-left .connector-horizontal { right: -25px; }
-    .b-side-right .connector-horizontal { left: -25px; }
-    .connector-horizontal.incoming { width: 25px; }
-    .b-side-left .connector-horizontal.incoming { left: -25px; }
-    .b-side-right .connector-horizontal.incoming { right: -25px; }
+    /* Connecteurs Robustes - Unilatéraux (Gauche vers Droite) */
+    .connector-horizontal { position: absolute; width: 30px; height: 2px; background: var(--connector-color); top: 50%; transform: translateY(-50%); right: -30px; }
+    .connector-horizontal.incoming { width: 30px; left: -30px; right: auto; }
 
-    .connector-box { position: absolute; width: 30px; border-color: var(--connector-color); border-style: solid; border-width: 0; }
-    .b-side-left .connector-box { right: -30px; border-left-width: 2px; }
-    .b-side-right .connector-box { left: -30px; border-right-width: 2px; }
+    .connector-box { position: absolute; width: 30px; border-color: var(--connector-color); border-style: solid; border-width: 0; right: -30px; border-left-width: 2px; }
 
     .connector-top { top: 50%; height: 50%; border-top-width: 2px; }
     .connector-bottom { bottom: 50%; height: 50%; border-bottom-width: 2px; }
 
-    .final-center { width: 260px; display: flex; flex-direction: column; align-items: center; gap: 25px; margin: 0 20px; }
-    .final-box {
-      background: var(--match-bg); border: 2px solid #ffd700; border-radius: 8px; width: 200px;
-      box-shadow: 0 0 20px rgba(255,215,0,0.2); text-align: center; overflow: hidden; position: relative;
-    }
-    .final-title { font-size: 13px; font-weight: 800; color: #ffd700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-    .winner-crown { font-size: 32px; margin: 15px 0; filter: drop-shadow(0 0 8px rgba(255,215,0,0.5)); }
+    .final-title { font-size: 13px; font-weight: 800; color: #ffd700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+    .winner-crown { font-size: 24px; margin: 10px 0; filter: drop-shadow(0 0 8px rgba(255,215,0,0.5)); text-align: center; }
     
   </style>
 </head>
@@ -1550,26 +1535,19 @@ function renderBracket() {
   if (!el) return;
   el.innerHTML = `
     <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">
-      Clique sur le vainqueur pour le faire avancer. Le bracket est symétrique comme dans les compétitions officielles.
+      Clique sur le vainqueur pour le faire avancer.
     </p>
     <div class="bracket-scroll">
       <div class="bracket-container">
-        <div class="b-side b-side-left">
-          ${createRoundNew('L', '16', 8, '16es de finale')}
-          ${createRoundNew('L', '8', 4, '8es')}
-          ${createRoundNew('L', 'QF', 2, 'Quarts')}
-          ${createRoundNew('L', 'SF', 1, 'Demi')}
-        </div>
-
-        <div class="final-center">
-          ${createFinalNew()}
-        </div>
-
-        <div class="b-side b-side-right">
-          ${createRoundNew('R', 'SF', 1, 'Demi')}
-          ${createRoundNew('R', 'QF', 2, 'Quarts')}
-          ${createRoundNew('R', '8', 4, '8es')}
-          ${createRoundNew('R', '16', 8, '16es de finale')}
+        ${createRoundNew('B', '16', 16, '16es de finale')}
+        ${createRoundNew('B', '8', 8, '8es')}
+        ${createRoundNew('B', 'QF', 4, 'Quarts')}
+        ${createRoundNew('B', 'SF', 2, 'Demi')}
+        <div class="b-round b-round-finale">
+          <div style="text-align:center; font-size:10px; font-weight:700; color:var(--color-text-tertiary); text-transform:uppercase; margin-bottom:10px; position:absolute; top:-25px; width:100%">Finale</div>
+          <div class="b-match-wrapper">
+            ${createFinalNewSingle()}
+          </div>
         </div>
       </div>
     </div>`;
@@ -1590,8 +1568,8 @@ function createRoundNew(side, phase, matchCount, label) {
         <div class="b-match">
           <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}">${t1}</div>
           <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}">${t2}</div>
+          ${renderConnectors(side, phase, i, matchCount)}
         </div>
-        ${renderConnectors(side, phase, i, matchCount)}
       </div>`;
   }
   html += `</div>`;
@@ -1601,13 +1579,10 @@ function createRoundNew(side, phase, matchCount, label) {
 function renderConnectors(side, phase, i, count) {
   let html = '';
   // Sortant
-  if (phase !== 'SF') {
+  if (phase !== 'finale') {
     const isTop = i % 2 === 0;
     html += `<div class="connector-horizontal"></div>`;
     html += `<div class="connector-box ${isTop ? 'connector-top' : 'connector-bottom'}"></div>`;
-  } else {
-    // SF vers Finale
-    html += `<div class="connector-horizontal" style="width: 45px; ${side==='L'?'right:-45px':'left:-45px'}"></div>`;
   }
 
   // Entrant
@@ -1617,20 +1592,23 @@ function renderConnectors(side, phase, i, count) {
   return html;
 }
 
-function createFinalNew() {
+function createFinalNewSingle() {
   const key = 'finale';
   const t1 = D.bracket[key + '_t1'] || '?';
   const t2 = D.bracket[key + '_t2'] || '?';
   const winner = D.bracket[key + '_w'];
 
   return `
-    <div class="final-title">Grande Finale</div>
-    <div class="final-box">
-      <div onclick="pickWinner('finale',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}" style="justify-content:center; height:40px; font-size:14px">${t1}</div>
+    <div style="display: flex; flex-direction: column; align-items: center; width:100%">
+      <div class="final-title">Grande Finale</div>
+      <div class="b-match" style="border-color: #ffd700; border-width: 2px;">
+        <div onclick="pickWinner('finale',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}" style="justify-content:center; height:40px; font-size:14px">${t1}</div>
+        <div onclick="pickWinner('finale',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}" style="justify-content:center; height:40px; font-size:14px">${t2}</div>
+        <div class="connector-horizontal incoming"></div>
+      </div>
       <div class="winner-crown">🏆</div>
-      <div onclick="pickWinner('finale',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}" style="justify-content:center; height:40px; font-size:14px">${t2}</div>
+      ${winner && winner !== '?' ? `<div style="text-align:center; font-weight:700; color:#ffd700; font-size:14px">${winner}</div>` : ''}
     </div>
-    ${winner && winner !== '?' ? `<div style="text-align:center; margin-top:15px; font-weight:700; color:var(--color-text-primary); font-size:14px">🏆 ${winner} 🏆</div>` : ''}
   `;
 }
 
@@ -1641,6 +1619,10 @@ function pickWinner(key, teamNum) {
   if (winner === '?') return;
   D.bracket[key+'_w'] = winner;
 
+  if (key === 'finale') {
+    save(); renderBracket(); return;
+  }
+
   // Propager le vainqueur dans le match suivant
   const parts = key.split('_'); // side, phase, idx
   const side = parts[0];
@@ -1650,14 +1632,15 @@ function pickWinner(key, teamNum) {
   const nextPhase = {
     '16':'8','8':'QF','QF':'SF','SF':'finale'
   }[phase];
+
   if (!nextPhase) { save(); renderBracket(); return; }
 
+  const nextIdx = Math.floor(idx / 2);
+  const slot = idx % 2 === 0 ? '_t1' : '_t2';
+
   if (nextPhase === 'finale') {
-    const slot = side === 'L' ? '_t1' : '_t2';
     D.bracket['finale'+slot] = winner;
   } else {
-    const nextIdx = Math.floor(idx / 2);
-    const slot = idx % 2 === 0 ? '_t1' : '_t2';
     D.bracket[`${side}_${nextPhase}_${nextIdx}${slot}`] = winner;
   }
   save();
