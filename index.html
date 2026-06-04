@@ -1446,9 +1446,9 @@ function renderPronos(){
       <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)">
         <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">Score réel :</div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s1}" oninput="setActual('${m.id}','s1',this.value)" style="width:32px;height:28px" ${isAdmin?'':'disabled'}>
+          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s1 ?? ''}" oninput="setActual('${m.id}','s1',this.value)" style="width:32px;height:28px" ${isAdmin?'':'disabled'}>
           <span style="color:var(--color-text-tertiary)">–</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s2}" oninput="setActual('${m.id}','s2',this.value)" style="width:32px;height:28px" ${isAdmin?'':'disabled'}>
+          <input class="score-in" type="number" min="0" max="20" placeholder="—" value="${actual.s2 ?? ''}" oninput="setActual('${m.id}','s2',this.value)" style="width:32px;height:28px" ${isAdmin?'':'disabled'}>
           <input class="inp-sm" placeholder="Top buteur..." value="${actual.top||''}" oninput="setActual('${m.id}','top',this.value)" style="width:130px" ${isAdmin?'':'disabled'}>
           ${!isAdmin?'<span style="font-size:11px;color:var(--color-text-tertiary);margin-left:4px">Saisi par ""</span>':''}
         </div>
