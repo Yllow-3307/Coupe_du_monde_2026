@@ -214,6 +214,81 @@
     .login-tab.active{color:var(--color-text-primary);border-bottom-color:var(--color-text-primary)}
     .login-panel{display:none}.login-panel.active{display:block}
     .login-ok{font-size:12px;color:#2b8a3e;margin-top:8px;text-align:center;min-height:16px}
+
+
+    .bracket-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  overflow-x: auto;
+}
+
+.b-side {
+  display: flex;
+  flex-direction: row;
+}
+
+.b-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 600px;
+  padding: 0 4px;
+}
+
+.b-col-title {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  padding-bottom: 8px;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  margin-bottom: 8px;
+}
+
+.b-match {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0;
+}
+
+.b-team {
+  font-size: 11px;
+  padding: 0 7px;
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  cursor: pointer;
+  width: 115px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-secondary);
+  transition: background 0.1s;
+  height: 23px;
+  display: flex;
+  align-items: center;
+}
+
+.b-team:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.b-team:last-child {
+  border-radius: 0 0 6px 6px;
+  border-top: none;
+}
+
+.b-team:hover {
+  background: var(--color-background-secondary);
+}
+
+.b-team.winner {
+  color: var(--color-text-success);
+  font-weight: 500;
+  background: var(--color-background-success);
+}
     
   </style>
 </head>
@@ -295,7 +370,58 @@
 
 <div id="groupes" class="sec active"></div>
 <div id="matchs" class="sec"></div>
-<div id="bracket" class="sec"></div>
+<div class="bracket-wrapper">
+  <!-- 16e de finale -->
+  <div class="b-side">
+    <div class="b-col">
+      <div class="b-col-title">16e de finale</div>
+      <div class="b-match">
+        <div class="b-team">Équipe 1</div>
+        <div class="b-team">Équipe 2</div>
+      </div>
+      <!-- Répéter pour chaque match des 16e -->
+    </div>
+    <!-- 8e de finale -->
+    <div class="b-col">
+      <div class="b-col-title">8e de finale</div>
+      <div class="b-match">
+        <div class="b-team">Vainqueur Match 1</div>
+        <div class="b-team">Vainqueur Match 2</div>
+      </div>
+      <!-- Répéter pour chaque match des 8e -->
+    </div>
+    <!-- Quarts de finale -->
+    <div class="b-col">
+      <div class="b-col-title">Quarts de finale</div>
+      <div class="b-match">
+        <div class="b-team">Vainqueur 8e 1</div>
+        <div class="b-team">Vainqueur 8e 2</div>
+      </div>
+      <!-- Répéter pour chaque match des quarts -->
+    </div>
+    <!-- Demi-finales -->
+    <div class="b-col">
+      <div class="b-col-title">Demi-finales</div>
+      <div class="b-match">
+        <div class="b-team">Vainqueur Quart 1</div>
+        <div class="b-team">Vainqueur Quart 2</div>
+      </div>
+    </div>
+    <!-- Finale et Petite Finale -->
+    <div class="b-col">
+      <div class="b-col-title">Finale</div>
+      <div class="b-match">
+        <div class="b-team">Vainqueur Demi 1</div>
+        <div class="b-team">Vainqueur Demi 2</div>
+      </div>
+      <div class="b-col-title">Petite Finale</div>
+      <div class="b-match">
+        <div class="b-team">Perdant Demi 1</div>
+        <div class="b-team">Perdant Demi 2</div>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="pronos" class="sec"></div>
 <div id="stats" class="sec"></div>
 <div id="equipes" class="sec"></div>
