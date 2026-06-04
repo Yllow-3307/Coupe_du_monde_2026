@@ -437,7 +437,7 @@ function bootApp() {
 function subscribeFirestore() {
   const db = window._db;
 
-  // Players list — updates POTES live when someone new joins
+  // Players list
   unsubscribers['players'] = db.collection('shared').doc('players').onSnapshot(snap => {
     if (snap.exists) {
       const pseudos = Object.values(snap.data()).sort();
@@ -447,7 +447,6 @@ function subscribeFirestore() {
         AV_BG.push(palette_bg[i % palette_bg.length]);
         AV_TX.push(palette_tx[i % palette_tx.length]);
       });
-      // Subscribe to each player's pronos dynamically
       POTES.forEach(pote => {
         if (!unsubscribers['prono_' + pote]) {
           unsubscribers['prono_' + pote] = db.collection('pronos').doc(pote).onSnapshot(s => {
@@ -458,7 +457,7 @@ function subscribeFirestore() {
     }
   });
 
-  // Shared data (scores, bracket, stats, rdv, pts)
+  // Shared data
   unsubscribers['shared'] = db.collection('shared').doc('data').onSnapshot(snap => {
     if (snap.exists) {
       const data = snap.data();
@@ -467,12 +466,14 @@ function subscribeFirestore() {
       D.teamStats = data.teamStats || TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0}));
       D.rdvList   = data.rdvList   || [{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}];
       D.pts       = data.pts       || {};
+
+      syncActualsFromScores();   // ← Important : synchronisation à chaque mise à jour
       const activeTab = document.querySelector('.tab.active');
       if (activeTab) activeTab.click();
     }
   });
 
-  // Actual scores
+  // Actual scores (backup)
   unsubscribers['actuals'] = db.collection('shared').doc('actuals').onSnapshot(snap => {
     if (snap.exists) D.actual = snap.data().actuals || {};
   });
@@ -481,11 +482,10 @@ function subscribeFirestore() {
   unsubscribers['myPronos'] = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
     if (snap.exists) Object.assign(D.pronos, snap.data().bets || {});
   });
-  
-  syncActualsFromScores(); // ← AJOUTER ICI
-    const activeTab = document.querySelector('.tab.active');
-    if (activeTab) activeTab.click();
-  }
+
+  // Synchronisation initiale
+  syncActualsFromScores();
+}
 
 async function save() {
   if (!currentUser) { localStorage.setItem('wc26v3', JSON.stringify(D)); return; }
@@ -695,16 +695,26 @@ function isLocked(matchId) {
  function syncActualsFromScores() {
   PRONO_MATCHES.forEach(m => {
     if (m.matchIdx === undefined || m.matchIdx === null) return;
-    const s1 = D.scores[m.matchIdx + 'a'];
-    const s2 = D.scores[m.matchIdx + 'b'];
-    const top = D.scores[m.matchIdx + 'buteur1'] || '';
-    if (s1 !== undefined || s2 !== undefined) {
-      if (!D.actual[m.id]) D.actual[m.id] = {};
-      if (s1 !== undefined) D.actual[m.id].s1 = s1;
-      if (s2 !== undefined) D.actual[m.id].s2 = s2;
-      if (top) D.actual[m.id].top = top;
+
+    const idx = m.matchIdx;
+    const s1 = D.scores[idx + 'a'];
+    const s2 = D.scores[idx + 'b'];
+    const buteur1 = D.scores[idx + 'buteur1'] || '';
+    const buteur2 = D.scores[idx + 'buteur2'] || '';
+
+    if (!D.actual[m.id]) D.actual[m.id] = {};
+
+    if (s1 !== undefined && s1 !== '') D.actual[m.id].s1 = s1;
+    if (s2 !== undefined && s2 !== '') D.actual[m.id].s2 = s2;
+
+    // Meilleur buteur (priorité au buteur de l'équipe gagnante ou le plus cité)
+    if (buteur1 || buteur2) {
+      D.actual[m.id].top = buteur1 || buteur2;
     }
   });
+
+  // Sauvegarde dans Firestore si admin
+  if (isAdmin) saveActuals();
 }
 
 const MATCHS_DATA = [
