@@ -341,46 +341,7 @@
 
 <div id="groupes" class="sec active"></div>
 <div id="matchs" class="sec"></div>
-<div class="bracket-wrapper">
-
-  <div class="round">
-    <h3>16e</h3>
-
-    <div class="match">
-      <div class="team">1A</div>
-      <div class="team">2B</div>
-    </div>
-
-    <div class="match">
-      <div class="team">1C</div>
-      <div class="team">2D</div>
-    </div>
-
-  </div>
-
-  <div class="round">
-    <h3>8e</h3>
-
-    <div class="match">
-      <div class="team">V1</div>
-      <div class="team">V2</div>
-    </div>
-
-  </div>
-
-  <div class="round">
-    <h3>QF</h3>
-  </div>
-
-  <div class="round">
-    <h3>DF</h3>
-  </div>
-
-  <div class="round">
-    <h3>F</h3>
-  </div>
-
-</div>
+<div id="bracket" class="sec"></div>
 <div id="pronos" class="sec"></div>
 <div id="stats" class="sec"></div>
 <div id="equipes" class="sec"></div>
@@ -1553,19 +1514,128 @@ function updateMatchFilters(){
 function renderBracket() {
   const el = document.getElementById('bracket');
   if (!el) return;
+
   el.innerHTML = `
-    <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">
-      Clique sur le vainqueur pour le faire avancer. Le bracket progresse de gauche à droite jusqu'à la finale.
-    </p>
-    <div style="overflow-x:auto;padding:10px 0;background:#f8f9fa;border-radius:8px">
-      <div style="display:flex;gap:14px;min-width:1180px;align-items:center">
-        ${createRoundAll('16', '16es de finale', 16)}
-        ${createRoundAll('8', '8es de finale', 8)}
-        ${createRoundAll('QF', 'Quarts', 4)}
-        ${createRoundAll('SF', 'Demi-finales', 2)}
-        <div style="min-width:250px">${createFinalMatch()}</div>
+    <div style="background:#0f172a;color:white;border-radius:12px;padding:16px 12px;margin-bottom:20px">
+      <!-- Tabs comme dans la vidéo -->
+      <div style="display:flex;background:#1e2937;border-radius:9999px;padding:4px;margin-bottom:20px;overflow-x:auto">
+        ${['PG','16e','8e','QF','DF','F'].map((label, i) => `
+          <button onclick="switchBracketTab(${i})" 
+                  id="bracket-tab-${i}"
+                  style="flex:1;padding:10px 12px;border-radius:9999px;font-size:13px;font-weight:500;white-space:nowrap;transition:all 0.2s;
+                         ${currentBracketTab === i ? 'background:#3b82f6;color:white' : 'background:transparent;color:#94a3b8'}">
+            ${label}
+          </button>
+        `).join('')}
       </div>
-    </div>`
+
+      <div id="bracket-content" style="min-height:600px"></div>
+    </div>
+  `;
+
+  renderBracketContent();
+}
+
+let currentBracketTab = 1; // 1 = 16es de finale par défaut
+
+function switchBracketTab(tab) {
+  currentBracketTab = tab;
+  document.querySelectorAll('[id^="bracket-tab-"]').forEach((el, i) => {
+    const isActive = i === tab;
+    el.style.background = isActive ? '#3b82f6' : 'transparent';
+    el.style.color = isActive ? 'white' : '#94a3b8';
+  });
+  renderBracketContent();
+}
+
+function renderBracketContent() {
+  const content = document.getElementById('bracket-content');
+  
+  // Pour l'instant on se concentre sur les 16es (comme dans la vidéo)
+  if (currentBracketTab === 1) {
+    content.innerHTML = createRound16Bracket();
+  } else {
+    content.innerHTML = `
+      <div style="text-align:center;padding:80px 20px;color:#64748b">
+        <p>Phase ${['PG','16e','8e','QF','DF','F'][currentBracketTab]} à venir...</p>
+      </div>`;
+  }
+}
+
+function createRound16Bracket() {
+  return `
+    <div style="display:flex;gap:40px;overflow-x:auto;padding:10px 0">
+      <!-- Round of 16 -->
+      <div style="min-width:280px">
+        <div style="text-align:center;margin-bottom:16px">
+          <span style="background:#1e2937;color:#60a5fa;padding:4px 12px;border-radius:9999px;font-size:12px">16es de finale</span>
+        </div>
+        ${generateMatches(8, '16')}
+      </div>
+
+      <!-- Quarter-finals placeholder -->
+      <div style="min-width:280px">
+        <div style="text-align:center;margin-bottom:16px">
+          <span style="background:#1e2937;color:#60a5fa;padding:4px 12px;border-radius:9999px;font-size:12px">Quarts de finale</span>
+        </div>
+        ${generateMatches(4, 'qf')}
+      </div>
+
+      <!-- Semi-finals -->
+      <div style="min-width:280px">
+        <div style="text-align:center;margin-bottom:16px">
+          <span style="background:#1e2937;color:#60a5fa;padding:4px 12px;border-radius:9999px;font-size:12px">Demi-finales</span>
+        </div>
+        ${generateMatches(2, 'sf')}
+      </div>
+
+      <!-- Final -->
+      <div style="min-width:280px">
+        <div style="text-align:center;margin-bottom:16px">
+          <span style="background:#1e2937;color:#fbbf24;padding:4px 12px;border-radius:9999px;font-size:12px">FINALE</span>
+        </div>
+        ${createFinal()}
+      </div>
+    </div>`;
+}
+
+function generateMatches(count, prefix) {
+  let html = '';
+  for (let i = 0; i < count; i++) {
+    const key = `${prefix}_${i}`;
+    const t1 = D.bracket[key + '_t1'] || 'À dét.';
+    const t2 = D.bracket[key + '_t2'] || 'À dét.';
+    const winner = D.bracket[key + '_w'];
+
+    html += `
+      <div style="margin-bottom:28px;background:#1e2937;border-radius:12px;padding:12px;position:relative">
+        <div onclick="pickWinner('${key}',1)" style="padding:12px 14px;border-radius:8px;margin-bottom:8px;cursor:pointer;background:${winner === t1 ? '#1e40af' : '#334155'};transition:all 0.2s">
+          ${t1}
+        </div>
+        <div onclick="pickWinner('${key}',2)" style="padding:12px 14px;border-radius:8px;cursor:pointer;background:${winner === t2 ? '#1e40af' : '#334155'};transition:all 0.2s">
+          ${t2}
+        </div>
+      </div>`;
+  }
+  return html;
+}
+
+function createFinal() {
+  const key = 'final';
+  const t1 = D.bracket[key + '_t1'] || 'À dét.';
+  const t2 = D.bracket[key + '_t2'] || 'À dét.';
+  const winner = D.bracket[key + '_w'];
+
+  return `
+    <div style="background:#1e2937;border:2px solid #fbbf24;border-radius:16px;padding:20px;text-align:center">
+      <div onclick="pickWinner('${key}',1)" style="padding:16px;border-radius:10px;margin-bottom:12px;cursor:pointer;background:${winner === t1 ? '#1e40af' : '#334155'}">
+        ${t1}
+      </div>
+      <div style="font-size:32px;margin:12px 0">🏆</div>
+      <div onclick="pickWinner('${key}',2)" style="padding:16px;border-radius:10px;cursor:pointer;background:${winner === t2 ? '#1e40af' : '#334155'}">
+        ${t2}
+      </div>
+    </div>`;
 }
 
 // Fonction pour créer un round complet
@@ -1610,33 +1680,42 @@ function createFinalMatch() {
 }
 
 function pickWinner(key, teamNum) {
-  const t1 = D.bracket[key+'_t1'] || '?';
-  const t2 = D.bracket[key+'_t2'] || '?';
+  const t1 = D.bracket[key + '_t1'] || 'À dét.';
+  const t2 = D.bracket[key + '_t2'] || 'À dét.';
+  
   const winner = teamNum === 1 ? t1 : t2;
-  if (winner === '?') return;
-  D.bracket[key+'_w'] = winner;
+  
+  if (winner === 'À dét.') return;
 
-  // Propager le vainqueur dans le match suivant
-  const parts = key.split('_'); // side, phase, idx
-  const side = parts[0];
-  const phase = parts[1];
-  const idx = parseInt(parts[2]) || 0;
+  D.bracket[key + '_w'] = winner;
 
-  const nextPhase = {
-    '16':'8','8':'QF','QF':'SF','SF':'finale'
-  }[phase];
-  if (!nextPhase) { save(); renderBracket(); return; }
+  // Propagation automatique vers le tour suivant (optionnel mais utile)
+  propagateWinner(key, winner);
 
-  if (nextPhase === 'finale') {
-    const slot = side === 'L' ? '_t1' : '_t2';
-    D.bracket['finale'+slot] = winner;
-  } else {
-    const nextIdx = Math.floor(idx / 2);
-    const slot = idx % 2 === 0 ? '_t1' : '_t2';
-    D.bracket[`${side}_${nextPhase}_${nextIdx}${slot}`] = winner;
-  }
   save();
-  renderBracket();
+  renderBracket();   // On rafraîchit le bracket
+}
+
+// Fonction bonus pour propager automatiquement le vainqueur
+function propagateWinner(key, winner) {
+  const parts = key.split('_');
+  const phase = parts[0];
+  const index = parseInt(parts[1]);
+
+  let nextKey = null;
+
+  if (phase === '16') {
+    nextKey = `qf_${Math.floor(index / 2)}`;
+  } else if (phase === 'qf') {
+    nextKey = `sf_${Math.floor(index / 2)}`;
+  } else if (phase === 'sf') {
+    nextKey = 'final';
+  }
+
+  if (nextKey) {
+    const slot = (index % 2 === 0) ? '_t1' : '_t2';
+    D.bracket[nextKey + slot] = winner;
+  }
 }
 
 // saveSilent kept for compatibility (no-op now)
