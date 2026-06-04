@@ -33,81 +33,6 @@
   </script>
   <style>
 
-    /* Styles pour le bracket */
-.bracket-container {
-  display: flex;
-  overflow-x: auto;
-  padding: 10px 0;
-  gap: 20px;
-  align-items: flex-start;
-}
-
-.bracket-phase {
-  display: flex;
-  flex-direction: column;
-  min-width: 150px;
-}
-
-.phase-title {
-  font-size: 12px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 10px;
-  color: white;
-  background: #1a3a6a;
-  padding: 5px;
-  border-radius: 4px;
-}
-
-.phase-matches {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.match {
-  display: flex;
-  flex-direction: column;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  padding: 5px;
-  min-height: 60px;
-  justify-content: space-around;
-}
-
-.team {
-  font-size: 12px;
-  color: white;
-  text-align: center;
-  padding: 5px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  min-height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.final {
-  background: rgba(255, 215, 0, 0.3);
-}
-
-.third-place {
-  background: rgba(205, 127, 50, 0.3);
-}
-
-/* Ajoute des lignes pour relier les matchs (optionnel) */
-.match::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  right: -15px;
-  width: 10px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.5);
-  z-index: -1;
-}
-
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--color-background-secondary);color:var(--color-text-primary);padding:20px;max-width:1200px;margin:0 auto}
     
@@ -195,16 +120,6 @@
     .stat-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
     .stat-sub{font-size:11px;color:var(--color-text-secondary)}
     
-    .bracket-wrap{overflow-x:auto;padding-bottom:12px}
-    .bracket-tree{display:flex;align-items:center;gap:0;min-width:1100px}
-    .b-col{display:flex;flex-direction:column;justify-content:space-around;padding:0 4px}
-    .b-col-title{font-size:10px;font-weight:500;color:var(--color-text-secondary);letter-spacing:0.05em;text-transform:uppercase;text-align:center;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:8px;white-space:nowrap}
-    .b-match{display:flex;flex-direction:column}
-    .b-team{font-size:11px;padding:0 7px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);cursor:pointer;width:115px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--color-text-secondary);transition:background 0.1s;height:23px;display:flex;align-items:center}
-    .b-team:first-child{border-radius:6px 6px 0 0}
-    .b-team:last-child{border-radius:0 0 6px 6px;border-top:none}
-    .b-team:hover{background:var(--color-background-secondary)}
-    .b-team.winner{color:var(--color-text-success);font-weight:500;background:var(--color-background-success)}
     
     .teams-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
     .team-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
@@ -223,32 +138,6 @@
     .rdv-date-m{font-size:10px;color:var(--color-text-info)}
     .sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
     
-    .bracket-wrapper {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-    .b-side { 
-      display: flex; 
-      flex-direction: row; /* Aligne les colonnes côte à côte */
-    }
-    .b-col { 
-      display: flex; 
-      flex-direction: column; 
-      justify-content: space-around; /* C'est la clé : force l'espacement égal */
-      height: 600px; /* Donne une hauteur fixe à ton bracket */
-    }
-    .b-match { 
-      margin: 10px 0; 
-      border: 1px solid #ddd; 
-      padding: 5px; 
-    }
-    /* Amélioration visuelle : chemin et interactivité */
-    .b-match { background: white; border: 1px solid #ddd; padding: 5px; border-radius: 4px; transition: all 0.2s; }
-    .b-team { cursor: pointer; padding: 4px; border-bottom: 1px solid #eee; border-radius: 2px; }
-    .b-team:hover { background: #e0f7fa; transform: scale(1.02); }
-    .b-team.selected { background: #1D9E75; color: white; }
-    .b-col { display: flex; flex-direction: column; justify-content: space-around; gap: 5px; }
     
 
     /* ===== LOGIN SCREEN ===== */
@@ -276,7 +165,6 @@
     .readonly-field{pointer-events:none;opacity:0.5}
 
     .team-row span:first-child,
-    .b-team,
     .grp-card span:first-child {
     font-size: 18px !important;
     display: inline-block;
@@ -291,79 +179,63 @@
     .login-ok{font-size:12px;color:#2b8a3e;margin-top:8px;text-align:center;min-height:16px}
 
 
-    .bracket-wrapper {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  overflow-x: auto;
-}
+    /* NOUVEAU DESIGN BRACKET - STYLE PROFESSIONNEL */
+    :root {
+      --bracket-height: 800px;
+      --bracket-bg: #1a1a1a;
+      --match-bg: #2a2a2a;
+      --match-border: #444;
+      --connector-color: #555;
+      --win-bg: #1D9E75;
+    }
+    .bracket-scroll { overflow-x: auto; padding: 40px 0; background: var(--bracket-bg); color: #fff; border-radius: 12px; margin-top: 10px; }
+    .bracket-container { display: flex; align-items: center; justify-content: center; min-width: fit-content; padding: 0 20px; }
 
-.b-side {
-  display: flex;
-  flex-direction: row;
-}
+    .b-side { display: flex; align-items: center; }
+    .b-side-left { flex-direction: row; }
+    .b-side-right { flex-direction: row-reverse; }
 
-.b-col {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  height: 600px;
-  padding: 0 4px;
-}
+    .b-round { display: flex; flex-direction: column; justify-content: space-around; height: var(--bracket-height); width: 220px; position: relative; }
 
-.b-col-title {
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  text-align: center;
-  padding-bottom: 8px;
-  border-bottom: 0.5px solid var(--color-border-tertiary);
-  margin-bottom: 8px;
-}
+    .b-match-wrapper { position: relative; display: flex; align-items: center; width: 100%; height: 100%; justify-content: center; }
 
-.b-match {
-  display: flex;
-  flex-direction: column;
-  margin: 10px 0;
-}
+    .b-match {
+      background: var(--match-bg); border: 1px solid var(--match-border); border-radius: 6px; width: 160px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4); z-index: 2; position: relative;
+    }
 
-.b-team {
-  font-size: 11px;
-  padding: 0 7px;
-  background: var(--color-background-primary);
-  border: 0.5px solid var(--color-border-tertiary);
-  cursor: pointer;
-  width: 115px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--color-text-secondary);
-  transition: background 0.1s;
-  height: 23px;
-  display: flex;
-  align-items: center;
-}
+    .b-team {
+      height: 34px; padding: 0 12px; display: flex; align-items: center; font-size: 12px; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #eee;
+      width: 100%; text-align: left;
+    }
+    .b-team:first-child { border-bottom: 1px solid var(--match-border); border-radius: 4px 4px 0 0; }
+    .b-team:last-child { border-radius: 0 0 4px 4px; }
+    .b-team:hover { background: #3a3a3a; color: #fff; }
+    .b-team.winner { background: var(--win-bg); color: #fff; font-weight: 600; }
 
-.b-team:first-child {
-  border-radius: 6px 6px 0 0;
-}
+    /* Connecteurs Robustes */
+    .connector-horizontal { position: absolute; width: 30px; height: 2px; background: var(--connector-color); top: 50%; transform: translateY(-50%); }
+    .b-side-left .connector-horizontal { right: -25px; }
+    .b-side-right .connector-horizontal { left: -25px; }
+    .connector-horizontal.incoming { width: 25px; }
+    .b-side-left .connector-horizontal.incoming { left: -25px; }
+    .b-side-right .connector-horizontal.incoming { right: -25px; }
 
-.b-team:last-child {
-  border-radius: 0 0 6px 6px;
-  border-top: none;
-}
+    .connector-box { position: absolute; width: 30px; border-color: var(--connector-color); border-style: solid; border-width: 0; }
+    .b-side-left .connector-box { right: -30px; border-left-width: 2px; }
+    .b-side-right .connector-box { left: -30px; border-right-width: 2px; }
 
-.b-team:hover {
-  background: var(--color-background-secondary);
-}
+    .connector-top { top: 50%; height: 50%; border-top-width: 2px; }
+    .connector-bottom { bottom: 50%; height: 50%; border-bottom-width: 2px; }
 
-.b-team.winner {
-  color: var(--color-text-success);
-  font-weight: 500;
-  background: var(--color-background-success);
-}
+    .final-center { width: 260px; display: flex; flex-direction: column; align-items: center; gap: 25px; margin: 0 20px; }
+    .final-box {
+      background: var(--match-bg); border: 2px solid #ffd700; border-radius: 8px; width: 200px;
+      box-shadow: 0 0 20px rgba(255,215,0,0.2); text-align: center; overflow: hidden; position: relative;
+    }
+    .final-title { font-size: 13px; font-weight: 800; color: #ffd700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .winner-crown { font-size: 32px; margin: 15px 0; filter: drop-shadow(0 0 8px rgba(255,215,0,0.5)); }
     
   </style>
 </head>
@@ -1678,23 +1550,34 @@ function renderBracket() {
   if (!el) return;
   el.innerHTML = `
     <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">
-      Clique sur le vainqueur pour le faire avancer. Le bracket progresse de gauche à droite jusqu'à la finale.
+      Clique sur le vainqueur pour le faire avancer. Le bracket est symétrique comme dans les compétitions officielles.
     </p>
-    <div style="overflow-x:auto;padding:10px 0;background:#f8f9fa;border-radius:8px">
-      <div style="display:flex;gap:14px;min-width:1180px;align-items:center">
-        ${createRoundAll('16', '16es de finale', 16)}
-        ${createRoundAll('8', '8es de finale', 8)}
-        ${createRoundAll('QF', 'Quarts', 4)}
-        ${createRoundAll('SF', 'Demi-finales', 2)}
-        <div style="min-width:250px">${createFinalMatch()}</div>
+    <div class="bracket-scroll">
+      <div class="bracket-container">
+        <div class="b-side b-side-left">
+          ${createRoundNew('L', '16', 8, '16es de finale')}
+          ${createRoundNew('L', '8', 4, '8es')}
+          ${createRoundNew('L', 'QF', 2, 'Quarts')}
+          ${createRoundNew('L', 'SF', 1, 'Demi')}
+        </div>
+
+        <div class="final-center">
+          ${createFinalNew()}
+        </div>
+
+        <div class="b-side b-side-right">
+          ${createRoundNew('R', 'SF', 1, 'Demi')}
+          ${createRoundNew('R', 'QF', 2, 'Quarts')}
+          ${createRoundNew('R', '8', 4, '8es')}
+          ${createRoundNew('R', '16', 8, '16es de finale')}
+        </div>
       </div>
-    </div>`
+    </div>`;
 }
 
-// Fonction pour créer un round complet
-function createRound(side, phase, title, matchCount) {
-  let html = `<div style="min-width:210px">
-    <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-secondary);margin-bottom:8px">${title}</div>`;
+function createRoundNew(side, phase, matchCount, label) {
+  let html = `<div class="b-round b-round-${phase}">
+    <div style="text-align:center; font-size:10px; font-weight:700; color:var(--color-text-tertiary); text-transform:uppercase; margin-bottom:10px; position:absolute; top:-25px; width:100%">${label}</div>`;
   
   for (let i = 0; i < matchCount; i++) {
     const key = `${side}_${phase}_${i}`;
@@ -1703,33 +1586,52 @@ function createRound(side, phase, title, matchCount) {
     const winner = D.bracket[key + '_w'];
 
     html += `
-      <div style="background:white;border:1px solid #e0e0e0;border-radius:8px;padding:6px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
-        <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}" 
-             style="margin-bottom:4px">${t1}</div>
-        <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}">
-          ${t2}
+      <div class="b-match-wrapper">
+        <div class="b-match">
+          <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}">${t1}</div>
+          <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}">${t2}</div>
         </div>
+        ${renderConnectors(side, phase, i, matchCount)}
       </div>`;
   }
   html += `</div>`;
   return html;
 }
 
-// Match de finale spécial
-function createFinalMatch() {
+function renderConnectors(side, phase, i, count) {
+  let html = '';
+  // Sortant
+  if (phase !== 'SF') {
+    const isTop = i % 2 === 0;
+    html += `<div class="connector-horizontal"></div>`;
+    html += `<div class="connector-box ${isTop ? 'connector-top' : 'connector-bottom'}"></div>`;
+  } else {
+    // SF vers Finale
+    html += `<div class="connector-horizontal" style="width: 45px; ${side==='L'?'right:-45px':'left:-45px'}"></div>`;
+  }
+
+  // Entrant
+  if (phase !== '16') {
+    html += `<div class="connector-horizontal incoming"></div>`;
+  }
+  return html;
+}
+
+function createFinalNew() {
   const key = 'finale';
   const t1 = D.bracket[key + '_t1'] || '?';
   const t2 = D.bracket[key + '_t2'] || '?';
   const winner = D.bracket[key + '_w'];
 
   return `
-    <div style="background:white;border:2px solid #ffd700;border-radius:12px;padding:12px 20px;width:240px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.1)">
-      <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}" 
-           style="font-size:15px;margin-bottom:8px;padding:8px">${t1}</div>
-      <div style="font-size:22px;margin:8px 0;color:#ffd700">🏆</div>
-      <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}" 
-           style="font-size:15px;padding:8px">${t2}</div>
-    </div>`;
+    <div class="final-title">Grande Finale</div>
+    <div class="final-box">
+      <div onclick="pickWinner('finale',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}" style="justify-content:center; height:40px; font-size:14px">${t1}</div>
+      <div class="winner-crown">🏆</div>
+      <div onclick="pickWinner('finale',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}" style="justify-content:center; height:40px; font-size:14px">${t2}</div>
+    </div>
+    ${winner && winner !== '?' ? `<div style="text-align:center; margin-top:15px; font-weight:700; color:var(--color-text-primary); font-size:14px">🏆 ${winner} 🏆</div>` : ''}
+  `;
 }
 
 function pickWinner(key, teamNum) {
