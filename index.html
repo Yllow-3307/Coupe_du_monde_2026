@@ -1369,7 +1369,7 @@ function renderMatchs(){
     </div>
     <button class="btn btn-primary" onclick="refreshAutomaticResults()"><i class="ti ti-refresh" aria-hidden="true"></i> Actualiser résultats</button>
   </div>
-  <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px">Les résultats sont affichés automatiquement depuis la source configurée. Aucun score réel ne se saisit à la main ici.</p>`;
+  <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:12px"></p>`;
 
   let filteredMatches = MATCHS_DATA.map((m, idx) => ({...m, originalIdx: idx})).filter(m => {
     if (currentFilterPhase === "groupes" && m.stage !== "Phase de Groupes") return false;
