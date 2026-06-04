@@ -1436,10 +1436,13 @@ function renderMatchs(){
         <div style="font-size:11px;color:var(--color-text-secondary)">${m.stage === "Phase de Groupes" ? 'Groupe ' + m.g : m.stage}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)">${m.t1}</span>
-        <div class="match-score">${renderReadonlyScore(actual)}</div>
-        <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right">${m.t2}</span>
-      </div>
+  <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary)">${m.t1}</span>
+  <div class="match-score">${renderReadonlyScore(actual)}</div>
+  <span style="flex:1;font-size:13px;font-weight:500;color:var(--color-text-primary);text-align:right">${m.t2}</span>
+</div>
+<div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;margin-top:8px;font-size:12px;color:var(--color-text-secondary)">
+  ${formatScorers(actual.top) || '<span class=\"muted-empty\">En attente</span>'}
+</div>
       <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;margin-top:8px;font-size:12px;color:var(--color-text-secondary)">
         Buteurs : ${formatScorers(actual.top) || '<span class="muted-empty">En attente</span>'}
       </div>
