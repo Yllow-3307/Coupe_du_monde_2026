@@ -1633,7 +1633,7 @@ function renderStats(){
     <div class="stat-grid">
       ${bestPlayers.map(b=>`<div class="stat-card"><div class="stat-lbl">Meilleur ${b.pos}</div><div class="stat-val" style="font-size:14px">${b.player?b.player.name:'—'}</div><div class="stat-sub">${b.player?b.player.flag+' '+b.player.team+' · '+b.player.rating.toFixed(1):'Note site à renseigner'}</div></div>`).join('')}
     </div>
-    <div class="section-title">Notes joueurs depuis un site</div>
+    <div class="section-title">Notes joueurs </div>
     <div class="card">
       ${players.map(p=>`<div style="display:grid;grid-template-columns:1.4fr 0.8fr 80px;gap:8px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
         <span style="font-size:12px;color:var(--color-text-primary)">${p.name}<span style="color:var(--color-text-secondary)"> · ${p.flag} ${p.team}</span></span>
