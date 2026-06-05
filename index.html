@@ -192,10 +192,13 @@
 
 .bracket-wrapper{
     display:flex;
-    gap:70px;
+    gap:40px;
     overflow-x:auto;
-    padding:30px;
+    padding:40px;
     min-width:max-content;
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-lg);
+    height: 1400px;
 }
 
 .round{
@@ -203,61 +206,67 @@
     flex-direction:column;
     justify-content:space-around;
     position:relative;
+    height: 100%;
 }
 
 .round-title{
     text-align:center;
-    font-size:12px;
-    font-weight:600;
-    margin-bottom:20px;
-    color:#666;
+    font-size:11px;
+    font-weight:700;
+    margin-bottom:30px;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .match{
-    width:180px;
+    width:190px;
     position:relative;
-    margin:40px 0;
+    margin:20px 0;
+    transition: all 0.2s;
 }
 
 .team{
-    height:42px;
+    height:38px;
     display:flex;
     align-items:center;
-    padding:0 12px;
+    padding:0 10px;
     background:white;
-    border:1px solid #ddd;
-    font-size:13px;
+    border:1px solid var(--color-border-tertiary);
+    font-size:12px;
+    transition: all 0.15s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .team:first-child{
-    border-radius:8px 8px 0 0;
+    border-radius:6px 6px 0 0;
 }
 
 .team:last-child{
-    border-radius:0 0 8px 8px;
+    border-radius:0 0 6px 6px;
     border-top:none;
 }
 
-/* liaison horizontale */
-
-.match::after{
-    content:"";
-    position:absolute;
-    right:-35px;
-    top:50%;
-    width:35px;
-    border-top:2px solid #d0d0d0;
+.team.selected {
+    background: #1D9E75 !important;
+    color: white !important;
+    border-color: #1D9E75 !important;
 }
 
-/* liaison verticale */
+.team:hover:not(.selected) {
+    background: var(--color-background-info);
+}
 
-.match::before{
-    content:"";
-    position:absolute;
-    right:-35px;
-    top:50%;
-    height:85px;
-    border-right:2px solid #d0d0d0;
+/* Connecteurs */
+.match:not(.no-line)::after {
+    content: "";
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    width: 20px;
+    border-top: 1.5px solid #ccc;
 }
  
     
@@ -1350,37 +1359,33 @@ function syncScoresFromActuals() {
 }
 
 function autoComputeTeamStats() {
-  // Initialise une map nom → stats
   const statsMap = {};
   TEAMS_DATA.forEach(t => {
-    statsMap[t.name] = { flag: t.flag, name: t.name, mvp: '', goals: 0, played: 0, cs: 0, against: 0 };
+    statsMap[t.name] = { flag: t.flag, name: t.name, mvp: '', goals: 0, played: 0, against: 0 };
   });
 
-  MATCHS_DATA.forEach((m, idx) => {
-    const actual = matchActualByIndex(idx);
+  PRONO_MATCHES.forEach(m => {
+    const actual = D.actual[m.id] || {};
     const s1 = parseInt(actual.s1);
     const s2 = parseInt(actual.s2);
-    if (isNaN(s1) || isNaN(s2) || actual.s1 === '' || actual.s2 === '') return;
+    if (isNaN(s1) || isNaN(s2)) return;
 
-    // Trouver les noms bruts des équipes (sans emoji)
-    const findTeam = (label) => {
-      return Object.values(statsMap).find(t => label && label.includes(t.name));
-    };
-    const team1 = findTeam(m.t1);
-    const team2 = findTeam(m.t2);
+    // Utilisation des noms d'équipes de TEAMS_DATA pour faire le lien
+    const parts = m.label.split(' vs ');
+    const team1 = Object.values(statsMap).find(t => parts[0] && parts[0].includes(t.name));
+    const team2 = Object.values(statsMap).find(t => parts[1] && parts[1].includes(t.name));
 
     if (team1) { team1.played++; team1.goals += s1; team1.against += s2; }
     if (team2) { team2.played++; team2.goals += s2; team2.against += s1; }
   });
 
-  // Préserver les MVP manuels
   if (D.teamStats) {
     D.teamStats.forEach(t => {
       if (t.mvp && statsMap[t.name]) statsMap[t.name].mvp = t.mvp;
     });
   }
 
-  D.teamStats = Object.values(statsMap);
+  D.teamStats = Object.values(statsMap).sort((a,b) => (b.goals - b.against) - (a.goals - a.against));
 }
 
 async function saveRdv() {
@@ -1514,6 +1519,25 @@ function renderMatchs(){
       currentHeader = matchHeaderLabel;
       sectionHeader = `<div class="section-title" style="margin:15px 0 8px">${currentHeader}</div>`;
     }
+
+    // Extraction des noms sans emojis pour les parenthèses
+    const getTeamName = (t) => t.replace(/[\uD83C|\uD83D|\uD83E][\uDDC0-\uDFFF]/g, '').trim();
+
+    // Récupération des buteurs (soit du flux actual, soit de la saisie manuelle via D.scores)
+    const s1 = formatScorers(actual.scorers1 || D.scores[m.originalIdx + 'buteur1']);
+    const s2 = formatScorers(actual.scorers2 || D.scores[m.originalIdx + 'buteur2']);
+
+    // Format : Buteur 1, Buteur 2 (Mexique) | Buteur 3 (Afrique du Sud)
+    let scorersLine = '';
+    if (s1 || s2) {
+      const parts = [];
+      if (s1) parts.push(`${s1} (${getTeamName(m.t1)})`);
+      if (s2) parts.push(`${s2} (${getTeamName(m.t2)})`);
+      scorersLine = `<div style="font-size:11px;color:var(--color-text-tertiary);text-align:center;margin-top:8px;border-top:0.5px solid var(--color-border-tertiary);padding-top:8px">
+        ${parts.join(' | ')}
+      </div>`;
+    }
+
     return sectionHeader + `
     <div class="card" style="padding:10px 12px;margin-bottom:8px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
@@ -1523,14 +1547,13 @@ function renderMatchs(){
       <div style="display:flex;align-items:center;gap:8px">
         <div style="flex:1">
           <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">${m.t1}</div>
-          <div style="font-size:11px;color:var(--color-text-tertiary);min-height:14px">${formatScorers(actual.scorers1) || (actual.s1 !== undefined && actual.s1 !== '' ? '' : '<span class="muted-empty">—</span>')}</div>
         </div>
         <div class="match-score">${renderReadonlyScore(actual)}</div>
         <div style="flex:1;text-align:right">
           <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">${m.t2}</div>
-          <div style="font-size:11px;color:var(--color-text-tertiary);min-height:14px">${formatScorers(actual.scorers2) || (actual.s2 !== undefined && actual.s2 !== '' ? '' : '<span class="muted-empty">—</span>')}</div>
         </div>
       </div>
+      ${scorersLine}
     </div>`;
   }).join('');
   el.innerHTML = htmlFilters + htmlList;
@@ -1555,209 +1578,46 @@ function renderBracket() {
   if (!el) return;
 
   el.innerHTML = `
-    <div class="card" style="padding:20px">
-      <div class="section-title" style="margin-bottom:16px">Bracket - Phases finales</div>
-      
-      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--color-border-tertiary);padding-bottom:12px;overflow-x:auto;flex-wrap:wrap">
-        ${['32es', '16es', 'Quarts', 'Demies', 'Finale'].map((label, i) => `
-          <button onclick="switchBracketTab(${i})" 
-                  id="bracket-tab-${i}"
-                  class="btn ${currentBracketTab === i ? 'btn-primary' : ''}"
-                  style="font-weight:500;white-space:nowrap">
-            ${label}
-          </button>
-        `).join('')}
+    <div class="card" style="padding:20px; overflow-x: auto;">
+      <div class="section-title" style="margin-bottom:16px">Tableau Final</div>
+      <div class="bracket-wrapper">
+        ${createBracketRound('16es de finale', 16, 'r32')}
+        ${createBracketRound('8es de finale', 8, '16')}
+        ${createBracketRound('Quarts de finale', 4, 'qf')}
+        ${createBracketRound('Demi-finales', 2, 'sf')}
+        ${createBracketRound('Finale', 1, 'final', true)}
       </div>
-
-      <div id="bracket-content"></div>
     </div>
   `;
-
-  renderBracketContent();
 }
 
-let currentBracketTab = 0;
-
-function switchBracketTab(tab) {
-  currentBracketTab = tab;
-  renderBracketContent();
-}
-
-function renderBracketContent() {
-  const content = document.getElementById('bracket-content');
-  
-  if (currentBracketTab === 0) {
-    content.innerHTML = createRound32Bracket();
-  } else if (currentBracketTab === 1) {
-    content.innerHTML = createRoundBracket('16es de finale', 8, '16');
-  } else if (currentBracketTab === 2) {
-    content.innerHTML = createRoundBracket('Quarts de finale', 4, 'qf');
-  } else if (currentBracketTab === 3) {
-    content.innerHTML = createRoundBracket('Demi-finales', 2, 'sf');
-  } else {
-    content.innerHTML = createFinalBracket();
-  }
-}
-
-function createRound32Bracket() {
-  return `
-    <div style="margin-bottom:12px;font-weight:500;color:var(--color-text-secondary)">32es de finale (16 matchs)</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px">
-      ${Array.from({length: 16}, (_, i) => createMatchCard(`r32_${i}`, false)).join('')}
-    </div>`;
-}
-
-function createRoundBracket(title, count, prefix) {
-  return `
-    <div style="margin-bottom:12px;font-weight:500;color:var(--color-text-secondary)">${title}</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px">
-      ${Array.from({length: count}, (_, i) => createMatchCard(`${prefix}_${i}`)).join('')}
-    </div>`;
-}
-
-function createFinalBracket() {
-  return `
-    <div style="max-width:420px;margin:0 auto">
-      <div style="text-align:center;margin-bottom:16px">
-        <span style="font-size:18px">🏆 FINALE</span>
-      </div>
-      ${createMatchCard('final', false, true)}
-    </div>`;
-}
-
-function createMatchCard(key, is16 = false, isFinal = false) {
-  const t1 = D.bracket[key + '_t1'] || 'À déterminer';
-  const t2 = D.bracket[key + '_t2'] || 'À déterminer';
-  const winner = D.bracket[key + '_w'];
-
-  return `
-    <div class="card" style="padding:14px">
-      <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== 'À déterminer' ? 'selected' : ''}">
-        ${t1}
-      </div>
-      <div style="text-align:center;margin:8px 0;color:var(--color-text-tertiary);font-size:13px">VS</div>
-      <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== 'À déterminer' ? 'selected' : ''}">
-        ${t2}
-      </div>
-      ${isFinal ? `<div style="text-align:center;margin-top:12px;font-size:24px">🏆</div>` : ''}
-    </div>`;
-}
-
-function createRound16BracketView() {
-  return `
-    <div style="display:flex;gap:24px;overflow-x:auto;padding:10px 0">
-      <div style="min-width:280px">
-        <div style="text-align:center;margin-bottom:16px">
-          <span style="background:var(--color-background-info);color:var(--color-text-info);padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">32es de finale</span>
-        </div>
-        ${generateMatches(16, 'r32')}
-      </div>
-      <div style="min-width:280px">
-        <div style="text-align:center;margin-bottom:16px">
-          <span style="background:var(--color-background-info);color:var(--color-text-info);padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">16es de finale</span>
-        </div>
-        ${generateMatches(8, '16')}
-      </div>
-      <div style="min-width:280px">
-        <div style="text-align:center;margin-bottom:16px">
-          <span style="background:var(--color-background-info);color:var(--color-text-info);padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">Quarts de finale</span>
-        </div>
-        ${generateMatches(4, 'qf')}
-      </div>
-      <div style="min-width:280px">
-        <div style="text-align:center;margin-bottom:16px">
-          <span style="background:var(--color-background-info);color:var(--color-text-info);padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">Demi-finales</span>
-        </div>
-        ${generateMatches(2, 'sf')}
-      </div>
-      <div style="min-width:280px">
-        <div style="text-align:center;margin-bottom:16px">
-          <span style="background:var(--color-background-warning);color:#633806;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">FINALE</span>
-        </div>
-        ${createFinal()}
-      </div>
-    </div>`;
-}
-
-function generateMatches(count, prefix) {
-  let html = '';
+function createBracketRound(title, count, prefix, isFinal = false) {
+  let matchesHtml = '';
   for (let i = 0; i < count; i++) {
-    const key = `${prefix}_${i}`;
-    const t1 = D.bracket[key + '_t1'] || 'À dét.';
-    const t2 = D.bracket[key + '_t2'] || 'À dét.';
+    const key = isFinal ? 'final' : `${prefix}_${i}`;
+    const t1 = D.bracket[key + '_t1'] || 'À déterminer';
+    const t2 = D.bracket[key + '_t2'] || 'À déterminer';
     const winner = D.bracket[key + '_w'];
 
-    html += `
-      <div style="margin-bottom:20px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px">
-        <div onclick="pickWinner('${key}',1)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:6px;cursor:pointer;font-size:13px;color:${winner === t1 && t1 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};transition:all 0.15s">
+    matchesHtml += `
+      <div class="match ${isFinal ? 'no-line' : ''}">
+        <div class="team ${winner === t1 && t1 !== 'À déterminer' ? 'selected' : ''}" onclick="pickWinner('${key}', 1)" style="cursor:pointer;">
           ${t1}
         </div>
-        <div style="text-align:center;font-size:11px;color:var(--color-text-tertiary);padding:2px 0">VS</div>
-        <div onclick="pickWinner('${key}',2)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:6px;cursor:pointer;font-size:13px;color:${winner === t2 && t2 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};transition:all 0.15s">
+        <div class="team ${winner === t2 && t2 !== 'À déterminer' ? 'selected' : ''}" onclick="pickWinner('${key}', 2)" style="cursor:pointer;">
           ${t2}
         </div>
-      </div>`;
+        ${isFinal && winner && winner !== 'À déterminer' ? `<div style="text-align:center; margin-top:15px; font-size:28px;">🏆</div>` : ''}
+      </div>
+    `;
   }
-  return html;
-}
-
-function createFinal() {
-  const key = 'final';
-  const t1 = D.bracket[key + '_t1'] || 'À dét.';
-  const t2 = D.bracket[key + '_t2'] || 'À dét.';
-  const winner = D.bracket[key + '_w'];
 
   return `
-    <div style="background:var(--color-background-primary);border:2px solid #EF9F27;border-radius:var(--border-radius-lg);padding:20px;text-align:center;max-width:300px;margin:0 auto">
-      <div onclick="pickWinner('${key}',1)" style="padding:14px;border-radius:var(--border-radius-md);margin-bottom:10px;cursor:pointer;font-size:13px;color:${winner === t1 && t1 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'}">
-        ${t1}
-      </div>
-      <div style="font-size:28px;margin:8px 0">🏆</div>
-      <div onclick="pickWinner('${key}',2)" style="padding:14px;border-radius:var(--border-radius-md);margin-top:10px;cursor:pointer;font-size:13px;color:${winner === t2 && t2 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'}">
-        ${t2}
-      </div>
-    </div>`;
-}
-
-// Fonction pour créer un round complet
-function createRound(side, phase, title, matchCount) {
-  let html = `<div style="min-width:210px">
-    <div style="text-align:center;font-size:11px;font-weight:600;color:var(--color-text-secondary);margin-bottom:8px">${title}</div>`;
-  
-  for (let i = 0; i < matchCount; i++) {
-    const key = `${side}_${phase}_${i}`;
-    const t1 = D.bracket[key + '_t1'] || '?';
-    const t2 = D.bracket[key + '_t2'] || '?';
-    const winner = D.bracket[key + '_w'];
-
-    html += `
-      <div style="background:white;border:1px solid #e0e0e0;border-radius:8px;padding:6px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05)">
-        <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}" 
-             style="margin-bottom:4px">${t1}</div>
-        <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}">
-          ${t2}
-        </div>
-      </div>`;
-  }
-  html += `</div>`;
-  return html;
-}
-
-// Match de finale spécial
-function createFinalMatch() {
-  const key = 'finale';
-  const t1 = D.bracket[key + '_t1'] || '?';
-  const t2 = D.bracket[key + '_t2'] || '?';
-  const winner = D.bracket[key + '_w'];
-
-  return `
-    <div style="background:white;border:2px solid #ffd700;border-radius:12px;padding:12px 20px;width:240px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.1)">
-      <div onclick="pickWinner('${key}',1)" class="b-team ${winner === t1 && t1 !== '?' ? 'winner' : ''}" 
-           style="font-size:15px;margin-bottom:8px;padding:8px">${t1}</div>
-      <div style="font-size:22px;margin:8px 0;color:#ffd700">🏆</div>
-      <div onclick="pickWinner('${key}',2)" class="b-team ${winner === t2 && t2 !== '?' ? 'winner' : ''}" 
-           style="font-size:15px;padding:8px">${t2}</div>
-    </div>`;
+    <div class="round">
+      <div class="round-title">${title}</div>
+      ${matchesHtml}
+    </div>
+  `;
 }
 
 function pickWinner(key, teamNum) {
@@ -1833,7 +1693,16 @@ function renderPronos(){
   }, {});
 
   el.innerHTML=`<div style="margin-bottom:16px">
-    <div class="section-title">Classement</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+      <div class="section-title" style="margin:0">Classement</div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <label style="font-size:12px; color:var(--color-text-secondary);">Voir pronos de :</label>
+        <select class="select-sm" onchange="viewPronosOf(this.value)">
+          <option value="">Moi (${currentPote})</option>
+          ${POTES.filter(p => p !== currentPote).map(p => `<option value="${p}" ${viewingPote === p ? 'selected' : ''}>${p}</option>`).join('')}
+        </select>
+      </div>
+    </div>
     <div class="leaderboard">${lb.map((p,i)=>{
       const pi=POTES.indexOf(p.name);const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
       const isViewing = viewingPote === p.name;
@@ -1864,15 +1733,31 @@ function renderPronos(){
       return`<div class="prog-match">
         <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
         <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-secondary)">
-          Score réel : <strong style="color:var(--color-text-primary)">${renderReadonlyScore(actual)}</strong>
-          <span style="margin-left:10px">Buteurs : ${formatScorers(actual.top) || '<span class="muted-empty">En attente</span>'}</span>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom: 5px;">
+            Score réel : <strong style="color:var(--color-text-primary)">${renderReadonlyScore(actual)}</strong>
+            ${isAdmin ? `
+              <input class="score-in" type="number" value="${actual.s1||''}" oninput="setActual('${m.id}','s1',this.value)" style="width:30px; height:22px;">
+              -
+              <input class="score-in" type="number" value="${actual.s2||''}" oninput="setActual('${m.id}','s2',this.value)" style="width:30px; height:22px;">
+            ` : ''}
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; align-items:center; gap:5px;">
+              <span style="min-width:30px">T1:</span>
+              <input class="inp-sm" value="${actual.scorers1||''}" oninput="setActual('${m.id}','scorers1',this.value)" placeholder="Scorers Team 1" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
+            </div>
+            <div style="display:flex; align-items:center; gap:5px;">
+              <span style="min-width:30px">T2:</span>
+              <input class="inp-sm" value="${actual.scorers2||''}" oninput="setActual('${m.id}','scorers2',this.value)" placeholder="Scorers Team 2" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
+            </div>
+          </div>
         </div>
-        <div class="prog-bet-row" style="background:var(--color-background-info)">
-          <span style="min-width:80px;color:var(--color-text-secondary);font-weight:600">${displayPote}</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s1',this.value)` : ''}" style="width:28px;height:24px;font-size:12px" ${locked?'disabled':''}>
+        <div class="prog-bet-row" style="background:var(--color-background-info); ${!isOwnPronos ? 'opacity: 0.8; background: #f1f3f5;' : ''}">
+          <span style="min-width:80px;color:var(--color-text-secondary);font-weight:600">${displayPote} ${!isOwnPronos ? '<i class="ti ti-lock" style="font-size:10px"></i>' : ''}</span>
+          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s1',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
           <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s2',this.value)` : ''}" style="width:28px;height:24px;font-size:12px" ${locked?'disabled':''}>
-          <input class="inp-sm" placeholder="buteur(s) : Nom x2, Nom..." value="${bet.top||''}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','top',this.value)` : ''}" style="min-width:190px;flex:1;height:24px;font-size:12px" ${locked?'disabled':''}>
+          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s2',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
+          <input class="inp-sm" placeholder="buteur(s) : Nom x2, Nom..." value="${bet.top||''}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','top',this.value)` : ''}" style="min-width:190px;flex:1;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
           ${locked && isOwnPronos?'<span class="pts-chip pts-0">verrouillé</span>':''}
           ${!isOwnPronos?'<span class="pts-chip pts-0">lecture seule</span>':''}
           ${pts>0?`<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
@@ -1975,14 +1860,13 @@ function renderStats(){
       <span>Équipe</span><span>MVP</span><span style="text-align:center">Buts/match</span><span style="text-align:center">Marqués</span><span style="text-align:center">Encaissés</span>
     </div>
     ${D.teamStats.map((t,i)=>{
-      if(t.against === undefined) t.against = 0;
-      const played=parseInt(t.played)||0, goals=parseInt(t.goals)||0;
+      const played=parseInt(t.played)||0, goals=parseInt(t.goals)||0, against=parseInt(t.against)||0;
       return`<div style="display:grid;grid-template-columns:1.5fr 1fr 0.8fr 0.8fr 0.9fr;gap:6px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
         <span style="font-size:12px;display:flex;align-items:center;gap:4px"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
         <input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%" ${isAdmin?'':'disabled'}>
         <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${played>0?(goals/played).toFixed(1):'—'}</span>
-        <input class="score-in" type="number" min="0" max="99" value="${t.goals||0}" oninput="D.teamStats[${i}].goals=parseInt(this.value)||0;save();renderStats()" style="width:42px;height:24px;font-size:12px;justify-self:center" ${isAdmin?'':'disabled'}>
-        <input class="score-in" type="number" min="0" max="99" value="${t.against||0}" oninput="D.teamStats[${i}].against=parseInt(this.value)||0;save();renderStats()" style="width:42px;height:24px;font-size:12px;justify-self:center" ${isAdmin?'':'disabled'}>
+        <span style="text-align:center;font-size:12px;color:var(--color-text-primary)">${goals}</span>
+        <span style="text-align:center;font-size:12px;color:var(--color-text-primary)">${against}</span>
       </div>`;
     }).join('')}
   </div>`;
@@ -2180,8 +2064,31 @@ function renderAdmin() {
       </div>`;
   });
 
-  html += `</div></div>`;
+  html += `</div></div>
+    <div class="card" style="margin-top:20px">
+      <div class="section-title">Maintenance</div>
+      <button class="btn" onclick="resetAllMatchStatus()" style="color:#c92a2a;border-color:#c92a2a">
+        <i class="ti ti-refresh"></i> Réinitialiser tous les matchs (En attente)
+      </button>
+    </div>`;
   document.getElementById('admin').innerHTML = html;
+}
+
+async function resetAllMatchStatus() {
+  if (!isAdmin) return;
+  if (!confirm("⚠️ Es-tu sûr de vouloir remettre tous les matchs en statut 'En attente' ? Cela effacera tous les scores réels.")) return;
+
+  D.scores = {};
+  D.actual = {};
+
+  // Clear team stats too as they depend on scores
+  D.teamStats = TEAMS_DATA.map(t=>({flag:t.flag, name:t.name, mvp:'', goals:0, played:0, cs:0, against:0}));
+
+  await save();
+  await saveActuals();
+
+  alert("Tous les matchs ont été réinitialisés.");
+  showTab('admin');
 }
 
 // Fonction de suppression
