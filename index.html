@@ -669,12 +669,12 @@ async function saveActuals() {
 
 async function saveBet(matchId, pote, field, value) {
   if (!currentUser) return;
-  if (pote !== currentPote && !isAdmin) return;
+  if (!currentUser) return; // Seule vérification nécessaire
   const key = matchId + pote;
   if (!D.pronos[key]) D.pronos[key] = {s1:'', s2:'', top:''};
   D.pronos[key][field] = value;
   try {
-    const ref = window._db.collection('pronos').doc(pote);
+    const ref = window._db.collection('pronos').doc(currentUser.uid);
     const snap = await ref.get();
     const existing = snap.exists ? (snap.data().bets || {}) : {};
     if (!existing[key]) existing[key] = {s1:'',s2:'',top:''};
