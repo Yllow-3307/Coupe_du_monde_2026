@@ -409,7 +409,7 @@ function switchLoginTab(tab) {
 }
 
 // ===== SIGN IN =====
-async function login() {
+async function doLogin() {
   const provider = new firebase.auth.GoogleAuthProvider();
   try {
     await firebase.auth().signInWithPopup(provider); // Ouvre une petite fenêtre propre
