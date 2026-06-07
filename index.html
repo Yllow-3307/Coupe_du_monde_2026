@@ -667,14 +667,22 @@ async function saveActuals() {
 }
 }
 
-async function saveBet(matchId, field, value) {
+async function saveBet(matchId, pote, field, value) {
   if (!currentUser) return;
-  const userId = currentUser.uid;
-  const matchRef = window._db.collection('pronos').doc(userId).collection('matches').doc(matchId);
-  await matchRef.set({
-    [field]: value,
-    updatedAt: Date.now()
-  }, { merge: true });
+  if (pote !== currentPote && !isAdmin) return;
+  const key = matchId + pote;
+  if (!D.pronos[key]) D.pronos[key] = {s1:'', s2:'', top:''};
+  D.pronos[key][field] = value;
+  try {
+    const ref = window._db.collection('pronos').doc(pote);
+    const snap = await ref.get();
+    const existing = snap.exists ? (snap.data().bets || {}) : {};
+    if (!existing[key]) existing[key] = {s1:'',s2:'',top:''};
+    existing[key][field] = value;
+    await ref.set({ bets: existing });
+  } catch(e) {
+  console.error("ERREUR COMPLETE :", e);
+}
 }
 
 // POTES built dynamically from Firestore players list
