@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tracker Coupe du Monde 2026</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <!-- Firebase SDKs -->
@@ -37,6 +38,22 @@
 
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--color-background-secondary);color:var(--color-text-primary);padding:20px;max-width:1200px;margin:0 auto}
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .hdr { padding: 1rem 0; }
+      .hdr h1 { font-size: 18px; }
+      .tabs { gap: 0; margin-bottom: 1rem; }
+      .tab { padding: 8px 10px; font-size: 12px; }
+      .card { padding: 10px; }
+      .grp-grid { grid-template-columns: 1fr; }
+      .match-score { font-size: 14px; min-width: 45px; }
+      .team-name { font-size: 11px !important; }
+      .bracket-wrapper { padding: 10px; gap: 20px; }
+      .round { gap: 10px; }
+      .match { width: 150px; margin: 10px 0; }
+      .team { height: 32px; font-size: 11px; padding: 0 6px; }
+    }
     
     :root {
       --color-background-primary: #ffffff;
@@ -1361,7 +1378,7 @@ function syncScoresFromActuals() {
 function autoComputeTeamStats() {
   const statsMap = {};
   TEAMS_DATA.forEach(t => {
-    statsMap[t.name] = { flag: t.flag, name: t.name, mvp: '', goals: 0, played: 0, against: 0 };
+    statsMap[t.name] = { flag: t.flag, name: t.name, mvp: '', goals: 0, played: 0, against: 0, wins: 0 };
   });
 
   PRONO_MATCHES.forEach(m => {
@@ -1370,13 +1387,18 @@ function autoComputeTeamStats() {
     const s2 = parseInt(actual.s2);
     if (isNaN(s1) || isNaN(s2)) return;
 
-    // Utilisation des noms d'équipes de TEAMS_DATA pour faire le lien
     const parts = m.label.split(' vs ');
     const team1 = Object.values(statsMap).find(t => parts[0] && parts[0].includes(t.name));
     const team2 = Object.values(statsMap).find(t => parts[1] && parts[1].includes(t.name));
 
-    if (team1) { team1.played++; team1.goals += s1; team1.against += s2; }
-    if (team2) { team2.played++; team2.goals += s2; team2.against += s1; }
+    if (team1) { 
+      team1.played++; team1.goals += s1; team1.against += s2; 
+      if (s1 > s2) team1.wins++;
+    }
+    if (team2) { 
+      team2.played++; team2.goals += s2; team2.against += s1; 
+      if (s2 > s1) team2.wins++;
+    }
   });
 
   if (D.teamStats) {
@@ -1601,10 +1623,16 @@ function createBracketRound(title, count, prefix, isFinal = false) {
 
     matchesHtml += `
       <div class="match ${isFinal ? 'no-line' : ''}">
-        <div class="team ${winner === t1 && t1 !== 'À déterminer' ? 'selected' : ''}" onclick="pickWinner('${key}', 1)" style="cursor:pointer;">
+        <div class="team ${winner === t1 && t1 !== 'À déterminer' ? 'selected' : ''}" 
+             onclick="pickWinner('${key}', 1)" 
+             oncontextmenu="${isAdmin ? `editBracketTeam('${key}',1);return false;` : ''}"
+             style="cursor:pointer;" title="${isAdmin ? 'Clic droit pour modifier l\'équipe' : ''}">
           ${t1}
         </div>
-        <div class="team ${winner === t2 && t2 !== 'À déterminer' ? 'selected' : ''}" onclick="pickWinner('${key}', 2)" style="cursor:pointer;">
+        <div class="team ${winner === t2 && t2 !== 'À déterminer' ? 'selected' : ''}" 
+             onclick="pickWinner('${key}', 2)" 
+             oncontextmenu="${isAdmin ? `editBracketTeam('${key}',2);return false;` : ''}"
+             style="cursor:pointer;" title="${isAdmin ? 'Clic droit pour modifier l\'équipe' : ''}">
           ${t2}
         </div>
         ${isFinal && winner && winner !== 'À déterminer' ? `<div style="text-align:center; margin-top:15px; font-size:28px;">🏆</div>` : ''}
@@ -1618,6 +1646,17 @@ function createBracketRound(title, count, prefix, isFinal = false) {
       ${matchesHtml}
     </div>
   `;
+}
+
+function editBracketTeam(key, teamNum) {
+  if(!isAdmin) return;
+  const current = D.bracket[key + '_t' + teamNum] || '';
+  const name = prompt("Nom de l'équipe :", current);
+  if (name !== null) {
+    D.bracket[key + '_t' + teamNum] = name.trim() || 'À déterminer';
+    save();
+    renderBracket();
+  }
 }
 
 function pickWinner(key, teamNum) {
@@ -1736,27 +1775,27 @@ function renderPronos(){
           <div style="display:flex; align-items:center; gap:10px; margin-bottom: 5px;">
             Score réel : <strong style="color:var(--color-text-primary)">${renderReadonlyScore(actual)}</strong>
             ${isAdmin ? `
-              <input class="score-in" type="number" value="${actual.s1||''}" oninput="setActual('${m.id}','s1',this.value)" style="width:30px; height:22px;">
+              <input class="score-in" type="number" min="0" value="${actual.s1||''}" oninput="setActual('${m.id}','s1',this.value)" style="width:30px; height:22px;">
               -
-              <input class="score-in" type="number" value="${actual.s2||''}" oninput="setActual('${m.id}','s2',this.value)" style="width:30px; height:22px;">
+              <input class="score-in" type="number" min="0" value="${actual.s2||''}" oninput="setActual('${m.id}','s2',this.value)" style="width:30px; height:22px;">
             ` : ''}
           </div>
           <div style="display:flex; flex-direction:column; gap:4px;">
             <div style="display:flex; align-items:center; gap:5px;">
               <span style="min-width:30px">T1:</span>
-              <input class="inp-sm" value="${actual.scorers1||''}" oninput="setActual('${m.id}','scorers1',this.value)" placeholder="Buteur Équipe 1" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
+              <input class="inp-sm" value="${actual.scorers1||''}" oninput="setActual('${m.id}','scorers1',this.value)" placeholder="Scorers Team 1" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
             </div>
             <div style="display:flex; align-items:center; gap:5px;">
               <span style="min-width:30px">T2:</span>
-              <input class="inp-sm" value="${actual.scorers2||''}" oninput="setActual('${m.id}','scorers2',this.value)" placeholder="Buteur Équipe 2" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
+              <input class="inp-sm" value="${actual.scorers2||''}" oninput="setActual('${m.id}','scorers2',this.value)" placeholder="Scorers Team 2" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
             </div>
           </div>
         </div>
         <div class="prog-bet-row" style="background:var(--color-background-info); ${!isOwnPronos ? 'opacity: 0.8; background: #f1f3f5;' : ''}">
           <span style="min-width:80px;color:var(--color-text-secondary);font-weight:600">${displayPote} ${!isOwnPronos ? '<i class="ti ti-lock" style="font-size:10px"></i>' : ''}</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s1}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s1',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
+          <input class="score-in" type="number" min="0" placeholder="?" value="${bet.s1}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s1',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
           <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
-          <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s2',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
+          <input class="score-in" type="number" min="0" placeholder="?" value="${bet.s2}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s2',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
           <input class="inp-sm" placeholder="buteur(s) : Nom x2, Nom..." value="${bet.top||''}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','top',this.value)` : ''}" style="min-width:190px;flex:1;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
           ${locked && isOwnPronos?'<span class="pts-chip pts-0">verrouillé</span>':''}
           ${!isOwnPronos?'<span class="pts-chip pts-0">lecture seule</span>':''}
@@ -1775,19 +1814,24 @@ function viewPronosOf(pote) {
 // Fonction de filtre pour les pronos
 function updatePronosFilters(){ renderPronos(); }
 function setActual(mid,f,v){
-  if(!isAdmin) return; // Only admin sets actual scores
+  if(!isAdmin) return;
   if(!D.actual[mid]) D.actual[mid]={};
+  // Empêcher les scores négatifs
+  if((f==='s1' || f==='s2') && v !== '') v = String(Math.max(0, parseInt(v)||0));
   D.actual[mid][f]=v;
   saveActuals();
-  // Recalculate pronos display
+  syncScoresFromActuals();
   const el = document.getElementById('pronos');
   if(el && el.classList.contains('active')) renderPronos();
+  if(document.getElementById('matchs').classList.contains('active')) renderMatchs();
 }
   
 
 function setBet(mid, p, f, v) {
   if (p !== currentPote) return;
   if (isLocked(mid)) return;
+  // Empêcher les scores négatifs
+  if((f==='s1' || f==='s2') && v !== '') v = String(Math.max(0, parseInt(v)||0));
   saveBet(mid, p, f, v);
 }
   
@@ -1823,6 +1867,8 @@ function renderStats(){
     const bestScore = best ? ((best.goals - best.against) + (best.played ? best.goals / best.played : 0)) : -Infinity;
     return score > bestScore ? t : best;
   }, null);
+  const mostGoalsTeam = normalizedTeams.reduce((best,t)=> (t.goals > (best?.goals||0) ? t : best), null);
+  const mostWinsTeam = normalizedTeams.reduce((best,t)=> (t.wins > (best?.wins||0) ? t : best), null);
   const players = TEAMS_DATA.flatMap(team => team.players.map(p => {
     const key = team.name + '|' + p.name;
     return {team:team.name, flag:team.flag, name:p.name, pos:p.pos, rating:parseFloat(D.playerRatings[key] || 0), key};
@@ -1851,19 +1897,20 @@ function renderStats(){
   el.innerHTML=`<div class="subtabs"><button class="subtab active" onclick="setStatsSection('equipes')">Équipes</button><button class="subtab" onclick="setStatsSection('joueurs')">Joueurs</button></div>
   <div class="stat-grid">
     <div class="stat-card"><div class="stat-lbl">Meilleure équipe</div><div class="stat-val" style="font-size:14px">${bestTeam?bestTeam.flag+' '+bestTeam.name:'—'}</div><div class="stat-sub">${bestTeam?(bestTeam.goals-bestTeam.against)+' diff. buts':''}</div></div>
-    <div class="stat-card"><div class="stat-lbl">Buts au total</div><div class="stat-val">${normalizedTeams.reduce((s,t)=>s+t.goals,0)}</div></div>
-    <div class="stat-card"><div class="stat-lbl">Buts encaissés</div><div class="stat-val">${normalizedTeams.reduce((s,t)=>s+t.against,0)}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Meilleure attaque</div><div class="stat-val" style="font-size:14px">${mostGoalsTeam?mostGoalsTeam.flag+' '+mostGoalsTeam.name:'—'}</div><div class="stat-sub">${mostGoalsTeam?mostGoalsTeam.goals+' buts marqués':''}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Plus de victoires</div><div class="stat-val" style="font-size:14px">${mostWinsTeam?mostWinsTeam.flag+' '+mostWinsTeam.name:'—'}</div><div class="stat-sub">${mostWinsTeam?mostWinsTeam.wins+' matchs gagnés':''}</div></div>
   </div>
   <div class="section-title">Stats équipes</div>
   <div class="card">
-    <div style="display:grid;grid-template-columns:1.5fr 1fr 0.8fr 0.8fr 0.9fr;gap:6px;font-size:11px;color:var(--color-text-secondary);padding:4px 0 8px;border-bottom:0.5px solid var(--color-border-tertiary);font-weight:500">
-      <span>Équipe</span><span>MVP</span><span style="text-align:center">Buts/match</span><span style="text-align:center">Marqués</span><span style="text-align:center">Encaissés</span>
+    <div style="display:grid;grid-template-columns:1.2fr 1fr 0.6fr 0.6fr 0.7fr 0.7fr;gap:6px;font-size:11px;color:var(--color-text-secondary);padding:4px 0 8px;border-bottom:0.5px solid var(--color-border-tertiary);font-weight:500">
+      <span>Équipe</span><span>MVP</span><span style="text-align:center">Victoires</span><span style="text-align:center">Buts/m</span><span style="text-align:center">Marqués</span><span style="text-align:center">Encaissés</span>
     </div>
     ${D.teamStats.map((t,i)=>{
-      const played=parseInt(t.played)||0, goals=parseInt(t.goals)||0, against=parseInt(t.against)||0;
-      return`<div style="display:grid;grid-template-columns:1.5fr 1fr 0.8fr 0.8fr 0.9fr;gap:6px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
-        <span style="font-size:12px;display:flex;align-items:center;gap:4px"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
+      const played=parseInt(t.played)||0, goals=parseInt(t.goals)||0, against=parseInt(t.against)||0, wins=parseInt(t.wins)||0;
+      return`<div style="display:grid;grid-template-columns:1.2fr 1fr 0.6fr 0.6fr 0.7fr 0.7fr;gap:6px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+        <span style="font-size:12px;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
         <input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%" ${isAdmin?'':'disabled'}>
+        <span style="text-align:center;font-size:12px;color:var(--color-text-primary)">${wins}</span>
         <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${played>0?(goals/played).toFixed(1):'—'}</span>
         <span style="text-align:center;font-size:12px;color:var(--color-text-primary)">${goals}</span>
         <span style="text-align:center;font-size:12px;color:var(--color-text-primary)">${against}</span>
@@ -1963,10 +2010,10 @@ function renderRdv(){
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
         <div style="flex:1">
           <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Créé par <strong style="color:var(--color-text-primary)">${owner || '—'}</strong></div>
-          <input class="inp-sm" defaultValue="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
+          <input class="inp-sm" value="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <input type="time" class="inp-sm" value="${r.heure||''}" onchange="D.rdvList[${ri}].heure=this.value;saveRdv()" style="width:110px" ${canEdit?'':'disabled'}>
-            <input class="inp-sm" defaultValue="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
+            <input class="inp-sm" value="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
           </div>
         </div>
         <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
