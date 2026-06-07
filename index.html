@@ -188,6 +188,72 @@
     .login-panel{display:none}.login-panel.active{display:block}
     .login-ok{font-size:12px;color:#2b8a3e;margin-top:8px;text-align:center;min-height:16px}
 
+/* ===== RESPONSIVE — PC & MOBILE ===== */
+
+/* PC : layout par défaut (>= 768px) */
+@media (min-width: 768px) {
+  body { padding: 20px; }
+  .mobile-tab-bar { display: none !important; }
+  .tabs { display: flex !important; }
+}
+
+/* MOBILE (< 768px) */
+@media (max-width: 767px) {
+  body {
+    padding: 12px 10px;
+    padding-bottom: 72px;
+  }
+  .hdr { padding: 0.8rem 0 0.6rem; margin-bottom: 0.8rem; }
+  .hdr h1 { font-size: 16px; }
+  .tabs { display: none !important; }
+  .user-bar { font-size: 11px; padding: 4px 8px; }
+  .grp-grid { grid-template-columns: 1fr; }
+  .teams-grid { grid-template-columns: 1fr; }
+  .filter-container { gap: 6px; padding: 8px; }
+  .prog-bet-row { flex-wrap: wrap; gap: 6px; }
+  .match-score { font-size: 14px; min-width: 46px; }
+  .card { padding: 10px 11px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .lb-row { padding: 8px 10px; }
+  #bracket .card { padding: 10px; }
+}
+
+/* Mobile tab bar fixe en bas */
+.mobile-tab-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 58px;
+  background: var(--color-background-primary);
+  border-top: 0.5px solid var(--color-border-tertiary);
+  z-index: 1000;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 767px) {
+  .mobile-tab-bar { display: flex; }
+}
+.mob-tab {
+  flex: 1;
+  min-width: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-tertiary);
+  font-size: 9px;
+  font-weight: 500;
+  padding: 6px 2px;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.mob-tab i { font-size: 18px; }
+.mob-tab.active { color: var(--color-text-primary); }
+
 /* ===== BRACKET FIFA ===== */
 
 .bracket-wrapper{
@@ -337,6 +403,18 @@
   <button class="tab" onclick="showTab('rdv')"><i class="ti ti-map-pin" aria-hidden="true"></i> RDV</button>
   <button class="tab" onclick="showTab('admin')"><i class="ti ti-users" aria-hidden="true"></i> Admin</button>
 </div>
+
+<!-- MOBILE TAB BAR (fixe en bas) -->
+<nav class="mobile-tab-bar" id="mobile-tab-bar">
+  <button class="mob-tab active" onclick="showTab('groupes')" data-tab="groupes"><i class="ti ti-table"></i>Groupes</button>
+  <button class="mob-tab" onclick="showTab('matchs')" data-tab="matchs"><i class="ti ti-calendar"></i>Matchs</button>
+  <button class="mob-tab" onclick="showTab('bracket')" data-tab="bracket"><i class="ti ti-tournament"></i>Bracket</button>
+  <button class="mob-tab" onclick="showTab('pronos')" data-tab="pronos"><i class="ti ti-podium"></i>Pronos</button>
+  <button class="mob-tab" onclick="showTab('stats')" data-tab="stats"><i class="ti ti-chart-bar"></i>Stats</button>
+  <button class="mob-tab" onclick="showTab('equipes')" data-tab="equipes"><i class="ti ti-shirt"></i>Équipes</button>
+  <button class="mob-tab" onclick="showTab('rdv')" data-tab="rdv"><i class="ti ti-map-pin"></i>RDV</button>
+  <button class="mob-tab" onclick="showTab('admin')" data-tab="admin"><i class="ti ti-users"></i>Admin</button>
+</nav>
 
 <div id="groupes" class="sec active"></div>
 <div id="matchs" class="sec"></div>
@@ -540,6 +618,23 @@ function subscribeFirestore() {
   // Own pronos
   unsubscribers['myPronos'] = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
     if (snap.exists) Object.assign(D.pronos, snap.data().bets || {});
+  });
+
+  // RDV real-time listener (dedicated 'rdvs' collection)
+  unsubscribers['rdvs'] = db.collection('rdvs').onSnapshot(snap => {
+    if (!snap.empty) {
+      const rdvs = [];
+      snap.forEach(doc => rdvs.push({...doc.data(), presents: doc.data().presents || {}}));
+      // Sort by id (timestamp-based)
+      rdvs.sort((a, b) => String(a.id).localeCompare(String(b.id)));
+      // Merge with D.rdvList: keep local state, but add/update from Firestore
+      const localMap = {};
+      (D.rdvList || []).forEach(r => { if(r.id) localMap[r.id] = r; });
+      rdvs.forEach(r => { if(!localMap[r.id]) localMap[r.id] = r; else Object.assign(localMap[r.id], r); });
+      D.rdvList = Object.values(localMap).sort((a,b) => String(a.id).localeCompare(String(b.id)));
+      const activeTab = document.querySelector('.tab.active, .mob-tab.active');
+      if (activeTab && (activeTab.dataset.tab === 'rdv' || activeTab.getAttribute('onclick') === "showTab('rdv')")) renderRdv();
+    }
   });
 
   // Synchronisation initiale
@@ -1386,7 +1481,26 @@ function autoComputeTeamStats() {
 async function saveRdv() {
   if (!currentUser) return;
   try {
+    // Persist rdvList in shared/data (for backward compat)
     await window._db.collection('shared').doc('data').set({ rdvList: D.rdvList || [] }, { merge: true });
+    // Also persist each RDV individually in the 'rdvs' collection
+    // (migration note: run once to populate existing data if needed)
+    const db = window._db;
+    const batch = db.batch();
+    (D.rdvList || []).forEach(r => {
+      if (!r.id) return;
+      const ref = db.collection('rdvs').doc(r.id);
+      batch.set(ref, {
+        id: r.id,
+        match: r.match || '',
+        heure: r.heure || '',
+        where: r.where || '',
+        owner: r.owner || '',
+        presents: r.presents || {},
+        updatedAt: Date.now()
+      });
+    });
+    await batch.commit();
   } catch(e) {
     console.error("ERREUR COMPLETE :", e);
   }
@@ -1550,53 +1664,120 @@ function updateMatchFilters(){
   renderMatchs();
 }
 
+let bracketZoom = 1.0;
+
 function renderBracket() {
   const el = document.getElementById('bracket');
   if (!el) return;
 
   el.innerHTML = `
-    <div class="card" style="padding:20px">
-      <div class="section-title" style="margin-bottom:16px">Bracket - Phases finales</div>
-      
-      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid var(--color-border-tertiary);padding-bottom:12px;overflow-x:auto;flex-wrap:wrap">
-        ${['32es', '16es', 'Quarts', 'Demies', 'Finale'].map((label, i) => `
-          <button onclick="switchBracketTab(${i})" 
-                  id="bracket-tab-${i}"
-                  class="btn ${currentBracketTab === i ? 'btn-primary' : ''}"
-                  style="font-weight:500;white-space:nowrap">
-            ${label}
-          </button>
-        `).join('')}
+    <div class="card" style="padding:14px 10px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div class="section-title" style="margin-bottom:0">Bracket — Phases finales</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="btn" onclick="bracketZoomChange(-0.15)" style="font-size:16px;padding:2px 8px">−</button>
+          <span id="bracket-zoom-label" style="font-size:12px;color:var(--color-text-secondary);min-width:36px;text-align:center">${Math.round(bracketZoom*100)}%</span>
+          <button class="btn" onclick="bracketZoomChange(0.15)" style="font-size:16px;padding:2px 8px">+</button>
+          <button class="btn" onclick="bracketZoomChange(0, true)" style="font-size:11px;padding:3px 8px">Reset</button>
+        </div>
       </div>
-
-      <div id="bracket-content"></div>
+      <div id="bracket-scroll" style="overflow:auto;cursor:grab;user-select:none;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:16px 10px">
+        <div id="bracket-inner" style="transform-origin:top left;transition:transform 0.2s;display:inline-block;min-width:max-content">
+          ${createFullBracket()}
+        </div>
+      </div>
     </div>
   `;
-
-  renderBracketContent();
+  applyBracketZoom();
+  initBracketPanZoom();
 }
 
-let currentBracketTab = 0;
-
-function switchBracketTab(tab) {
-  currentBracketTab = tab;
-  renderBracketContent();
+function bracketZoomChange(delta, reset) {
+  if (reset) { bracketZoom = 1.0; }
+  else { bracketZoom = Math.max(0.3, Math.min(2.0, bracketZoom + delta)); }
+  applyBracketZoom();
 }
 
-function renderBracketContent() {
-  const content = document.getElementById('bracket-content');
-  
-  if (currentBracketTab === 0) {
-    content.innerHTML = createRound32Bracket();
-  } else if (currentBracketTab === 1) {
-    content.innerHTML = createRoundBracket('16es de finale', 8, '16');
-  } else if (currentBracketTab === 2) {
-    content.innerHTML = createRoundBracket('Quarts de finale', 4, 'qf');
-  } else if (currentBracketTab === 3) {
-    content.innerHTML = createRoundBracket('Demi-finales', 2, 'sf');
-  } else {
-    content.innerHTML = createFinalBracket();
+function applyBracketZoom() {
+  const inner = document.getElementById('bracket-inner');
+  const lbl = document.getElementById('bracket-zoom-label');
+  if (inner) inner.style.transform = 'scale(' + bracketZoom + ')';
+  if (lbl) lbl.textContent = Math.round(bracketZoom * 100) + '%';
+  // Update scroll container height to fit zoomed content
+  const scroll = document.getElementById('bracket-scroll');
+  if (inner && scroll) {
+    scroll.style.height = Math.min(80 + inner.scrollHeight * bracketZoom, window.innerHeight * 0.75) + 'px';
   }
+}
+
+function initBracketPanZoom() {
+  const scroll = document.getElementById('bracket-scroll');
+  if (!scroll) return;
+  // Pinch-to-zoom support
+  let lastDist = null;
+  scroll.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    }
+  }, {passive: true});
+  scroll.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && lastDist) {
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      const scale = dist / lastDist;
+      bracketZoom = Math.max(0.3, Math.min(2.0, bracketZoom * scale));
+      lastDist = dist;
+      applyBracketZoom();
+    }
+  }, {passive: true});
+  scroll.addEventListener('touchend', () => { lastDist = null; });
+}
+
+function createFullBracket() {
+  return `<div style="display:flex;gap:16px;align-items:flex-start">
+    ${createBracketRoundCol('16es de finale', 16, 'r32')}
+    ${createBracketRoundCol('8es de finale', 8, '16')}
+    ${createBracketRoundCol('Quarts de finale', 4, 'qf')}
+    ${createBracketRoundCol('Demi-finales', 2, 'sf')}
+    ${createBracketFinalCol()}
+  </div>`;
+}
+
+function createBracketRoundCol(title, count, prefix) {
+  const labelBg = prefix === 'r32' ? 'var(--color-background-secondary)' : 'var(--color-background-info)';
+  const labelColor = prefix === 'r32' ? 'var(--color-text-secondary)' : 'var(--color-text-info)';
+  return `<div style="min-width:190px">
+    <div style="text-align:center;margin-bottom:10px">
+      <span style="background:${labelBg};color:${labelColor};padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">${title}</span>
+    </div>
+    ${Array.from({length: count}, (_, i) => {
+      const key = prefix + '_' + i;
+      const t1 = D.bracket[key + '_t1'] || 'À dét.';
+      const t2 = D.bracket[key + '_t2'] || 'À dét.';
+      const w = D.bracket[key + '_w'];
+      return `<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:8px;margin-bottom:10px">
+        <div onclick="pickWinner('${key}',1)" style="padding:7px 10px;border-radius:var(--border-radius-md);margin-bottom:4px;cursor:pointer;font-size:12px;color:${w===t1&&t1!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t1}</div>
+        <div style="text-align:center;font-size:10px;color:var(--color-text-tertiary)">VS</div>
+        <div onclick="pickWinner('${key}',2)" style="padding:7px 10px;border-radius:var(--border-radius-md);margin-top:4px;cursor:pointer;font-size:12px;color:${w===t2&&t2!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t2}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function createBracketFinalCol() {
+  const key = 'final';
+  const t1 = D.bracket[key + '_t1'] || 'À dét.';
+  const t2 = D.bracket[key + '_t2'] || 'À dét.';
+  const w = D.bracket[key + '_w'];
+  return `<div style="min-width:190px">
+    <div style="text-align:center;margin-bottom:10px">
+      <span style="background:var(--color-background-warning);color:#633806;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">🏆 FINALE</span>
+    </div>
+    <div style="background:var(--color-background-primary);border:2px solid #EF9F27;border-radius:var(--border-radius-lg);padding:12px">
+      <div onclick="pickWinner('${key}',1)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:8px;cursor:pointer;font-size:12px;color:${w===t1&&t1!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t1}</div>
+      <div style="text-align:center;font-size:22px;margin:6px 0">🏆</div>
+      <div onclick="pickWinner('${key}',2)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:8px;cursor:pointer;font-size:12px;color:${w===t2&&t2!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t2}</div>
+    </div>
+  </div>`;
 }
 
 function createRound32Bracket() {
@@ -1832,7 +2013,20 @@ function renderPronos(){
     return acc;
   }, {});
 
-  el.innerHTML=`<div style="margin-bottom:16px">
+  el.innerHTML=`
+  <div style="margin-bottom:12px">
+    <div class="section-title">Voir les pronos de...</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      ${POTES.map((p,pi) => {
+        const isSelected = (viewingPote === p) || (!viewingPote && p === currentPote);
+        return `<button onclick="viewPronosOf('${p}')" title="${p}" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;border:1.5px solid ${isSelected?'#1D9E75':'var(--color-border-secondary)'};background:${isSelected?'#ebfbee':'var(--color-background-primary)'};cursor:pointer;font-size:12px;font-weight:${isSelected?'600':'400'};color:${isSelected?'#085041':'var(--color-text-secondary)'}">
+          <span style="width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;background:${AV_BG[pi]};color:${AV_TX[pi]}">${p.charAt(0)}</span>
+          ${p}${p===currentPote?' (moi)':''}
+        </button>`;
+      }).join('')}
+    </div>
+  </div>
+  <div style="margin-bottom:16px">
     <div class="section-title">Classement</div>
     <div class="leaderboard">${lb.map((p,i)=>{
       const pi=POTES.indexOf(p.name);const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
@@ -1965,24 +2159,24 @@ function renderStats(){
   }
   el.innerHTML=`<div class="subtabs"><button class="subtab active" onclick="setStatsSection('equipes')">Équipes</button><button class="subtab" onclick="setStatsSection('joueurs')">Joueurs</button></div>
   <div class="stat-grid">
-    <div class="stat-card"><div class="stat-lbl">Meilleure équipe</div><div class="stat-val" style="font-size:14px">${bestTeam?bestTeam.flag+' '+bestTeam.name:'—'}</div><div class="stat-sub">${bestTeam?(bestTeam.goals-bestTeam.against)+' diff. buts':''}</div></div>
-    <div class="stat-card"><div class="stat-lbl">Buts au total</div><div class="stat-val">${normalizedTeams.reduce((s,t)=>s+t.goals,0)}</div></div>
-    <div class="stat-card"><div class="stat-lbl">Buts encaissés</div><div class="stat-val">${normalizedTeams.reduce((s,t)=>s+t.against,0)}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Meilleure équipe</div><div class="stat-val" style="font-size:14px">${bestTeam?bestTeam.flag+' '+bestTeam.name:'—'}</div><div class="stat-sub">${bestTeam?bestTeam.goals+' but'+(bestTeam.goals>1?'s':'')+' marqué'+(bestTeam.goals>1?'s':''):''}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Buts marqués (total)</div><div class="stat-val">${normalizedTeams.reduce((s,t)=>s+t.goals,0)}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Matchs joués</div><div class="stat-val">${Math.floor(normalizedTeams.reduce((s,t)=>s+(parseInt(t.played)||0),0)/2)}</div></div>
   </div>
-  <div class="section-title">Stats équipes</div>
+  <div class="section-title">Stats équipes <span style="font-size:10px;font-weight:400;text-transform:none;color:var(--color-text-tertiary)">(calculées auto. depuis les scores)</span></div>
   <div class="card">
     <div style="display:grid;grid-template-columns:1.5fr 1fr 0.8fr 0.8fr 0.9fr;gap:6px;font-size:11px;color:var(--color-text-secondary);padding:4px 0 8px;border-bottom:0.5px solid var(--color-border-tertiary);font-weight:500">
       <span>Équipe</span><span>MVP</span><span style="text-align:center">Buts/match</span><span style="text-align:center">Marqués</span><span style="text-align:center">Encaissés</span>
     </div>
     ${D.teamStats.map((t,i)=>{
       if(t.against === undefined) t.against = 0;
-      const played=parseInt(t.played)||0, goals=parseInt(t.goals)||0;
+      const played=parseInt(t.played)||0, goals=parseInt(t.goals)||0, against=parseInt(t.against)||0;
       return`<div style="display:grid;grid-template-columns:1.5fr 1fr 0.8fr 0.8fr 0.9fr;gap:6px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
         <span style="font-size:12px;display:flex;align-items:center;gap:4px"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
         <input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%" ${isAdmin?'':'disabled'}>
         <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${played>0?(goals/played).toFixed(1):'—'}</span>
-        <input class="score-in" type="number" min="0" max="99" value="${t.goals||0}" oninput="D.teamStats[${i}].goals=parseInt(this.value)||0;save();renderStats()" style="width:42px;height:24px;font-size:12px;justify-self:center" ${isAdmin?'':'disabled'}>
-        <input class="score-in" type="number" min="0" max="99" value="${t.against||0}" oninput="D.teamStats[${i}].against=parseInt(this.value)||0;save();renderStats()" style="width:42px;height:24px;font-size:12px;justify-self:center" ${isAdmin?'':'disabled'}>
+        <span style="text-align:center;font-size:13px;font-weight:500;color:var(--color-text-primary)">${goals}</span>
+        <span style="text-align:center;font-size:13px;font-weight:500;color:var(--color-text-secondary)">${against}</span>
       </div>`;
     }).join('')}
   </div>`;
@@ -2112,10 +2306,15 @@ function addRdv(){
   saveRdv();
   renderRdv();
 }
-function removeRdv(ri){
+async function removeRdv(ri){
   if(!D.rdvList[ri] || D.rdvList[ri].owner !== currentPote) return;
+  const rdvId = D.rdvList[ri].id;
   if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}}
   else{D.rdvList.splice(ri,1)}
+  // Delete from dedicated collection
+  if (rdvId) {
+    try { await window._db.collection('rdvs').doc(rdvId).delete(); } catch(e) { console.error(e); }
+  }
   saveRdv();
   renderRdv();
 }
@@ -2129,6 +2328,11 @@ function showTab(id){
   
   document.querySelectorAll('.sec').forEach(s => 
     s.classList.toggle('active', s.id === id)
+  );
+
+  // Sync mobile tab bar
+  document.querySelectorAll('.mob-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.tab === id)
   );
 
   const renders = {
