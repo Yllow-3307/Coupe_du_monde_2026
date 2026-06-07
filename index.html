@@ -409,25 +409,16 @@ function switchLoginTab(tab) {
 }
 
 // ===== SIGN IN =====
-function doLogin() {
-  const email  = document.getElementById('signin-email').value.trim();
-  const pwd    = document.getElementById('signin-pwd').value;
-  const errEl  = document.getElementById('signin-err');
-  errEl.textContent = 'Connexion...';
-  window._auth.signInWithEmailAndPassword(email, pwd)
-    .then(() => errEl.textContent = '')
-    .catch(e => {
-      const msgs = {
-        'auth/user-not-found'    : 'Compte introuvable',
-        'auth/wrong-password'    : 'Mot de passe incorrect',
-        'auth/invalid-email'     : 'Email invalide',
-        'auth/invalid-credential': 'Email ou mot de passe incorrect'
-      };
-      errEl.textContent = msgs[e.code] || 'Erreur : ' + e.message;
-    });
+async function login() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await firebase.auth().signInWithPopup(provider); // Ouvre une petite fenêtre propre
+  } catch (error) {
+    console.error("Erreur login:", error);
+    alert("Erreur de connexion : " + error.message);
+  }
 }
 
-// ===== SIGN UP =====
 // ===== SIGN UP =====
 async function doSignup() {
   const pseudo = document.getElementById('signup-pseudo').value.trim();
