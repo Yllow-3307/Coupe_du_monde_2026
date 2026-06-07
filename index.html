@@ -30,6 +30,33 @@
       onSnapshot: (ref, cb) => ref.onSnapshot(cb),
       collection: (db, col) => db.collection(col)
     };
+    /*
+    --- FIRESTORE SECURITY RULES ---
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        // Profils utilisateurs
+        match /users/{userId} {
+          allow read: if request.auth != null;
+          allow write: if request.auth != null && request.auth.uid == userId;
+        }
+        // Données partagées (scores, stats, bracket, listes)
+        match /shared/{docId} {
+          allow read: if request.auth != null;
+          allow write: if request.auth != null && request.auth.token.email == "louis.ragot.33@gmail.com";
+        }
+        // Pronostics : chaque utilisateur gère ses propres matches
+        match /pronos/{userId}/matches/{matchId} {
+          allow read: if request.auth != null;
+          allow write: if request.auth != null && (request.auth.uid == userId || request.auth.token.email == "louis.ragot.33@gmail.com");
+        }
+        // RDVs : création et modification par le propriétaire ou admin
+        match /rdvs/{rdvId} {
+          allow read: if request.auth != null;
+          allow write: if request.auth != null; // On peut affiner par owner, mais attention à la synchronisation
+        }
+      }
+    }
+    */
   </script>
   <style>
 
@@ -576,17 +603,33 @@ function subscribeFirestore() {
   // Players list
   unsubscribers['players'] = db.collection('shared').doc('players').onSnapshot(snap => {
     if (snap.exists) {
-      const pseudos = Object.values(snap.data()).sort();
+      const playersMap = snap.data();
+      const pseudos = Object.values(playersMap).sort();
       POTES.length = 0; AV_BG.length = 0; AV_TX.length = 0;
       pseudos.forEach((p, i) => {
         POTES.push(p);
         AV_BG.push(palette_bg[i % palette_bg.length]);
         AV_TX.push(palette_tx[i % palette_tx.length]);
       });
+
+      window._poteMap = {};
+      for(const [uid, p] of Object.entries(playersMap)) window._poteMap[p] = uid;
+
       POTES.forEach(pote => {
-        if (!unsubscribers['prono_' + pote]) {
-          unsubscribers['prono_' + pote] = db.collection('pronos').doc(pote).onSnapshot(s => {
-            if (s.exists) Object.assign(D.pronos, s.data().bets || {});
+        const uid = window._poteMap[pote];
+        if (uid && !unsubscribers['prono_' + pote]) {
+          unsubscribers['prono_' + pote] = db.collection('pronos').doc(uid).collection('matches').onSnapshot(s => {
+            s.forEach(doc => {
+              const matchId = doc.id;
+              const betData = doc.data();
+              D.pronos[matchId + pote] = {
+                s1: betData.scoreHome ?? betData.s1 ?? '',
+                s2: betData.scoreAway ?? betData.s2 ?? '',
+                top: betData.scorer ?? betData.top ?? ''
+              };
+            });
+            const activeTab = document.querySelector('.tab.active');
+            if (activeTab && activeTab.getAttribute('onclick') === "showTab('pronos')") renderPronos();
           });
         }
       });
@@ -615,10 +658,6 @@ function subscribeFirestore() {
     if (snap.exists) { D.actual = snap.data().actuals || {}; syncScoresFromActuals(); const activeTab = document.querySelector('.tab.active'); if (activeTab) activeTab.click(); }
   });
 
-  // Own pronos
-  unsubscribers['myPronos'] = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
-    if (snap.exists) Object.assign(D.pronos, snap.data().bets || {});
-  });
 
   // RDV real-time listener (dedicated 'rdvs' collection)
   unsubscribers['rdvs'] = db.collection('rdvs').onSnapshot(snap => {
@@ -633,7 +672,21 @@ function subscribeFirestore() {
       rdvs.forEach(r => { if(!localMap[r.id]) localMap[r.id] = r; else Object.assign(localMap[r.id], r); });
       D.rdvList = Object.values(localMap).sort((a,b) => String(a.id).localeCompare(String(b.id)));
       const activeTab = document.querySelector('.tab.active, .mob-tab.active');
-      if (activeTab && (activeTab.dataset.tab === 'rdv' || activeTab.getAttribute('onclick') === "showTab('rdv')")) renderRdv();
+      if (activeTab && (activeTab.dataset.tab === 'rdv' || activeTab.getAttribute('onclick') === "showTab('rdv')")) {
+        const focused = document.activeElement;
+        const focusedId = focused ? focused.id : null;
+        const selectionStart = focused ? focused.selectionStart : null;
+
+        renderRdv();
+
+        if (focusedId) {
+          const el = document.getElementById(focusedId);
+          if (el) {
+            el.focus();
+            if (selectionStart !== null) el.setSelectionRange(selectionStart, selectionStart);
+          }
+        }
+      }
     }
   });
 
@@ -670,19 +723,22 @@ async function saveActuals() {
 async function saveBet(matchId, pote, field, value) {
   if (!currentUser) return;
   if (pote !== currentPote && !isAdmin) return;
+
+  const uid = (pote === currentPote) ? currentUser.uid : (window._poteMap ? window._poteMap[pote] : null);
+  if (!uid) return;
+
   const key = matchId + pote;
   if (!D.pronos[key]) D.pronos[key] = {s1:'', s2:'', top:''};
   D.pronos[key][field] = value;
+
+  const fsField = {s1:'scoreHome', s2:'scoreAway', top:'scorer'}[field] || field;
+
   try {
-    const ref = window._db.collection('pronos').doc(pote);
-    const snap = await ref.get();
-    const existing = snap.exists ? (snap.data().bets || {}) : {};
-    if (!existing[key]) existing[key] = {s1:'',s2:'',top:''};
-    existing[key][field] = value;
-    await ref.set({ bets: existing });
+    const ref = window._db.collection('pronos').doc(uid).collection('matches').doc(matchId);
+    await ref.set({ [fsField]: value }, { merge: true });
   } catch(e) {
-  console.error("ERREUR COMPLETE :", e);
-}
+    console.error("ERREUR SAVEBET :", e);
+  }
 }
 
 // POTES built dynamically from Firestore players list
@@ -1355,6 +1411,19 @@ function getScoreValue(matchId, side) {
   return v === undefined || v === null ? '' : v;
 }
 
+function parseMatchDate(dayStr, hourStr) {
+  const parts = dayStr.split(' ');
+  const day = parseInt(parts[0].replace('e', ''));
+  const monthStr = parts[1] || "";
+  const isJuly = monthStr.toLowerCase().startsWith('juil');
+
+  const year = 2026;
+  const hourParts = (hourStr || "00:00").split(':');
+  const hours = parseInt(hourParts[0]);
+  const minutes = parseInt(hourParts[1]);
+  return new Date(year, isJuly ? 6 : 5, day, hours, minutes);
+}
+
 function parseScorers(value) {
   if (Array.isArray(value)) {
     return value.map(s => ({
@@ -1448,7 +1517,7 @@ function autoComputeTeamStats() {
   // Initialise une map nom → stats
   const statsMap = {};
   TEAMS_DATA.forEach(t => {
-    statsMap[t.name] = { flag: t.flag, name: t.name, mvp: '', goals: 0, played: 0, cs: 0, against: 0 };
+    statsMap[t.name] = { flag: t.flag, name: t.name, mvp: '', scored: 0, played: 0, cs: 0, conceded: 0 };
   });
 
   MATCHS_DATA.forEach((m, idx) => {
@@ -1464,8 +1533,8 @@ function autoComputeTeamStats() {
     const team1 = findTeam(m.t1);
     const team2 = findTeam(m.t2);
 
-    if (team1) { team1.played++; team1.goals += s1; team1.against += s2; }
-    if (team2) { team2.played++; team2.goals += s2; team2.against += s1; }
+    if (team1) { team1.played++; team1.scored += s1; team1.conceded += s2; }
+    if (team2) { team2.played++; team2.scored += s2; team2.conceded += s1; }
   });
 
   // Préserver les MVP manuels
@@ -1612,6 +1681,8 @@ function renderMatchs(){
     if (currentFilterPhase !== "elim" && currentFilterGroup !== "all" && m.g !== currentFilterGroup) return false;
     return true;
   });
+
+  filteredMatches.sort((a, b) => parseMatchDate(a.day, a.heure) - parseMatchDate(b.day, b.heure));
 
   if(filteredMatches.length === 0) {
     el.innerHTML = htmlFilters + `<p style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px;">Aucun match ne correspond aux critères sélectionnés.</p>`;
@@ -1993,20 +2064,28 @@ function renderPronos(){
 
   // Charger les pronos du joueur consulté si différent
   if (viewingPote && viewingPote !== currentPote) {
-    // Vérifier si déjà chargé, sinon charger depuis Firestore
     const hasData = PRONO_MATCHES.some(m => D.pronos[m.id + viewingPote]);
     if (!hasData) {
-      window._db.collection('pronos').doc(viewingPote).get().then(snap => {
-        if (snap.exists) {
-          const bets = snap.data().bets || {};
-          Object.assign(D.pronos, bets);
+      const uid = window._poteMap ? window._poteMap[viewingPote] : null;
+      if (uid) {
+        window._db.collection('pronos').doc(uid).collection('matches').get().then(s => {
+          s.forEach(doc => {
+            const matchId = doc.id;
+            const betData = doc.data();
+            D.pronos[matchId + viewingPote] = {
+              s1: betData.scoreHome ?? betData.s1 ?? '',
+              s2: betData.scoreAway ?? betData.s2 ?? '',
+              top: betData.scorer ?? betData.top ?? ''
+            };
+          });
           renderPronos();
-        }
-      });
+        });
+      }
     }
   }
 
-  const byDate = PRONO_MATCHES.reduce((acc,m)=>{
+  const sortedPronos = [...PRONO_MATCHES].sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff));
+  const byDate = sortedPronos.reduce((acc,m)=>{
     const key = m.kickoff ? new Date(m.kickoff).toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) : m.date;
     if(!acc[key]) acc[key]=[];
     acc[key].push(m);
@@ -2124,13 +2203,12 @@ function renderStats(){
     flag:t.flag || TEAMS_DATA[i]?.flag || '',
     name:t.name || TEAMS_DATA[i]?.name || '',
     played:parseInt(t.played)||0,
-    goals:parseInt(t.goals)||0,
-    against:parseInt(t.against ?? t.bc)||0
+    scored:parseInt(t.scored ?? t.goals)||0,
+    conceded:parseInt(t.conceded ?? t.against ?? t.bc)||0
   }));
   const bestTeam = normalizedTeams.reduce((best,t)=>{
-    const score = (t.goals - t.against) + (t.played ? t.goals / t.played : 0);
-    const bestScore = best ? ((best.goals - best.against) + (best.played ? best.goals / best.played : 0)) : -Infinity;
-    return score > bestScore ? t : best;
+    if (!best) return t;
+    return t.scored > best.scored ? t : best;
   }, null);
   const players = TEAMS_DATA.flatMap(team => team.players.map(p => {
     const key = team.name + '|' + p.name;
@@ -2152,15 +2230,15 @@ function renderStats(){
       ${players.map(p=>`<div style="display:grid;grid-template-columns:1.4fr 0.8fr 80px;gap:8px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
         <span style="font-size:12px;color:var(--color-text-primary)">${p.name}<span style="color:var(--color-text-secondary)"> · ${p.flag} ${p.team}</span></span>
         <span class="player-pos" style="background:${posColors[p.pos]||'#F1EFE8'};color:${posTxt[p.pos]||'#2C2C2A'};width:max-content">${p.pos}</span>
-        <input class="score-in" type="number" min="0" max="10" step="0.1" value="${D.playerRatings[p.key]||''}" oninput="D.playerRatings['${p.key}']=this.value;save();renderStats()" style="width:64px;height:24px;font-size:12px" ${isAdmin?'':'disabled'}>
+        <input class="score-in ${isAdmin?'':'readonly-field'}" type="number" min="0" max="10" step="0.1" value="${D.playerRatings[p.key]||''}" oninput="D.playerRatings['${p.key}']=this.value;save();renderStats()" style="width:64px;height:24px;font-size:12px" ${isAdmin?'':'disabled'}>
       </div>`).join('')}
     </div>`;
     return;
   }
   el.innerHTML=`<div class="subtabs"><button class="subtab active" onclick="setStatsSection('equipes')">Équipes</button><button class="subtab" onclick="setStatsSection('joueurs')">Joueurs</button></div>
   <div class="stat-grid">
-    <div class="stat-card"><div class="stat-lbl">Meilleure équipe</div><div class="stat-val" style="font-size:14px">${bestTeam?bestTeam.flag+' '+bestTeam.name:'—'}</div><div class="stat-sub">${bestTeam?bestTeam.goals+' but'+(bestTeam.goals>1?'s':'')+' marqué'+(bestTeam.goals>1?'s':''):''}</div></div>
-    <div class="stat-card"><div class="stat-lbl">Buts marqués (total)</div><div class="stat-val">${normalizedTeams.reduce((s,t)=>s+t.goals,0)}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Meilleure équipe</div><div class="stat-val" style="font-size:14px">${bestTeam?bestTeam.flag+' '+bestTeam.name:'—'}</div><div class="stat-sub">${bestTeam?bestTeam.scored+' but'+(bestTeam.scored>1?'s':'')+' marqué'+(bestTeam.scored>1?'s':''):''}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Buts marqués (total)</div><div class="stat-val">${normalizedTeams.reduce((s,t)=>s+t.scored,0)}</div></div>
     <div class="stat-card"><div class="stat-lbl">Matchs joués</div><div class="stat-val">${Math.floor(normalizedTeams.reduce((s,t)=>s+(parseInt(t.played)||0),0)/2)}</div></div>
   </div>
   <div class="section-title">Stats équipes <span style="font-size:10px;font-weight:400;text-transform:none;color:var(--color-text-tertiary)">(calculées auto. depuis les scores)</span></div>
@@ -2169,14 +2247,15 @@ function renderStats(){
       <span>Équipe</span><span>MVP</span><span style="text-align:center">Buts/match</span><span style="text-align:center">Marqués</span><span style="text-align:center">Encaissés</span>
     </div>
     ${D.teamStats.map((t,i)=>{
-      if(t.against === undefined) t.against = 0;
-      const played=parseInt(t.played)||0, goals=parseInt(t.goals)||0, against=parseInt(t.against)||0;
+      const played=parseInt(t.played)||0;
+      const scored=parseInt(t.scored ?? t.goals)||0;
+      const conceded=parseInt(t.conceded ?? t.against ?? t.bc)||0;
       return`<div style="display:grid;grid-template-columns:1.5fr 1fr 0.8fr 0.8fr 0.9fr;gap:6px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
         <span style="font-size:12px;display:flex;align-items:center;gap:4px"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
-        <input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%" ${isAdmin?'':'disabled'}>
-        <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${played>0?(goals/played).toFixed(1):'—'}</span>
-        <span style="text-align:center;font-size:13px;font-weight:500;color:var(--color-text-primary)">${goals}</span>
-        <span style="text-align:center;font-size:13px;font-weight:500;color:var(--color-text-secondary)">${against}</span>
+        <input class="inp-sm ${isAdmin?'':'readonly-field'}" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%" ${isAdmin?'':'disabled'}>
+        <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${played>0?(scored/played).toFixed(1):'—'}</span>
+        <span style="text-align:center;font-size:13px;font-weight:500;color:var(--color-text-primary)">${scored}</span>
+        <span style="text-align:center;font-size:13px;font-weight:500;color:var(--color-text-secondary)">${conceded}</span>
       </div>`;
     }).join('')}
   </div>`;
@@ -2273,10 +2352,10 @@ function renderRdv(){
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
         <div style="flex:1">
           <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Créé par <strong style="color:var(--color-text-primary)">${owner || '—'}</strong></div>
-          <input class="inp-sm" defaultValue="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
+          <input id="rdv_match_${ri}" class="inp-sm" value="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <input type="time" class="inp-sm" value="${r.heure||''}" onchange="D.rdvList[${ri}].heure=this.value;saveRdv()" style="width:110px" ${canEdit?'':'disabled'}>
-            <input class="inp-sm" defaultValue="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
+            <input id="rdv_heure_${ri}" type="time" class="inp-sm" value="${r.heure||''}" onchange="D.rdvList[${ri}].heure=this.value;saveRdv()" style="width:110px" ${canEdit?'':'disabled'}>
+            <input id="rdv_where_${ri}" class="inp-sm" value="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
           </div>
         </div>
         <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
