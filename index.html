@@ -40,20 +40,34 @@
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--color-background-secondary);color:var(--color-text-primary);padding:20px;max-width:1200px;margin:0 auto}
 
     @media (max-width: 600px) {
-      body { padding: 10px; }
-      .hdr { padding: 1rem 0; }
-      .hdr h1 { font-size: 18px; }
-      .tabs { gap: 0; margin-bottom: 1rem; }
-      .tab { padding: 8px 10px; font-size: 12px; }
-      .card { padding: 10px; }
-      .grp-grid { grid-template-columns: 1fr; }
-      .match-score { font-size: 14px; min-width: 45px; }
-      .team-name { font-size: 11px !important; }
-      .bracket-wrapper { padding: 10px; gap: 20px; }
-      .round { gap: 10px; }
-      .match { width: 150px; margin: 10px 0; }
-      .team { height: 32px; font-size: 11px; padding: 0 6px; }
+      body:not(.forced-pc) { padding: 10px; }
+      body:not(.forced-pc) .hdr { padding: 1rem 0; }
+      body:not(.forced-pc) .hdr h1 { font-size: 18px; }
+      body:not(.forced-pc) .tabs { gap: 0; margin-bottom: 1rem; }
+      body:not(.forced-pc) .tab { padding: 8px 10px; font-size: 12px; }
+      body:not(.forced-pc) .card { padding: 10px; }
+      body:not(.forced-pc) .grp-grid { grid-template-columns: 1fr; }
+      body:not(.forced-pc) .match-score { font-size: 14px; min-width: 45px; }
+      body:not(.forced-pc) .team-name { font-size: 11px !important; }
+      body:not(.forced-pc) .bracket-wrapper { padding: 10px; gap: 20px; }
+      body:not(.forced-pc) .round { gap: 10px; }
+      body:not(.forced-pc) .match { width: 150px; margin: 10px 0; }
+      body:not(.forced-pc) .team { height: 32px; font-size: 11px; padding: 0 6px; }
     }
+
+    body.forced-mobile { padding: 10px; max-width: 400px; margin: 0 auto; border: 1px solid var(--color-border-tertiary); box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+    body.forced-mobile .hdr { padding: 1rem 0; }
+    body.forced-mobile .hdr h1 { font-size: 18px; }
+    body.forced-mobile .tabs { gap: 0; margin-bottom: 1rem; }
+    body.forced-mobile .tab { padding: 8px 10px; font-size: 12px; }
+    body.forced-mobile .card { padding: 10px; }
+    body.forced-mobile .grp-grid { grid-template-columns: 1fr; }
+    body.forced-mobile .match-score { font-size: 14px; min-width: 45px; }
+    body.forced-mobile .team-name { font-size: 11px !important; }
+    body.forced-mobile .bracket-wrapper { padding: 10px; gap: 20px; }
+    body.forced-mobile .round { gap: 10px; }
+    body.forced-mobile .match { width: 150px; margin: 10px 0; }
+    body.forced-mobile .team { height: 32px; font-size: 11px; padding: 0 6px; }
     
     :root {
       --color-background-primary: #ffffff;
@@ -348,9 +362,12 @@
 
 <div class="hdr">
   <span style="font-size:28px">🏆</span>
-  <div>
+  <div style="flex:1">
     <h1>Coupe du Monde FIFA 2026</h1>
   </div>
+  <button class="btn" onclick="toggleView()" id="view-toggle" title="Alterner entre vue PC et Mobile">
+    <i class="ti ti-device-mobile"></i> Mobile / PC
+  </button>
 </div>
 
 <div class="tabs">
@@ -457,8 +474,27 @@ async function doSignup() {
 // ===== LOGOUT =====
 function doLogout() { window._auth.signOut(); }
 
+function toggleView() {
+  const isMobile = document.body.classList.contains('forced-mobile');
+  if (isMobile) {
+    document.body.classList.remove('forced-mobile');
+    document.body.classList.add('forced-pc');
+    localStorage.setItem('view-mode', 'pc');
+  } else {
+    document.body.classList.remove('forced-pc');
+    document.body.classList.add('forced-mobile');
+    localStorage.setItem('view-mode', 'mobile');
+  }
+  // Rafraîchir l'onglet actif pour recalculer les dimensions si besoin
+  const activeTab = document.querySelector('.tab.active');
+  if (activeTab) activeTab.click();
+}
+
 // ===== AUTH STATE =====
 window.addEventListener('load', () => {
+  const savedMode = localStorage.getItem('view-mode');
+  if (savedMode === 'mobile') document.body.classList.add('forced-mobile');
+  else if (savedMode === 'pc') document.body.classList.add('forced-pc');
   // Keydown shortcuts
   document.getElementById('signin-pwd').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
   document.getElementById('signup-pwd').addEventListener('keydown', e => { if(e.key==='Enter') doSignup(); });
@@ -534,7 +570,10 @@ function subscribeFirestore() {
       POTES.forEach(pote => {
         if (!unsubscribers['prono_' + pote]) {
           unsubscribers['prono_' + pote] = db.collection('pronos').doc(pote).onSnapshot(s => {
-            if (s.exists) Object.assign(D.pronos, s.data().bets || {});
+            if (s.exists) {
+              Object.assign(D.pronos, s.data().bets || {});
+              if (document.getElementById('pronos').classList.contains('active')) renderPronos();
+            }
           });
         }
       });
@@ -565,7 +604,10 @@ function subscribeFirestore() {
 
   // Own pronos
   unsubscribers['myPronos'] = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
-    if (snap.exists) Object.assign(D.pronos, snap.data().bets || {});
+    if (snap.exists) {
+      Object.assign(D.pronos, snap.data().bets || {});
+      if (document.getElementById('pronos').classList.contains('active')) renderPronos();
+    }
   });
 
   // Synchronisation initiale
@@ -606,14 +648,16 @@ async function saveBet(matchId, pote, field, value) {
   D.pronos[key][field] = value;
   try {
     const ref = window._db.collection('pronos').doc(pote);
-    const snap = await ref.get();
-    const existing = snap.exists ? (snap.data().bets || {}) : {};
-    if (!existing[key]) existing[key] = {s1:'',s2:'',top:''};
-    existing[key][field] = value;
-    await ref.set({ bets: existing });
+    await ref.set({
+      bets: {
+        [key]: {
+          [field]: value
+        }
+      }
+    }, { merge: true });
   } catch(e) {
-  console.error("ERREUR COMPLETE :", e);
-}
+    console.error("ERREUR COMPLETE :", e);
+  }
 }
 
 // POTES built dynamically from Firestore players list
@@ -624,7 +668,7 @@ let AV_TX  = [];
 const GROUPS = {
   A: {teams: [["🇲🇽","Mexique"], ["🇿🇦","Afrique du Sud"], ["🇰🇷","Corée du Sud"], ["🇨🇿","Tchéquie"]]},
   B: {teams: [["🇨🇦","Canada"], ["🇧🇦","Bosnie-Herz."], ["🇶🇦","Qatar"], ["🇨🇭","Suisse"]]},
-  C: {teams: [["🇧🇷","Brésil"], ["🇲🇦","Maroc"], ["🇭🇹","Haïti"], ["🏴󠁧󠁢󠁳󠁣󠁴","Écosse"]]},
+  C: {teams: [["🇧🇷","Brésil"], ["🇲🇦","Maroc"], ["🇭🇹","Haïti"], ["🏴󠁧󠁢󠁳󠁣󠁴󠁿","Écosse"]]},
   D: {teams: [["🇺🇸","États-Unis"], ["🇵🇾","Paraguay"], ["🇦🇺","Australie"], ["🇹🇷","Turquie"]]},
   E: {teams: [["🇩🇪","Allemagne"], ["🇨🇼","Curaçao"], ["🇨🇮","Côte d'Ivoire"], ["🇪🇨","Équateur"]]},
   F: {teams: [["🇳🇱","Pays-Bas"], ["🇯🇵","Japon"], ["🇸🇪","Suède"], ["🇹🇳","Tunisie"]]},
@@ -1099,7 +1143,7 @@ const TEAMS_DATA = [
   ]},
 
   // Groupe G
-  {flag:"GB",name:"",group:"G",coach:"Gareth Southgate",players:[
+  {flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",name:"Angleterre",group:"G",coach:"Gareth Southgate",players:[
     {n:1,pos:"G",name:"J. Pickford"},{n:23,pos:"G",name:"D. Ramsdale"},
     {n:2,pos:"D",name:"K. Walker"},{n:5,pos:"D",name:"J. Stones"},{n:6,pos:"D",name:"H. Maguire"},
     {n:4,pos:"M",name:"D. Rice"},{n:22,pos:"M",name:"J. Bellingham"},{n:8,pos:"M",name:"T. Alexander-Arnold"},
@@ -1896,7 +1940,7 @@ function renderStats(){
   }
   el.innerHTML=`<div class="subtabs"><button class="subtab active" onclick="setStatsSection('equipes')">Équipes</button><button class="subtab" onclick="setStatsSection('joueurs')">Joueurs</button></div>
   <div class="stat-grid">
-    <div class="stat-card"><div class="stat-lbl">Meilleure équipe</div><div class="stat-val" style="font-size:14px">${bestTeam?bestTeam.flag+' '+bestTeam.name:'—'}</div><div class="stat-sub">${bestTeam?(bestTeam.goals-bestTeam.against)+' diff. buts':''}</div></div>
+    <div class="stat-card"><div class="stat-lbl">Meilleure équipe</div><div class="stat-val" style="font-size:14px">${bestTeam?bestTeam.flag+' '+bestTeam.name:'—'}</div><div class="stat-sub">${bestTeam?bestTeam.goals+' buts marqués, '+bestTeam.wins+' victoires':''}</div></div>
     <div class="stat-card"><div class="stat-lbl">Meilleure attaque</div><div class="stat-val" style="font-size:14px">${mostGoalsTeam?mostGoalsTeam.flag+' '+mostGoalsTeam.name:'—'}</div><div class="stat-sub">${mostGoalsTeam?mostGoalsTeam.goals+' buts marqués':''}</div></div>
     <div class="stat-card"><div class="stat-lbl">Plus de victoires</div><div class="stat-val" style="font-size:14px">${mostWinsTeam?mostWinsTeam.flag+' '+mostWinsTeam.name:'—'}</div><div class="stat-sub">${mostWinsTeam?mostWinsTeam.wins+' matchs gagnés':''}</div></div>
   </div>
@@ -1996,7 +2040,10 @@ function renderRdv(){
 
   el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <p style="font-size:12px;color:var(--color-text-secondary)">Organisez vos soirées matchs.</p>
-    <button class="btn btn-primary" onclick="addRdv()"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button>
+    <div style="display:flex;gap:8px">
+      ${isAdmin ? `<button class="btn" onclick="deleteAllRdvs()" style="color:#c92a2a;border-color:#c92a2a"><i class="ti ti-trash"></i> Tout suppr.</button>` : ''}
+      <button class="btn btn-primary" onclick="addRdv()"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button>
+    </div>
   </div>
   ${visibleRdvs.length === 0 ? '<p style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px;">Aucun RDV pour le moment. Crée-en un !</p>' : ''}
   ${visibleRdvs.map((r)=>{
@@ -2044,9 +2091,16 @@ function addRdv(){
   renderRdv();
 }
 function removeRdv(ri){
-  if(!D.rdvList[ri] || D.rdvList[ri].owner !== currentPote) return;
+  if(!D.rdvList[ri] || (D.rdvList[ri].owner !== currentPote && !isAdmin)) return;
   if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}}
   else{D.rdvList.splice(ri,1)}
+  saveRdv();
+  renderRdv();
+}
+function deleteAllRdvs(){
+  if(!isAdmin) return;
+  if(!confirm("Supprimer TOUS les rendez-vous ?")) return;
+  D.rdvList=[{id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}];
   saveRdv();
   renderRdv();
 }
