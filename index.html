@@ -1623,16 +1623,10 @@ function createBracketRound(title, count, prefix, isFinal = false) {
 
     matchesHtml += `
       <div class="match ${isFinal ? 'no-line' : ''}">
-        <div class="team ${winner === t1 && t1 !== 'À déterminer' ? 'selected' : ''}" 
-             onclick="pickWinner('${key}', 1)" 
-             oncontextmenu="${isAdmin ? `editBracketTeam('${key}',1);return false;` : ''}"
-             style="cursor:pointer;" title="${isAdmin ? 'Clic droit pour modifier l\'équipe' : ''}">
+        <div class="team ${winner === t1 && t1 !== 'À déterminer' ? 'selected' : ''}" onclick="pickWinner('${key}', 1)" style="cursor:pointer;">
           ${t1}
         </div>
-        <div class="team ${winner === t2 && t2 !== 'À déterminer' ? 'selected' : ''}" 
-             onclick="pickWinner('${key}', 2)" 
-             oncontextmenu="${isAdmin ? `editBracketTeam('${key}',2);return false;` : ''}"
-             style="cursor:pointer;" title="${isAdmin ? 'Clic droit pour modifier l\'équipe' : ''}">
+        <div class="team ${winner === t2 && t2 !== 'À déterminer' ? 'selected' : ''}" onclick="pickWinner('${key}', 2)" style="cursor:pointer;">
           ${t2}
         </div>
         ${isFinal && winner && winner !== 'À déterminer' ? `<div style="text-align:center; margin-top:15px; font-size:28px;">🏆</div>` : ''}
@@ -1646,17 +1640,6 @@ function createBracketRound(title, count, prefix, isFinal = false) {
       ${matchesHtml}
     </div>
   `;
-}
-
-function editBracketTeam(key, teamNum) {
-  if(!isAdmin) return;
-  const current = D.bracket[key + '_t' + teamNum] || '';
-  const name = prompt("Nom de l'équipe :", current);
-  if (name !== null) {
-    D.bracket[key + '_t' + teamNum] = name.trim() || 'À déterminer';
-    save();
-    renderBracket();
-  }
 }
 
 function pickWinner(key, teamNum) {
