@@ -648,15 +648,19 @@ async function saveBet(matchId, pote, field, value) {
   D.pronos[key][field] = value;
   try {
     const ref = window._db.collection('pronos').doc(pote);
-    await ref.set({
-      bets: {
-        [key]: {
-          [field]: value
-        }
-      }
-    }, { merge: true });
+    // Correction Bug Perte de Données : Utiliser la notation par point pour ne pas écraser l'objet du match
+    await ref.update({
+      [`bets.${key}.${field}`]: value
+    });
   } catch(e) {
-    console.error("ERREUR COMPLETE :", e);
+    // Si le document n'existe pas encore, update échouera. On utilise set avec merge dans ce cas précis.
+    try {
+      await ref.set({
+        bets: { [key]: D.pronos[key] }
+      }, { merge: true });
+    } catch(e2) {
+      console.error("ERREUR COMPLETE :", e2);
+    }
   }
 }
 
@@ -2066,7 +2070,7 @@ function renderRdv(){
         <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
       </div>
       <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.filter(p => p !== owner).map((p,pi)=>{
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.map((p,pi)=>{
           const state=pres[p]||0;
           const own = p === currentPote;
           return`<div ${own?`onclick="toggleRdv(${ri},'${p}')"`:''} title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:${own?'pointer':'default'};background:${AV_BG[POTES.indexOf(p)]};color:${AV_TX[POTES.indexOf(p)]};opacity:${state?'1':'0.35'};border:${state?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
