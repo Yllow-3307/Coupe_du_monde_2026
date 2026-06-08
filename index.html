@@ -397,6 +397,7 @@ let currentUser = null;
 let currentPote = null;
 let isAdmin = false;
 let unsubscribers = {};
+let PLAYERS_MAP = {}; // uid -> pseudo
 
 // ===== LOGIN / SIGNUP TABS =====
 function switchLoginTab(tab) {
@@ -520,7 +521,8 @@ async function loadPlayers() {
   try {
     const snap = await window._db.collection('shared').doc('players').get();
     if (snap.exists) {
-      const pseudos = Object.values(snap.data()).sort();
+      PLAYERS_MAP = snap.data();
+      const pseudos = Object.values(PLAYERS_MAP).sort();
       POTES.length = 0; AV_BG.length = 0; AV_TX.length = 0;
       pseudos.forEach((p, i) => {
         POTES.push(p);
@@ -529,8 +531,8 @@ async function loadPlayers() {
       });
     }
   } catch(e) {
-  console.error("ERREUR COMPLETE :", e);
-}
+    console.error("ERREUR COMPLETE :", e);
+  }
 }
 
 function bootApp() {
@@ -549,25 +551,45 @@ function subscribeFirestore() {
   // Players list
   unsubscribers['players'] = db.collection('shared').doc('players').onSnapshot(snap => {
     if (snap.exists) {
-      const pseudos = Object.values(snap.data()).sort();
+      PLAYERS_MAP = snap.data();
+      const pseudos = Object.values(PLAYERS_MAP).sort();
       POTES.length = 0; AV_BG.length = 0; AV_TX.length = 0;
       pseudos.forEach((p, i) => {
         POTES.push(p);
         AV_BG.push(palette_bg[i % palette_bg.length]);
         AV_TX.push(palette_tx[i % palette_tx.length]);
       });
-      POTES.forEach(pote => {
-        if (!unsubscribers['prono_' + pote]) {
-          unsubscribers['prono_' + pote] = db.collection('pronos').doc(pote).onSnapshot(s => {
-            if (s.exists) {
-              Object.assign(D.pronos, s.data().bets || {});
-              if (document.getElementById('pronos').classList.contains('active')) renderPronos();
-            }
-          });
-        }
-      });
     }
   });
+
+  // Pronos Real-time (New structure)
+  if (!unsubscribers['all_pronos']) {
+    unsubscribers['all_pronos'] = db.collectionGroup('users').onSnapshot(snap => {
+      snap.docChanges().forEach(change => {
+        const doc = change.doc;
+        if (!doc.ref.path.startsWith('pronos/')) return;
+
+        const userId = doc.id;
+        const matchId = doc.ref.parent.parent.id;
+        const data = doc.data();
+        const pseudo = PLAYERS_MAP[userId];
+        if (pseudo) {
+          const key = matchId + pseudo;
+          if (change.type === 'removed') {
+            delete D.pronos[key];
+          } else {
+            D.pronos[key] = {
+              s1: data.scoreHome,
+              s2: data.scoreAway,
+              buteursHome: data.buteursHome || [],
+              buteursAway: data.buteursAway || []
+            };
+          }
+        }
+      });
+      if (document.getElementById('pronos').classList.contains('active')) renderPronos();
+    });
+  }
 
   // Shared data
   unsubscribers['shared'] = db.collection('shared').doc('data').onSnapshot(snap => {
@@ -577,27 +599,43 @@ function subscribeFirestore() {
       D.bracket   = data.bracket   || {};
       D.teamStats = data.teamStats || TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0,against:0}));
       D.playerRatings = data.playerRatings || {};
-      D.rdvList   = (data.rdvList || [{id:'rdv_0',match:'',heure:'',where:'',owner:'',presents:{}}]).map(r => ({...r, presents:r.presents||{}}));
       D.pts       = data.pts       || {};
 
       syncScoresFromActuals();
       const activeTab = document.querySelector('.tab.active');
-      if (activeTab) activeTab.click();
+      if (activeTab && activeTab.textContent.trim() !== 'RDV') activeTab.click();
     }
   });
+
+  // RDVs Real-time
+  if (!unsubscribers['rdvs']) {
+    unsubscribers['rdvs'] = db.collection('rdv').onSnapshot(snap => {
+      D.rdvList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const activeTab = document.querySelector('.tab.active');
+      if (activeTab && activeTab.textContent.trim() === 'RDV') {
+         const activeEl = document.activeElement;
+         const focusedId = activeEl ? activeEl.id : null;
+         const selectionStart = activeEl ? activeEl.selectionStart : null;
+         const selectionEnd = activeEl ? activeEl.selectionEnd : null;
+
+         renderRdv();
+
+         if (focusedId) {
+           const el = document.getElementById(focusedId);
+           if (el) {
+             el.focus();
+             if (selectionStart !== null) el.setSelectionRange(selectionStart, selectionEnd);
+           }
+         }
+      }
+    });
+  }
 
   // Actual scores (backup)
   unsubscribers['actuals'] = db.collection('shared').doc('actuals').onSnapshot(snap => {
     if (snap.exists) { D.actual = snap.data().actuals || {}; syncScoresFromActuals(); const activeTab = document.querySelector('.tab.active'); if (activeTab) activeTab.click(); }
   });
 
-  // Own pronos
-  unsubscribers['myPronos'] = db.collection('pronos').doc(currentPote).onSnapshot(snap => {
-    if (snap.exists) {
-      Object.assign(D.pronos, snap.data().bets || {});
-      if (document.getElementById('pronos').classList.contains('active')) renderPronos();
-    }
-  });
 
   // Synchronisation initiale
   syncScoresFromActuals();
@@ -629,23 +667,34 @@ async function saveActuals() {
 }
 }
 
-async function saveBet(matchId, pote, field, value) {
+async function saveBet(matchId, field, value) {
   if (!currentUser) return;
-  if (pote !== currentPote && !isAdmin) return;
-  const key = matchId + pote;
-  if (!D.pronos[key]) D.pronos[key] = {s1:'', s2:'', top:''};
-  D.pronos[key][field] = value;
+  const userId = currentUser.uid;
+  const key = matchId + currentPote;
+
+  if (!D.pronos[key]) D.pronos[key] = { s1: '', s2: '', buteursHome: [], buteursAway: [] };
+
+  if (field === 's1' || field === 's2') {
+    D.pronos[key][field] = value;
+  } else if (field.startsWith('buteursHome')) {
+    const idx = parseInt(field.split('_')[1]);
+    D.pronos[key].buteursHome[idx] = value;
+  } else if (field.startsWith('buteursAway')) {
+    const idx = parseInt(field.split('_')[1]);
+    D.pronos[key].buteursAway[idx] = value;
+  }
+
   try {
-    const ref = window._db.collection('pronos').doc(pote);
+    const ref = window._db.collection('pronos').doc(matchId).collection('users').doc(userId);
     await ref.set({
-      bets: {
-        [key]: {
-          [field]: value
-        }
-      }
-    }, { merge: true });
+      scoreHome: D.pronos[key].s1,
+      scoreAway: D.pronos[key].s2,
+      buteursHome: D.pronos[key].buteursHome,
+      buteursAway: D.pronos[key].buteursAway,
+      updatedAt: Date.now()
+    });
   } catch(e) {
-    console.error("ERREUR COMPLETE :", e);
+    console.error("Erreur lors de la sauvegarde du prono :", e);
   }
 }
 
@@ -657,7 +706,7 @@ let AV_TX  = [];
 const GROUPS = {
   A: {teams: [["🇲🇽","Mexique"], ["🇿🇦","Afrique du Sud"], ["🇰🇷","Corée du Sud"], ["🇨🇿","Tchéquie"]]},
   B: {teams: [["🇨🇦","Canada"], ["🇧🇦","Bosnie-Herz."], ["🇶🇦","Qatar"], ["🇨🇭","Suisse"]]},
-  C: {teams: [["🇧🇷","Brésil"], ["🇲🇦","Maroc"], ["🇭🇹","Haïti"], ["🏴󠁧󠁢󠁳󠁣󠁴󠁿","Écosse"]]},
+  C: {teams: [["🇧🇷","Brésil"], ["🇲🇦","Maroc"], ["🇭🇹","Haïti"], ["🏴󠁧󠁢󠁳󠁣󠁴󠁿\u{e007f}","Écosse"]]},
   D: {teams: [["🇺🇸","États-Unis"], ["🇵🇾","Paraguay"], ["🇦🇺","Australie"], ["🇹🇷","Turquie"]]},
   E: {teams: [["🇩🇪","Allemagne"], ["🇨🇼","Curaçao"], ["🇨🇮","Côte d'Ivoire"], ["🇪🇨","Équateur"]]},
   F: {teams: [["🇳🇱","Pays-Bas"], ["🇯🇵","Japon"], ["🇸🇪","Suède"], ["🇹🇳","Tunisie"]]},
@@ -692,11 +741,11 @@ const PRONO_MATCHES = [
  
   // --- GROUPE C ---
   {id:"p13", label:"🇧🇷 Brésil vs 🇲🇦 Maroc", date:"14 Juin", group:"Gr. C", kickoff:"2026-06-14T00:00:00", matchIdx:12},
-  {id:"p14", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse vs 🇭🇹 Haïti", date:"14 Juin", group:"Gr. C", kickoff:"2026-06-14T03:00:00", matchIdx:13},
-  {id:"p15", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse vs 🇲🇦 Maroc", date:"20 Juin", group:"Gr. C", kickoff:"2026-06-20T00:00:00", matchIdx:14},
+  {id:"p14", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿\u{e007f} Écosse vs 🇭🇹 Haïti", date:"14 Juin", group:"Gr. C", kickoff:"2026-06-14T03:00:00", matchIdx:13},
+  {id:"p15", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿\u{e007f} Écosse vs 🇲🇦 Maroc", date:"20 Juin", group:"Gr. C", kickoff:"2026-06-20T00:00:00", matchIdx:14},
   {id:"p16", label:"🇧🇷 Brésil vs 🇭🇹 Haïti", date:"20 Juin", group:"Gr. C", kickoff:"2026-06-20T02:30:00", matchIdx:15},
   {id:"p17", label:"🇲🇦 Maroc vs 🇭🇹 Haïti", date:"25 Juin", group:"Gr. C", kickoff:"2026-06-25T00:00:00", matchIdx:16},
-  {id:"p18", label:"🇧🇷 Brésil vs 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", date:"25 Juin", group:"Gr. C", kickoff:"2026-06-25T00:00:00", matchIdx:17},
+  {id:"p18", label:"🇧🇷 Brésil vs 🏴󠁧󠁢󠁳󠁣󠁴󠁿\u{e007f} Écosse", date:"25 Juin", group:"Gr. C", kickoff:"2026-06-25T00:00:00", matchIdx:17},
  
   // --- GROUPE D ---
   {id:"p19", label:"🇺🇸 États-Unis vs 🇵🇾 Paraguay", date:"13 Juin", group:"Gr. D", kickoff:"2026-06-13T03:00:00", matchIdx:18},
@@ -1447,11 +1496,17 @@ function normalizeName(value) {
 
 function scorerMatches(actualValue, betValue) {
   const actual = parseScorers(actualValue).map(s => normalizeName(s.name)).filter(Boolean);
-  const bet = parseScorers(betValue).map(s => normalizeName(s.name)).filter(Boolean);
+  let bet = [];
+  if (Array.isArray(betValue)) {
+    bet = betValue.filter(Boolean).map(s => normalizeName(s));
+  } else {
+    bet = parseScorers(betValue).map(s => normalizeName(s.name)).filter(Boolean);
+  }
   return bet.some(b => actual.some(a => a.includes(b) || b.includes(a)));
 }
 
 function goalCount(value) {
+  if (Array.isArray(value)) return value.filter(Boolean).length;
   return parseScorers(value).reduce((sum, s) => sum + (parseInt(s.goals) || 1), 0);
 }
 
@@ -1505,6 +1560,8 @@ function syncScoresFromActuals() {
     if (actual.s1 !== undefined) D.scores[m.matchIdx + 'a'] = actual.s1;
     if (actual.s2 !== undefined) D.scores[m.matchIdx + 'b'] = actual.s2;
     if (actual.top) D.scores[m.matchIdx + 'buteur1'] = actual.top;
+    if (actual.scorers1) D.scores[m.matchIdx + 'scorers1'] = actual.scorers1;
+    if (actual.scorers2) D.scores[m.matchIdx + 'scorers2'] = actual.scorers2;
   });
   autoComputeTeamStats();
 }
@@ -1544,12 +1601,12 @@ function autoComputeTeamStats() {
   D.teamStats = Object.values(statsMap).sort((a,b) => (b.goals - b.against) - (a.goals - a.against));
 }
 
-async function saveRdv() {
+async function saveRdvField(rdvId, field, value) {
   if (!currentUser) return;
   try {
-    await window._db.collection('shared').doc('data').set({ rdvList: D.rdvList || [] }, { merge: true });
+    await window._db.collection('rdv').doc(rdvId).update({ [field]: value });
   } catch(e) {
-    console.error("ERREUR COMPLETE :", e);
+    console.error("Erreur saveRdvField:", e);
   }
 }
 
@@ -2051,26 +2108,22 @@ function saveSilent(){ save(); }
 
 let viewingPote = null; // null = propres pronos, sinon = pseudo du joueur consulté
 
+function getTeamPlayers(teamLabel) {
+  const team = TEAMS_DATA.find(t => teamLabel.includes(t.name));
+  return team ? team.players : [];
+}
+
 function renderPronos(){
   const el=document.getElementById('pronos');
+  if (!el) return;
+  const activeEl = document.activeElement;
+  const focusedId = activeEl ? activeEl.id : null;
+  const selectionStart = activeEl ? activeEl.selectionStart : null;
+  const selectionEnd = activeEl ? activeEl.selectionEnd : null;
+
   const lb=calcLB();
   const displayPote = viewingPote || currentPote;
   const isOwnPronos = !viewingPote || viewingPote === currentPote;
-
-  // Charger les pronos du joueur consulté si différent
-  if (viewingPote && viewingPote !== currentPote) {
-    // Vérifier si déjà chargé, sinon charger depuis Firestore
-    const hasData = PRONO_MATCHES.some(m => D.pronos[m.id + viewingPote]);
-    if (!hasData) {
-      window._db.collection('pronos').doc(viewingPote).get().then(snap => {
-        if (snap.exists) {
-          const bets = snap.data().bets || {};
-          Object.assign(D.pronos, bets);
-          renderPronos();
-        }
-      });
-    }
-  }
 
   const byDate = PRONO_MATCHES.reduce((acc,m)=>{
     const key = m.kickoff ? new Date(m.kickoff).toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) : m.date;
@@ -2114,44 +2167,94 @@ function renderPronos(){
     <div class="calendar-day">${date}</div>
     ${matches.map(m=>{
       const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
-      const bet=D.pronos[m.id+displayPote]||{s1:'',s2:'',top:''};
+      const bet=D.pronos[m.id+displayPote]||{s1:'',s2:'',buteursHome:[],buteursAway:[]};
       const pts=calcPts(m.id,displayPote);
       const locked = isOwnPronos ? isLocked(m.id) : true; // toujours verrouillé si on consulte un autre
+
+      const as1Val = (focusedId === `actual_${m.id}_s1`) ? activeEl.value : (actual.s1||'');
+      const as2Val = (focusedId === `actual_${m.id}_s2`) ? activeEl.value : (actual.s2||'');
+      const asc1Val = (focusedId === `actual_${m.id}_scorers1`) ? activeEl.value : (actual.scorers1||'');
+      const asc2Val = (focusedId === `actual_${m.id}_scorers2`) ? activeEl.value : (actual.scorers2||'');
+
+      const bs1Val = (focusedId === `prono_${m.id}_s1`) ? activeEl.value : (bet.s1||'');
+      const bs2Val = (focusedId === `prono_${m.id}_s2`) ? activeEl.value : (bet.s2||'');
+
       return`<div class="prog-match">
         <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
         <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-secondary)">
           <div style="display:flex; align-items:center; gap:10px; margin-bottom: 5px;">
             Score réel : <strong style="color:var(--color-text-primary)">${renderReadonlyScore(actual)}</strong>
             ${isAdmin ? `
-              <input class="score-in" type="number" min="0" value="${actual.s1||''}" oninput="setActual('${m.id}','s1',this.value)" style="width:30px; height:22px;">
+              <input id="actual_${m.id}_s1" class="score-in" type="number" min="0" value="${as1Val}" oninput="setActual('${m.id}','s1',this.value)" style="width:30px; height:22px;">
               -
-              <input class="score-in" type="number" min="0" value="${actual.s2||''}" oninput="setActual('${m.id}','s2',this.value)" style="width:30px; height:22px;">
+              <input id="actual_${m.id}_s2" class="score-in" type="number" min="0" value="${as2Val}" oninput="setActual('${m.id}','s2',this.value)" style="width:30px; height:22px;">
             ` : ''}
           </div>
           <div style="display:flex; flex-direction:column; gap:4px;">
             <div style="display:flex; align-items:center; gap:5px;">
               <span style="min-width:30px">T1:</span>
-              <input class="inp-sm" value="${actual.scorers1||''}" oninput="setActual('${m.id}','scorers1',this.value)" placeholder="Scorers Team 1" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
+              <input id="actual_${m.id}_scorers1" class="inp-sm" value="${asc1Val}" oninput="setActual('${m.id}','scorers1',this.value)" placeholder="Scorers Team 1" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
             </div>
             <div style="display:flex; align-items:center; gap:5px;">
               <span style="min-width:30px">T2:</span>
-              <input class="inp-sm" value="${actual.scorers2||''}" oninput="setActual('${m.id}','scorers2',this.value)" placeholder="Scorers Team 2" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
+              <input id="actual_${m.id}_scorers2" class="inp-sm" value="${asc2Val}" oninput="setActual('${m.id}','scorers2',this.value)" placeholder="Scorers Team 2" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
             </div>
           </div>
         </div>
-        <div class="prog-bet-row" style="background:var(--color-background-info); ${!isOwnPronos ? 'opacity: 0.8; background: #f1f3f5;' : ''}">
-          <span style="min-width:80px;color:var(--color-text-secondary);font-weight:600">${displayPote} ${!isOwnPronos ? '<i class="ti ti-lock" style="font-size:10px"></i>' : ''}</span>
-          <input class="score-in" type="number" min="0" placeholder="?" value="${bet.s1}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s1',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
-          <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
-          <input class="score-in" type="number" min="0" placeholder="?" value="${bet.s2}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','s2',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
-          <input class="inp-sm" placeholder="buteur(s) : Nom x2, Nom..." value="${bet.top||''}" oninput="${isOwnPronos ? `setBet('${m.id}','${currentPote}','top',this.value)` : ''}" style="min-width:190px;flex:1;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
-          ${locked && isOwnPronos?'<span class="pts-chip pts-0">verrouillé</span>':''}
-          ${!isOwnPronos?'<span class="pts-chip pts-0">lecture seule</span>':''}
-          ${pts>0?`<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
+        <div class="prog-bet-row" style="background:var(--color-background-info); ${!isOwnPronos ? 'opacity: 0.8; background: #f1f3f5;' : ''}; flex-direction: column; align-items: stretch;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="min-width:80px;color:var(--color-text-secondary);font-weight:600">${displayPote} ${!isOwnPronos ? '<i class="ti ti-lock" style="font-size:10px"></i>' : ''}</span>
+            <input id="prono_${m.id}_s1" class="score-in" type="number" min="0" placeholder="?" value="${bs1Val}" oninput="${isOwnPronos ? `setBet('${m.id}','s1',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
+            <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
+            <input id="prono_${m.id}_s2" class="score-in" type="number" min="0" placeholder="?" value="${bs2Val}" oninput="${isOwnPronos ? `setBet('${m.id}','s2',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
+            <div style="flex:1"></div>
+            ${locked && isOwnPronos?'<span class="pts-chip pts-0">verrouillé</span>':''}
+            ${!isOwnPronos?'<span class="pts-chip pts-0">lecture seule</span>':''}
+            ${pts>0?`<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:8px; border-top:0.5px solid var(--color-border-tertiary); padding-top:8px;">
+            <div style="flex:1;">
+              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs ${m.label.split(' vs ')[0]}</div>
+              <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                ${Array.from({length: parseInt(bet.s1)||0}).map((_, i) => {
+                  const players = getTeamPlayers(m.label.split(' vs ')[0]);
+                  const selected = (bet.buteursHome || [])[i] || '';
+                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:120px; ${!isOwnPronos ? 'background:#e9ecef;' : ''}" onchange="${isOwnPronos ? `setBet('${m.id}', 'buteursHome_${i}', this.value)` : ''}" ${locked || !isOwnPronos ? 'disabled' : ''}>
+                    <option value="">-- Choisir --</option>
+                    ${players.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
+                  </select>`;
+                }).join('') || '<span style="font-size:11px; color:var(--color-text-tertiary);">Aucun but</span>'}
+              </div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs ${m.label.split(' vs ')[1]}</div>
+              <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                ${Array.from({length: parseInt(bet.s2)||0}).map((_, i) => {
+                  const players = getTeamPlayers(m.label.split(' vs ')[1]);
+                  const selected = (bet.buteursAway || [])[i] || '';
+                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:120px; ${!isOwnPronos ? 'background:#e9ecef;' : ''}" onchange="${isOwnPronos ? `setBet('${m.id}', 'buteursAway_${i}', this.value)` : ''}" ${locked || !isOwnPronos ? 'disabled' : ''}>
+                    <option value="">-- Choisir --</option>
+                    ${players.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
+                  </select>`;
+                }).join('') || '<span style="font-size:11px; color:var(--color-text-tertiary);">Aucun but</span>'}
+              </div>
+            </div>
+          </div>
         </div>
       </div>`;
     }).join('')}
   `).join('')}`;
+
+  if (focusedId) {
+    const newEl = document.getElementById(focusedId);
+    if (newEl) {
+      newEl.focus();
+      if (selectionStart !== null && newEl.setSelectionRange) {
+        try { newEl.setSelectionRange(selectionStart, selectionEnd); } catch(e) {}
+      }
+    }
+  }
 }
 
 function viewPronosOf(pote) {
@@ -2167,6 +2270,13 @@ function setActual(mid,f,v){
   // Empêcher les scores négatifs
   if((f==='s1' || f==='s2') && v !== '') v = String(Math.max(0, parseInt(v)||0));
   D.actual[mid][f]=v;
+  // If it's a scorer update, we might want to keep the "top" field synced for backward compatibility
+  // but the UI now uses scorers1 and scorers2 for actuals.
+  if (f === 'scorers1' || f === 'scorers2') {
+    const s1 = D.actual[mid].scorers1 || '';
+    const s2 = D.actual[mid].scorers2 || '';
+    D.actual[mid].top = [s1, s2].filter(Boolean).join(', ');
+  }
   saveActuals();
   syncScoresFromActuals();
   const el = document.getElementById('pronos');
@@ -2175,24 +2285,30 @@ function setActual(mid,f,v){
 }
   
 
-function setBet(mid, p, f, v) {
-  if (p !== currentPote) return;
+function setBet(mid, f, v) {
   if (isLocked(mid)) return;
   // Empêcher les scores négatifs
   if((f==='s1' || f==='s2') && v !== '') v = String(Math.max(0, parseInt(v)||0));
-  saveBet(mid, p, f, v);
+  saveBet(mid, f, v);
+
+  // Re-render immediately for responsiveness
+  if (f === 's1' || f === 's2') {
+    renderPronos();
+  }
 }
   
 function calcPts(matchId, pote){
   const actual = D.actual[matchId] || {s1:'', s2:'', top:''};
-  const bet = D.pronos[matchId+pote] || {s1:'', s2:'', top:''};
-  if(bet.s1 === '' && bet.s2 === '' && (!bet.top || bet.top.trim() === '')) return 0;
+  const bet = D.pronos[matchId+pote] || {s1:'', s2:'', buteursHome:[], buteursAway:[]};
+  if(bet.s1 === '' && bet.s2 === '' && (!bet.buteursHome || bet.buteursHome.length === 0) && (!bet.buteursAway || bet.buteursAway.length === 0)) return 0;
   if(actual.s1 === '' || actual.s2 === '' || actual.s1 === undefined || actual.s2 === undefined) return 0;
   let pts = 0;
   const bs1 = parseInt(bet.s1), bs2 = parseInt(bet.s2), as1 = parseInt(actual.s1), as2 = parseInt(actual.s2);
   if((bs1 > bs2 && as1 > as2) || (bs1 < bs2 && as1 < as2) || (bs1 === bs2 && as1 === as2)) pts += 1;
   if(String(bet.s1) === String(actual.s1) && String(bet.s2) === String(actual.s2)) pts += 2;
-  if(actual.top && bet.top && scorerMatches(actual.top, bet.top)) pts += 3;
+
+  const allBetScorers = [...(bet.buteursHome || []), ...(bet.buteursAway || [])];
+  if(actual.top && allBetScorers.length > 0 && scorerMatches(actual.top, allBetScorers)) pts += 3;
   return pts;
 }
 
@@ -2210,13 +2326,11 @@ function renderStats(){
     goals:parseInt(t.goals)||0,
     against:parseInt(t.against ?? t.bc)||0
   }));
-  const bestTeam = normalizedTeams.reduce((best,t)=>{
-    const score = (t.goals - t.against) + (t.played ? t.goals / t.played : 0);
-    const bestScore = best ? ((best.goals - best.against) + (best.played ? best.goals / best.played : 0)) : -Infinity;
-    return score > bestScore ? t : best;
-  }, null);
-  const mostGoalsTeam = normalizedTeams.reduce((best,t)=> (t.goals > (best?.goals||0) ? t : best), null);
-  const mostWinsTeam = normalizedTeams.reduce((best,t)=> (t.wins > (best?.wins||0) ? t : best), null);
+  const bestTeam = [...normalizedTeams].sort((a, b) => {
+    if (b.goals !== a.goals) return b.goals - a.goals;
+    if (b.wins !== a.wins) return b.wins - a.wins;
+    return a.name.localeCompare(b.name);
+  })[0];
   const players = TEAMS_DATA.flatMap(team => team.players.map(p => {
     const key = team.name + '|' + p.name;
     return {team:team.name, flag:team.flag, name:p.name, pos:p.pos, rating:parseFloat(D.playerRatings[key] || 0), key};
@@ -2244,9 +2358,15 @@ function renderStats(){
   }
   el.innerHTML=`<div class="subtabs"><button class="subtab active" onclick="setStatsSection('equipes')">Équipes</button><button class="subtab" onclick="setStatsSection('joueurs')">Joueurs</button></div>
   <div class="stat-grid">
-    <div class="stat-card"><div class="stat-lbl">Meilleure équipe</div><div class="stat-val" style="font-size:14px">${bestTeam?bestTeam.flag+' '+bestTeam.name:'—'}</div><div class="stat-sub">${bestTeam?bestTeam.goals+' buts marqués, '+bestTeam.wins+' victoires':''}</div></div>
-    <div class="stat-card"><div class="stat-lbl">Meilleure attaque</div><div class="stat-val" style="font-size:14px">${mostGoalsTeam?mostGoalsTeam.flag+' '+mostGoalsTeam.name:'—'}</div><div class="stat-sub">${mostGoalsTeam?mostGoalsTeam.goals+' buts marqués':''}</div></div>
-    <div class="stat-card"><div class="stat-lbl">Plus de victoires</div><div class="stat-val" style="font-size:14px">${mostWinsTeam?mostWinsTeam.flag+' '+mostWinsTeam.name:'—'}</div><div class="stat-sub">${mostWinsTeam?mostWinsTeam.wins+' matchs gagnés':''}</div></div>
+    <div class="stat-card" style="grid-column: 1 / -1;">
+      <div class="stat-lbl">Meilleure équipe</div>
+      <div class="stat-val" style="font-size:16px; display:flex; align-items:center; gap:8px;">
+        ${bestTeam ? `<span>${bestTeam.flag}</span> <span>${bestTeam.name}</span>` : '—'}
+      </div>
+      <div class="stat-sub" style="margin-top:4px;">
+        ${bestTeam ? `${bestTeam.goals} buts marqués · ${bestTeam.wins} matchs gagnés` : ''}
+      </div>
+    </div>
   </div>
   <div class="section-title">Stats équipes</div>
   <div class="card">
@@ -2332,15 +2452,9 @@ function getGroupeClassement(groupe) {
 
 function renderRdv(){
   const el=document.getElementById('rdv');
-
-  // Filtrer le RDV template vide (owner vide ou match vide créé par défaut sans propriétaire réel)
-  const visibleRdvs = D.rdvList.map((r, ri) => ({...r, _ri: ri})).filter(r => {
-    // Masquer si propriétaire vide ET match vide (c'est le template par défaut)
-    if ((!r.owner || r.owner === '') && (!r.match || r.match === '')) return false;
-    // Masquer si c'est un RDV template auto-créé par "test..." avec champs vides
-    if (r.owner && r.owner.startsWith('test') && (!r.match || r.match === '')) return false;
-    return true;
-  });
+  const rdvs = D.rdvList || [];
+  const activeEl = document.activeElement;
+  const focusedId = activeEl ? activeEl.id : null;
 
   el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <p style="font-size:12px;color:var(--color-text-secondary)">Organisez vos soirées matchs.</p>
@@ -2349,64 +2463,94 @@ function renderRdv(){
       <button class="btn btn-primary" onclick="addRdv()"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button>
     </div>
   </div>
-  ${visibleRdvs.length === 0 ? '<p style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px;">Aucun RDV pour le moment. Crée-en un !</p>' : ''}
-  ${visibleRdvs.map((r)=>{
-    const ri = r._ri;
-    if(!r.presents) r.presents={};
+  ${rdvs.length === 0 ? '<p style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px;">Aucun RDV pour le moment. Crée-en un !</p>' : ''}
+  ${rdvs.map((r, ri)=>{
+    const participants = r.participants || [];
+    const count = participants.length;
     const owner = r.owner || '';
-    const canEdit = owner === currentPote;
-    const pres=r.presents||{};
-    const count=Object.values(pres).filter(v=>v===1).length;
+    const canEdit = owner === currentPote || isAdmin;
+
+    const matchVal = (focusedId === `rdv_match_${r.id}`) ? activeEl.value : (r.match || '');
+    const heureVal = (focusedId === `rdv_heure_${r.id}`) ? activeEl.value : (r.heure || '');
+    const whereVal = (focusedId === `rdv_where_${r.id}`) ? activeEl.value : (r.where || '');
+
     return`<div class="rdv-card">
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
         <div style="flex:1">
           <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Créé par <strong style="color:var(--color-text-primary)">${owner || '—'}</strong></div>
-          <input class="inp-sm" value="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
+          <input id="rdv_match_${r.id}" class="inp-sm" value="${matchVal}" onchange="saveRdvField('${r.id}', 'match', this.value)" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <input type="time" class="inp-sm" value="${r.heure||''}" onchange="D.rdvList[${ri}].heure=this.value;saveRdv()" style="width:110px" ${canEdit?'':'disabled'}>
-            <input class="inp-sm" value="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
+            <input id="rdv_heure_${r.id}" type="time" class="inp-sm" value="${heureVal}" onchange="saveRdvField('${r.id}', 'heure', this.value)" style="width:110px" ${canEdit?'':'disabled'}>
+            <input id="rdv_where_${r.id}" class="inp-sm" value="${whereVal}" onchange="saveRdvField('${r.id}', 'where', this.value)" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
           </div>
         </div>
-        <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
+        <button class="btn" onclick="removeRdv('${r.id}')" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
       </div>
       <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.filter(p => p !== owner).map((p,pi)=>{
-          const state=pres[p]||0;
-          const own = p === currentPote;
-          return`<div ${own?`onclick="toggleRdv(${ri},'${p}')"`:''} title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:${own?'pointer':'default'};background:${AV_BG[POTES.indexOf(p)]};color:${AV_TX[POTES.indexOf(p)]};opacity:${state?'1':'0.35'};border:${state?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.map((p,pi)=>{
+          // Trouver l'UID correspondant au pseudo
+          const uid = Object.keys(PLAYERS_MAP).find(k => PLAYERS_MAP[k] === p);
+          const isPresent = participants.includes(uid);
+          const isMe = uid === currentUser.uid;
+          return`<div ${isMe ? `onclick="togglePresence('${r.id}', ${isPresent})"` : ''} title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:${isMe?'pointer':'default'};background:${AV_BG[pi]};color:${AV_TX[pi]};opacity:${isPresent?'1':'0.35'};border:${isPresent?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
         }).join('')}</div>
         <span style="font-size:12px;color:var(--color-text-secondary)">${count>0?count+' présent'+(count>1?'s':''):'Personne encore'}</span>
       </div>
     </div>`;
   }).join('')}`;
 }
-function toggleRdv(ri,p){
-  if(p !== currentPote) return;
-  if(!D.rdvList[ri].presents)D.rdvList[ri].presents={};
-  D.rdvList[ri].presents[p]=(D.rdvList[ri].presents[p]||0)===1?0:1;
-  saveRdv();
-  renderRdv();
+
+async function togglePresence(rdvId, isCurrentlyPresent) {
+  const db = window._db;
+  const ref = db.collection('rdv').doc(rdvId);
+  const uid = currentUser.uid;
+  try {
+    if (isCurrentlyPresent) {
+      await ref.update({ participants: firebase.firestore.FieldValue.arrayRemove(uid) });
+    } else {
+      await ref.update({ participants: firebase.firestore.FieldValue.arrayUnion(uid) });
+    }
+  } catch(e) {
+    console.error("Erreur togglePresence:", e);
+  }
 }
-function addRdv(){
-  const rdv={id:'rdv_'+Date.now(),match:'',heure:'',where:'',owner:currentPote,presents:{}};
-  rdv.presents[currentPote]=1;
-  D.rdvList.push(rdv);
-  saveRdv();
-  renderRdv();
+
+async function addRdv(){
+  const db = window._db;
+  try {
+    await db.collection('rdv').add({
+      match: '',
+      heure: '',
+      where: '',
+      owner: currentPote,
+      participants: [currentUser.uid],
+      createdAt: Date.now()
+    });
+  } catch(e) {
+    console.error("Erreur addRdv:", e);
+  }
 }
-function removeRdv(ri){
-  if(!D.rdvList[ri] || (D.rdvList[ri].owner !== currentPote && !isAdmin)) return;
-  if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}}
-  else{D.rdvList.splice(ri,1)}
-  saveRdv();
-  renderRdv();
+
+async function removeRdv(rdvId){
+  if (!confirm("Supprimer ce RDV ?")) return;
+  try {
+    await window._db.collection('rdv').doc(rdvId).delete();
+  } catch(e) {
+    console.error("Erreur removeRdv:", e);
+  }
 }
-function deleteAllRdvs(){
+
+async function deleteAllRdvs(){
   if(!isAdmin) return;
   if(!confirm("Supprimer TOUS les rendez-vous ?")) return;
-  D.rdvList=[{id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}];
-  saveRdv();
-  renderRdv();
+  try {
+    const snap = await window._db.collection('rdv').get();
+    const batch = window._db.batch();
+    snap.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+  } catch(e) {
+    console.error("Erreur deleteAllRdvs:", e);
+  }
 }
 
 function showTab(id){
