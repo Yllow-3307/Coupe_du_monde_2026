@@ -2075,6 +2075,7 @@ function saveSilent(){ save(); }
 let viewingPote = null; // null = propres pronos, sinon = pseudo du joueur consulté
 
 function getTeamPlayers(teamLabel) {
+  if (!teamLabel) return [];
   const team = TEAMS_DATA.find(t => teamLabel.includes(t.name));
   return team ? team.players : [];
 }
@@ -2158,9 +2159,9 @@ function renderPronos(){
       const bs1Val = (focusedId === `prono_${m.id}_s1`) ? activeEl.value : (bet.s1||'');
       const bs2Val = (focusedId === `prono_${m.id}_s2`) ? activeEl.value : (bet.s2||'');
 
-      const teams = m.label.split(' vs ');
-      const players1 = getTeamPlayers(teams[0]);
-      const players2 = getTeamPlayers(teams[1]);
+      const teams = (m.label || '').split(' vs ');
+      const players1 = getTeamPlayers(teams[0] || '');
+      const players2 = getTeamPlayers(teams[1] || '');
 
       return`<div class="prog-match">
         <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
