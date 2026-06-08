@@ -568,35 +568,78 @@ function subscribeFirestore() {
     }
   });
 
-  // Pronos Real-time (New structure)
-  if (!unsubscribers['all_pronos']) {
-    unsubscribers['all_pronos'] = db.collectionGroup('users').onSnapshot(snap => {
-      snap.docChanges().forEach(change => {
-        const doc = change.doc;
-        if (!doc.ref.path.startsWith('pronos/')) return; 
-        
-        const userId = doc.id;
-        const matchId = doc.ref.parent.parent.id;
-        const data = doc.data();
-        const pseudo = PLAYERS_MAP[userId];
-        if (pseudo) {
-          const key = matchId + pseudo;
-          if (change.type === 'removed') {
-            delete D.pronos[key];
-          } else {
-            D.pronos[key] = {
-              s1: data.scoreHome,
-              s2: data.scoreAway,
-              buteursHome: data.buteursHome || [],
-              buteursAway: data.buteursAway || [],
-              validatedAt: data.validatedAt || null
-            };
-          }
-        }
-      });
-      if (document.getElementById('pronos').classList.contains('active')) renderPronos();
+  // Pronos Real-time — un listener par utilisateur connu dans PLAYERS_MAP
+  // (évite collectionGroup qui nécessite un index Firestore spécial)
+  function subscribeAllPronos() {
+    // Désabonner les anciens listeners de pronos
+    Object.keys(unsubscribers).filter(k => k.startsWith('pronos_user_')).forEach(k => {
+      if (typeof unsubscribers[k] === 'function') unsubscribers[k]();
+      delete unsubscribers[k];
+    });
+
+    const userIds = Object.keys(PLAYERS_MAP);
+    userIds.forEach(userId => {
+      const pseudo = PLAYERS_MAP[userId];
+      if (!pseudo) return;
+      const key = 'pronos_user_' + userId;
+      if (unsubscribers[key]) return; // déjà abonné
+
+      // Écouter tous les matchs pronos de cet utilisateur via une query
+      unsubscribers[key] = db.collectionGroup('users')
+        .where(firebase.firestore.FieldPath.documentId(), '==', userId)
+        .onSnapshot(snap => {
+          snap.docChanges().forEach(change => {
+            const doc = change.doc;
+            if (!doc.ref.path.startsWith('pronos/')) return;
+            const matchId = doc.ref.parent.parent.id;
+            const data = doc.data();
+            const k2 = matchId + pseudo;
+            if (change.type === 'removed') {
+              delete D.pronos[k2];
+            } else {
+              D.pronos[k2] = {
+                s1: data.scoreHome ?? data.s1 ?? '',
+                s2: data.scoreAway ?? data.s2 ?? '',
+                buteursHome: data.buteursHome || [],
+                buteursAway: data.buteursAway || [],
+                validatedAt: data.validatedAt || null
+              };
+            }
+          });
+          if (document.getElementById('pronos').classList.contains('active')) renderPronos();
+        }, err => {
+          // Fallback : lecture directe de tous les matchs pour cet user
+          console.warn('collectionGroup listener failed pour', userId, '— fallback lecture directe');
+          loadPronosForUser(userId, pseudo);
+        });
     });
   }
+
+  async function loadPronosForUser(userId, pseudo) {
+    // Fallback : lit directement pronos/{matchId}/users/{userId} pour chaque match
+    try {
+      const matchIds = PRONO_MATCHES.map(m => m.id);
+      for (const matchId of matchIds) {
+        const ref = db.collection('pronos').doc(matchId).collection('users').doc(userId);
+        const snap = await ref.get();
+        if (snap.exists) {
+          const data = snap.data();
+          D.pronos[matchId + pseudo] = {
+            s1: data.scoreHome ?? data.s1 ?? '',
+            s2: data.scoreAway ?? data.s2 ?? '',
+            buteursHome: data.buteursHome || [],
+            buteursAway: data.buteursAway || [],
+            validatedAt: data.validatedAt || null
+          };
+        }
+      }
+      if (document.getElementById('pronos').classList.contains('active')) renderPronos();
+    } catch(e) {
+      console.error('Erreur loadPronosForUser', userId, e);
+    }
+  }
+
+  subscribeAllPronos();
 
   // Shared data
   unsubscribers['shared'] = db.collection('shared').doc('data').onSnapshot(snap => {
@@ -2076,8 +2119,7 @@ let viewingPote = null; // null = propres pronos, sinon = pseudo du joueur consu
 
 function getTeamPlayers(teamLabel) {
   if (!teamLabel) return [];
-const team = TEAMS_DATA.find(t => teamLabel.includes(t.name));
-
+  const team = TEAMS_DATA.find(t => teamLabel.includes(t.name));
   return team ? team.players : [];
 }
 
@@ -2161,8 +2203,8 @@ function renderPronos(){
       const bs2Val = (focusedId === `prono_${m.id}_s2`) ? activeEl.value : (bet.s2||'');
 
       const teams = (m.label || '').split(' vs ');
-      const players1 = getTeamPlayers(teams[0] || '');
-      const players2 = getTeamPlayers(teams[1] || '');
+      const players1 = getTeamPlayers(teams[0]);
+      const players2 = getTeamPlayers(teams[1]);
 
       return`<div class="prog-match">
         <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
