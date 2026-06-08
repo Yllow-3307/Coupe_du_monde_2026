@@ -599,6 +599,7 @@ function subscribeFirestore() {
       D.bracket   = data.bracket   || {};
       D.teamStats = data.teamStats || TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0,against:0}));
       D.playerRatings = data.playerRatings || {};
+      D.rdvList   = (data.rdvList || [{id:'rdv_0',match:'',heure:'',where:'',owner:'',presents:{}}]).map(r => ({...r, presents:r.presents||{}}));
       D.pts       = data.pts       || {};
 
       syncScoresFromActuals();
