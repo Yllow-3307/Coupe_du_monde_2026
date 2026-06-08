@@ -2076,7 +2076,8 @@ let viewingPote = null; // null = propres pronos, sinon = pseudo du joueur consu
 
 function getTeamPlayers(teamLabel) {
   if (!teamLabel) return [];
-  const team = TEAMS_DATA.find(t => teamLabel.includes(t.name));
+const team = TEAMS_DATA.find(t => teamLabel.includes(t.name));
+
   return team ? team.players : [];
 }
 
