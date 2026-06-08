@@ -37,7 +37,10 @@
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--color-background-secondary);color:var(--color-text-primary);padding:20px;max-width:1200px;margin:0 auto}
    
-    @media (max-width: 600px) {
+    .mobile-title { display: none; }
+    @media (max-width: 768px) {
+      body:not(.forced-pc) .desktop-title { display: none; }
+      body:not(.forced-pc) .mobile-title { display: block; }
       body:not(.forced-pc) { padding: 10px; }
       body:not(.forced-pc) .hdr { padding: 1rem 0; }
       body:not(.forced-pc) .hdr h1 { font-size: 18px; }
@@ -54,6 +57,8 @@
     }
 
     body.forced-mobile { padding: 10px; max-width: 400px; margin: 0 auto; border: 1px solid var(--color-border-tertiary); box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+    body.forced-mobile .desktop-title { display: none; }
+    body.forced-mobile .mobile-title { display: block; }
     body.forced-mobile .hdr { padding: 1rem 0; }
     body.forced-mobile .hdr h1 { font-size: 18px; }
     body.forced-mobile .tabs { gap: 0; margin-bottom: 1rem; }
@@ -361,7 +366,8 @@
 <div class="hdr">
   <span style="font-size:28px">🏆</span>
   <div style="flex:1">
-    <h1>Coupe du Monde FIFA 2026</h1>
+    <h1 class="desktop-title">Coupe du Monde FIFA 2026</h1>
+    <h1 class="mobile-title">CDM 2026</h1>
   </div>
   <button class="btn" onclick="toggleView()" id="view-toggle" title="Alterner entre vue PC et Mobile">
     <i class="ti ti-device-mobile"></i> Mobile / PC
@@ -582,7 +588,8 @@ function subscribeFirestore() {
               s1: data.scoreHome,
               s2: data.scoreAway,
               buteursHome: data.buteursHome || [],
-              buteursAway: data.buteursAway || []
+              buteursAway: data.buteursAway || [],
+              validatedAt: data.validatedAt || null
             };
           }
         }
@@ -599,7 +606,6 @@ function subscribeFirestore() {
       D.bracket   = data.bracket   || {};
       D.teamStats = data.teamStats || TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0,against:0}));
       D.playerRatings = data.playerRatings || {};
-      D.rdvList   = (data.rdvList || [{id:'rdv_0',match:'',heure:'',where:'',owner:'',presents:{}}]).map(r => ({...r, presents:r.presents||{}}));
       D.pts       = data.pts       || {};
 
       syncScoresFromActuals();
@@ -611,13 +617,25 @@ function subscribeFirestore() {
   // RDVs Real-time
   if (!unsubscribers['rdvs']) {
     unsubscribers['rdvs'] = db.collection('rdv').onSnapshot(snap => {
-      D.rdvList = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const activeEl = document.activeElement;
+      const focusedId = activeEl ? activeEl.id : null;
+
+      const newRdvList = snap.docs.map(doc => {
+          const data = doc.data();
+          const rdvId = doc.id;
+          // Si on est en train d'éditer un champ de ce RDV, on garde la valeur locale
+          if (focusedId === `rdv_match_${rdvId}`) data.match = activeEl.value;
+          if (focusedId === `rdv_heure_${rdvId}`) data.heure = activeEl.value;
+          if (focusedId === `rdv_lieu_${rdvId}`) data.lieu = activeEl.value;
+          return { id: rdvId, ...data };
+      });
+
+      D.rdvList = newRdvList;
+      
       const activeTab = document.querySelector('.tab.active');
       if (activeTab && activeTab.textContent.trim() === 'RDV') {
-         const activeEl = document.activeElement;
-         const focusedId = activeEl ? activeEl.id : null;
-         const selectionStart = activeEl ? activeEl.selectionStart : null;
-         const selectionEnd = activeEl ? activeEl.selectionEnd : null;
+         const selectionStart = (activeEl && activeEl.selectionStart !== undefined) ? activeEl.selectionStart : null;
+         const selectionEnd = (activeEl && activeEl.selectionEnd !== undefined) ? activeEl.selectionEnd : null;
          
          renderRdv();
          
@@ -625,7 +643,9 @@ function subscribeFirestore() {
            const el = document.getElementById(focusedId);
            if (el) {
              el.focus();
-             if (selectionStart !== null) el.setSelectionRange(selectionStart, selectionEnd);
+             if (selectionStart !== null && el.setSelectionRange) {
+                 try { el.setSelectionRange(selectionStart, selectionEnd); } catch(e) {}
+             }
            }
          }
       }
@@ -651,7 +671,6 @@ async function save() {
       bracket: D.bracket || {},
       teamStats: D.teamStats || [],
       playerRatings: D.playerRatings || {},
-      rdvList: D.rdvList || [],
       pts: D.pts || {}
     });
   } catch(e) {
@@ -687,13 +706,18 @@ async function saveBet(matchId, field, value) {
 
   try {
     const ref = window._db.collection('pronos').doc(matchId).collection('users').doc(userId);
-    await ref.set({
+    const dataToSave = {
       scoreHome: D.pronos[key].s1,
       scoreAway: D.pronos[key].s2,
       buteursHome: D.pronos[key].buteursHome,
       buteursAway: D.pronos[key].buteursAway,
       updatedAt: Date.now()
-    });
+    };
+    if (field === 'validate') {
+        dataToSave.validatedAt = Date.now();
+        D.pronos[key].validatedAt = dataToSave.validatedAt;
+    }
+    await ref.set(dataToSave, { merge: true });
   } catch(e) {
     console.error("Erreur lors de la sauvegarde du prono :", e);
   }
@@ -876,14 +900,20 @@ function isLocked(matchId) {
     if (s1 !== undefined && s1 !== '') D.actual[m.id].s1 = s1;
     if (s2 !== undefined && s2 !== '') D.actual[m.id].s2 = s2;
 
-    // Meilleur buteur (priorité au buteur de l'équipe gagnante ou le plus cité)
-    if (buteur1 || buteur2) {
-      D.actual[m.id].top = buteur1 || buteur2;
-    }
   });
 
   // Sauvegarde dans Firestore si admin
   if (isAdmin) saveActuals();
+}
+
+async function saveMatchActual(matchId, field, value) {
+  if (!isAdmin) return;
+  try {
+    const ref = window._db.collection('matches').doc(matchId);
+    await ref.set({ [field]: value }, { merge: true });
+  } catch(e) {
+    console.error("Erreur saveMatchActual:", e);
+  }
 }
 
 const MATCHS_DATA = [
@@ -1534,7 +1564,10 @@ function autoComputeTeamStats() {
 async function saveRdvField(rdvId, field, value) {
   if (!currentUser) return;
   try {
-    await window._db.collection('rdv').doc(rdvId).update({ [field]: value });
+    await window._db.collection('rdv').doc(rdvId).update({ 
+      [field]: value,
+      updatedAt: Date.now()
+    });
   } catch(e) {
     console.error("Erreur saveRdvField:", e);
   }
@@ -1753,12 +1786,15 @@ function bracketZoomChange(delta, reset) {
 function applyBracketZoom() {
   const inner = document.getElementById('bracket-inner');
   const lbl = document.getElementById('bracket-zoom-label');
-  if (inner) inner.style.transform = 'scale(' + bracketZoom + ')';
+  if (inner) {
+    inner.style.transformOrigin = 'left center';
+    inner.style.transform = 'scaleX(' + bracketZoom + ')';
+  }
   if (lbl) lbl.textContent = Math.round(bracketZoom * 100) + '%';
-  // Update scroll container height to fit zoomed content
+  // Update scroll container height to fit zoomed content (height is fixed now)
   const scroll = document.getElementById('bracket-scroll');
   if (inner && scroll) {
-    scroll.style.height = Math.min(80 + inner.scrollHeight * bracketZoom, window.innerHeight * 0.75) + 'px';
+    scroll.style.height = '1450px';
   }
 }
 
@@ -2043,6 +2079,21 @@ function getTeamPlayers(teamLabel) {
   return team ? team.players : [];
 }
 
+function resetMobileZoom() {
+  const isMobile = document.body.classList.contains('forced-mobile') || window.innerWidth < 768;
+  if (!isMobile) return;
+  document.querySelector('meta[name="viewport"]').setAttribute(
+    'content',
+    'width=device-width, initial-scale=1.0, maximum-scale=1.0'
+  );
+  setTimeout(() => {
+    document.querySelector('meta[name="viewport"]').setAttribute(
+      'content',
+      'width=device-width, initial-scale=1.0'
+    );
+  }, 100);
+}
+
 function renderPronos(){
   const el=document.getElementById('pronos');
   if (!el) return;
@@ -2096,18 +2147,20 @@ function renderPronos(){
   ${Object.entries(byDate).map(([date,matches])=>`
     <div class="calendar-day">${date}</div>
     ${matches.map(m=>{
-      const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
-      const bet=D.pronos[m.id+displayPote]||{s1:'',s2:'',buteursHome:[],buteursAway:[]};
+      const actual=D.actual[m.id]||{s1:'',s2:'',buteursReelsHome:[],buteursReelsAway:[]};
+      const bet=D.pronos[m.id+displayPote]||{s1:'',s2:'',buteursHome:[],buteursAway:[],validatedAt:null};
       const pts=calcPts(m.id,displayPote);
       const locked = isOwnPronos ? isLocked(m.id) : true; // toujours verrouillé si on consulte un autre
       
       const as1Val = (focusedId === `actual_${m.id}_s1`) ? activeEl.value : (actual.s1||'');
       const as2Val = (focusedId === `actual_${m.id}_s2`) ? activeEl.value : (actual.s2||'');
-      const asc1Val = (focusedId === `actual_${m.id}_scorers1`) ? activeEl.value : (actual.scorers1||'');
-      const asc2Val = (focusedId === `actual_${m.id}_scorers2`) ? activeEl.value : (actual.scorers2||'');
       
       const bs1Val = (focusedId === `prono_${m.id}_s1`) ? activeEl.value : (bet.s1||'');
       const bs2Val = (focusedId === `prono_${m.id}_s2`) ? activeEl.value : (bet.s2||'');
+
+      const teams = m.label.split(' vs ');
+      const players1 = getTeamPlayers(teams[0]);
+      const players2 = getTeamPlayers(teams[1]);
 
       return`<div class="prog-match">
         <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
@@ -2115,28 +2168,45 @@ function renderPronos(){
           <div style="display:flex; align-items:center; gap:10px; margin-bottom: 5px;">
             Score réel : <strong style="color:var(--color-text-primary)">${renderReadonlyScore(actual)}</strong>
             ${isAdmin ? `
-              <input id="actual_${m.id}_s1" class="score-in" type="number" min="0" value="${as1Val}" oninput="setActual('${m.id}','s1',this.value)" style="width:30px; height:22px;">
+              <input id="actual_${m.id}_s1" class="score-in" type="number" min="0" value="${as1Val}" oninput="setActual('${m.id}','s1',this.value)" onblur="resetMobileZoom()" style="width:30px; height:22px;">
               -
-              <input id="actual_${m.id}_s2" class="score-in" type="number" min="0" value="${as2Val}" oninput="setActual('${m.id}','s2',this.value)" style="width:30px; height:22px;">
+              <input id="actual_${m.id}_s2" class="score-in" type="number" min="0" value="${as2Val}" oninput="setActual('${m.id}','s2',this.value)" onblur="resetMobileZoom()" style="width:30px; height:22px;">
             ` : ''}
           </div>
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <div style="display:flex; align-items:center; gap:5px;">
-              <span style="min-width:30px">T1:</span>
-              <input id="actual_${m.id}_scorers1" class="inp-sm" value="${asc1Val}" oninput="setActual('${m.id}','scorers1',this.value)" placeholder="Scorers Team 1" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
+          ${isAdmin ? `
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <div style="flex:1;">
+              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs réels ${teams[0]}</div>
+              <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                ${Array.from({length: parseInt(actual.s1)||0}).map((_, i) => {
+                  const selected = (actual.buteursReelsHome || [])[i] || '';
+                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:110px;" onchange="setActual('${m.id}', 'buteursReelsHome_${i}', this.value)" onblur="resetMobileZoom()">
+                    <option value="">-- Choisir --</option>
+                    ${players1.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
+                  </select>`;
+                }).join('') || '<span style="font-size:11px; color:var(--color-text-tertiary);">—</span>'}
+              </div>
             </div>
-            <div style="display:flex; align-items:center; gap:5px;">
-              <span style="min-width:30px">T2:</span>
-              <input id="actual_${m.id}_scorers2" class="inp-sm" value="${asc2Val}" oninput="setActual('${m.id}','scorers2',this.value)" placeholder="Scorers Team 2" style="flex:1; height:22px; font-size:11px;" ${isAdmin?'':'disabled'}>
+            <div style="flex:1;">
+              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs réels ${teams[1]}</div>
+              <div style="display:flex; flex-wrap:wrap; gap:4px;">
+                ${Array.from({length: parseInt(actual.s2)||0}).map((_, i) => {
+                  const selected = (actual.buteursReelsAway || [])[i] || '';
+                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:110px;" onchange="setActual('${m.id}', 'buteursReelsAway_${i}', this.value)" onblur="resetMobileZoom()">
+                    <option value="">-- Choisir --</option>
+                    ${players2.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
+                  </select>`;
+                }).join('') || '<span style="font-size:11px; color:var(--color-text-tertiary);">—</span>'}
+              </div>
             </div>
-          </div>
+          </div>` : ''}
         </div>
         <div class="prog-bet-row" style="background:var(--color-background-info); ${!isOwnPronos ? 'opacity: 0.8; background: #f1f3f5;' : ''}; flex-direction: column; align-items: stretch;">
           <div style="display:flex; align-items:center; gap:8px;">
             <span style="min-width:80px;color:var(--color-text-secondary);font-weight:600">${displayPote} ${!isOwnPronos ? '<i class="ti ti-lock" style="font-size:10px"></i>' : ''}</span>
-            <input id="prono_${m.id}_s1" class="score-in" type="number" min="0" placeholder="?" value="${bs1Val}" oninput="${isOwnPronos ? `setBet('${m.id}','s1',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
+            <input id="prono_${m.id}_s1" class="score-in" type="number" min="0" placeholder="?" value="${bs1Val}" oninput="${isOwnPronos ? `setBet('${m.id}','s1',this.value)` : ''}" onblur="resetMobileZoom()" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
             <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
-            <input id="prono_${m.id}_s2" class="score-in" type="number" min="0" placeholder="?" value="${bs2Val}" oninput="${isOwnPronos ? `setBet('${m.id}','s2',this.value)` : ''}" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
+            <input id="prono_${m.id}_s2" class="score-in" type="number" min="0" placeholder="?" value="${bs2Val}" oninput="${isOwnPronos ? `setBet('${m.id}','s2',this.value)` : ''}" onblur="resetMobileZoom()" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
             <div style="flex:1"></div>
             ${locked && isOwnPronos?'<span class="pts-chip pts-0">verrouillé</span>':''}
             ${!isOwnPronos?'<span class="pts-chip pts-0">lecture seule</span>':''}
@@ -2145,12 +2215,12 @@ function renderPronos(){
           
           <div style="display:flex; gap:12px; margin-top:8px; border-top:0.5px solid var(--color-border-tertiary); padding-top:8px;">
             <div style="flex:1;">
-              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs ${m.label.split(' vs ')[0]}</div>
+              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs ${teams[0]}</div>
               <div style="display:flex; flex-wrap:wrap; gap:4px;">
                 ${Array.from({length: parseInt(bet.s1)||0}).map((_, i) => {
-                  const players = getTeamPlayers(m.label.split(' vs ')[0]);
+                  const players = getTeamPlayers(teams[0]);
                   const selected = (bet.buteursHome || [])[i] || '';
-                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:120px; ${!isOwnPronos ? 'background:#e9ecef;' : ''}" onchange="${isOwnPronos ? `setBet('${m.id}', 'buteursHome_${i}', this.value)` : ''}" ${locked || !isOwnPronos ? 'disabled' : ''}>
+                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:120px; ${!isOwnPronos ? 'background:#e9ecef;' : ''}" onchange="${isOwnPronos ? `setBet('${m.id}', 'buteursHome_${i}', this.value)` : ''}" onblur="resetMobileZoom()" ${locked || !isOwnPronos ? 'disabled' : ''}>
                     <option value="">-- Choisir --</option>
                     ${players.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
                   </select>`;
@@ -2158,12 +2228,12 @@ function renderPronos(){
               </div>
             </div>
             <div style="flex:1;">
-              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs ${m.label.split(' vs ')[1]}</div>
+              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs ${teams[1]}</div>
               <div style="display:flex; flex-wrap:wrap; gap:4px;">
                 ${Array.from({length: parseInt(bet.s2)||0}).map((_, i) => {
-                  const players = getTeamPlayers(m.label.split(' vs ')[1]);
+                  const players = getTeamPlayers(teams[1]);
                   const selected = (bet.buteursAway || [])[i] || '';
-                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:120px; ${!isOwnPronos ? 'background:#e9ecef;' : ''}" onchange="${isOwnPronos ? `setBet('${m.id}', 'buteursAway_${i}', this.value)` : ''}" ${locked || !isOwnPronos ? 'disabled' : ''}>
+                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:120px; ${!isOwnPronos ? 'background:#e9ecef;' : ''}" onchange="${isOwnPronos ? `setBet('${m.id}', 'buteursAway_${i}', this.value)` : ''}" onblur="resetMobileZoom()" ${locked || !isOwnPronos ? 'disabled' : ''}>
                     <option value="">-- Choisir --</option>
                     ${players.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
                   </select>`;
@@ -2171,6 +2241,13 @@ function renderPronos(){
               </div>
             </div>
           </div>
+          ${isOwnPronos && !locked ? `
+            <div style="margin-top:10px; text-align:right;">
+              <button class="btn btn-primary" onclick="this.textContent='Enregistré ✓'; this.style.background='var(--color-background-success)'; this.style.color='var(--color-text-success)'; saveBet('${m.id}','validate',true); setTimeout(()=>renderPronos(), 2000)" style="padding:4px 12px; font-weight:500;">
+                ${bet.validatedAt ? 'Enregistrer ✓' : 'Valider mon prono'}
+              </button>
+            </div>
+          ` : ''}
         </div>
       </div>`;
     }).join('')}
@@ -2199,14 +2276,27 @@ function setActual(mid,f,v){
   if(!D.actual[mid]) D.actual[mid]={};
   // Empêcher les scores négatifs
   if((f==='s1' || f==='s2') && v !== '') v = String(Math.max(0, parseInt(v)||0));
-  D.actual[mid][f]=v;
-  // If it's a scorer update, we might want to keep the "top" field synced for backward compatibility
-  // but the UI now uses scorers1 and scorers2 for actuals.
-  if (f === 'scorers1' || f === 'scorers2') {
-    const s1 = D.actual[mid].scorers1 || '';
-    const s2 = D.actual[mid].scorers2 || '';
-    D.actual[mid].top = [s1, s2].filter(Boolean).join(', ');
+  
+  if (f.startsWith('buteursReelsHome_')) {
+    const idx = parseInt(f.split('_')[1]);
+    if (!D.actual[mid].buteursReelsHome) D.actual[mid].buteursReelsHome = [];
+    D.actual[mid].buteursReelsHome[idx] = v;
+    saveMatchActual(mid, 'buteursReelsHome', D.actual[mid].buteursReelsHome);
+  } else if (f.startsWith('buteursReelsAway_')) {
+    const idx = parseInt(f.split('_')[1]);
+    if (!D.actual[mid].buteursReelsAway) D.actual[mid].buteursReelsAway = [];
+    D.actual[mid].buteursReelsAway[idx] = v;
+    saveMatchActual(mid, 'buteursReelsAway', D.actual[mid].buteursReelsAway);
+  } else {
+    D.actual[mid][f]=v;
+    saveMatchActual(mid, f, v);
   }
+
+  // Update legacy top field for compatibility
+  const bh = D.actual[mid].buteursReelsHome || [];
+  const ba = D.actual[mid].buteursReelsAway || [];
+  D.actual[mid].top = [...bh, ...ba].filter(Boolean).join(', ');
+
   saveActuals();
   syncScoresFromActuals();
   const el = document.getElementById('pronos');
@@ -2272,18 +2362,40 @@ function renderStats(){
   if(currentStatsSection === 'joueurs') {
     const posColors={G:'#E6F1FB',D:'#EAF3DE',M:'#FAEEDA',A:'#FAECE7'};
     const posTxt={G:'#0C447C',D:'#27500A',M:'#633806',A:'#712B13'};
+
+    // Group players by team
+    const playersByTeam = {};
+    TEAMS_DATA.forEach(team => {
+      playersByTeam[team.name] = {
+        flag: team.flag,
+        players: players.filter(p => p.team === team.name)
+      };
+    });
+
     el.innerHTML=`<div class="subtabs"><button class="subtab" onclick="setStatsSection('equipes')">Équipes</button><button class="subtab active" onclick="setStatsSection('joueurs')">Joueurs</button></div>
     <div class="stat-grid">
       ${bestPlayers.map(b=>`<div class="stat-card"><div class="stat-lbl">Meilleur ${b.pos}</div><div class="stat-val" style="font-size:14px">${b.player?b.player.name:'—'}</div><div class="stat-sub">${b.player?b.player.flag+' '+b.player.team+' · '+b.player.rating.toFixed(1):'Note site à renseigner'}</div></div>`).join('')}
     </div>
-    <div class="section-title">Notes joueurs </div>
-    <div class="card">
-      ${players.map(p=>`<div style="display:grid;grid-template-columns:1.4fr 0.8fr 80px;gap:8px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
-        <span style="font-size:12px;color:var(--color-text-primary)">${p.name}<span style="color:var(--color-text-secondary)"> · ${p.flag} ${p.team}</span></span>
-        <span class="player-pos" style="background:${posColors[p.pos]||'#F1EFE8'};color:${posTxt[p.pos]||'#2C2C2A'};width:max-content">${p.pos}</span>
-        <input class="score-in" type="number" min="0" max="10" step="0.1" value="${D.playerRatings[p.key]||''}" oninput="D.playerRatings['${p.key}']=this.value;save();renderStats()" style="width:64px;height:24px;font-size:12px" ${isAdmin?'':'disabled'}>
-      </div>`).join('')}
-    </div>`;
+    <div class="section-title">Notes joueurs par équipe</div>
+    ${TEAMS_DATA.map(team => {
+        const teamData = playersByTeam[team.name];
+        return `
+          <div class="card" style="padding:0; overflow:hidden; margin-bottom:15px;">
+            <div style="background:var(--color-background-secondary); padding:8px 12px; border-bottom:0.5px solid var(--color-border-tertiary); font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px;">
+              <span style="font-size:18px;">${teamData.flag}</span> ${team.name}
+            </div>
+            <div style="padding:0 12px;">
+              ${teamData.players.map(p => `
+                <div style="display:grid;grid-template-columns:1fr 60px 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
+                  <span style="font-size:12px;color:var(--color-text-primary); font-weight:500;">${p.name}</span>
+                  <span class="player-pos" style="background:${posColors[p.pos]||'#F1EFE8'};color:${posTxt[p.pos]||'#2C2C2A'};width:max-content; justify-self: center;">${p.pos}</span>
+                  <input class="score-in" type="number" min="0" max="10" step="0.1" value="${D.playerRatings[p.key]||''}" oninput="D.playerRatings['${p.key}']=this.value;save();" onblur="renderStats()" style="width:64px;height:24px;font-size:12px; justify-self: end;" ${isAdmin?'':'disabled'}>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+    }).join('')}`;
     return;
   }
   el.innerHTML=`<div class="subtabs"><button class="subtab active" onclick="setStatsSection('equipes')">Équipes</button><button class="subtab" onclick="setStatsSection('joueurs')">Joueurs</button></div>
@@ -2397,21 +2509,22 @@ function renderRdv(){
   ${rdvs.map((r, ri)=>{
     const participants = r.participants || [];
     const count = participants.length;
-    const owner = r.owner || '';
-    const canEdit = owner === currentPote || isAdmin;
+    const ownerPseudo = r.owner || '—';
+    const createur = r.createur || '';
+    const canEdit = currentUser && (createur === currentUser.uid || isAdmin);
     
     const matchVal = (focusedId === `rdv_match_${r.id}`) ? activeEl.value : (r.match || '');
     const heureVal = (focusedId === `rdv_heure_${r.id}`) ? activeEl.value : (r.heure || '');
-    const whereVal = (focusedId === `rdv_where_${r.id}`) ? activeEl.value : (r.where || '');
+    const lieuVal = (focusedId === `rdv_lieu_${r.id}`) ? activeEl.value : (r.lieu || '');
 
     return`<div class="rdv-card">
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
         <div style="flex:1">
-          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Créé par <strong style="color:var(--color-text-primary)">${owner || '—'}</strong></div>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Créé par <strong style="color:var(--color-text-primary)">${ownerPseudo}</strong></div>
           <input id="rdv_match_${r.id}" class="inp-sm" value="${matchVal}" onchange="saveRdvField('${r.id}', 'match', this.value)" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <input id="rdv_heure_${r.id}" type="time" class="inp-sm" value="${heureVal}" onchange="saveRdvField('${r.id}', 'heure', this.value)" style="width:110px" ${canEdit?'':'disabled'}>
-            <input id="rdv_where_${r.id}" class="inp-sm" value="${whereVal}" onchange="saveRdvField('${r.id}', 'where', this.value)" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
+            <input id="rdv_lieu_${r.id}" class="inp-sm" value="${lieuVal}" onchange="saveRdvField('${r.id}', 'lieu', this.value)" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
           </div>
         </div>
         <button class="btn" onclick="removeRdv('${r.id}')" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
@@ -2421,7 +2534,7 @@ function renderRdv(){
           // Trouver l'UID correspondant au pseudo
           const uid = Object.keys(PLAYERS_MAP).find(k => PLAYERS_MAP[k] === p);
           const isPresent = participants.includes(uid);
-          const isMe = uid === currentUser.uid;
+          const isMe = uid === currentUser?.uid;
           return`<div ${isMe ? `onclick="togglePresence('${r.id}', ${isPresent})"` : ''} title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:${isMe?'pointer':'default'};background:${AV_BG[pi]};color:${AV_TX[pi]};opacity:${isPresent?'1':'0.35'};border:${isPresent?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
         }).join('')}</div>
         <span style="font-size:12px;color:var(--color-text-secondary)">${count>0?count+' présent'+(count>1?'s':''):'Personne encore'}</span>
@@ -2451,10 +2564,12 @@ async function addRdv(){
     await db.collection('rdv').add({
       match: '',
       heure: '',
-      where: '',
+      lieu: '',
       owner: currentPote,
+      createur: currentUser.uid,
       participants: [currentUser.uid],
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      updatedAt: Date.now()
     });
   } catch(e) {
     console.error("Erreur addRdv:", e);
