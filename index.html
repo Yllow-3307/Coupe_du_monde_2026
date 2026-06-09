@@ -1601,15 +1601,12 @@ function autoComputeTeamStats() {
   D.teamStats = Object.values(statsMap).sort((a,b) => (b.goals - b.against) - (a.goals - a.against));
 }
 
-async function saveRdvField(rdvId, field, value) {
+async function saveRdv() {
   if (!currentUser) return;
   try {
-    await window._db.collection('rdv').doc(rdvId).update({ 
-      [field]: value,
-      updatedAt: Date.now()
-    });
+    await window._db.collection('shared').doc('data').set({ rdvList: D.rdvList || [] }, { merge: true });
   } catch(e) {
-    console.error("Erreur saveRdvField:", e);
+    console.error("ERREUR COMPLETE :", e);
   }
 }
 
@@ -2556,9 +2553,15 @@ function getGroupeClassement(groupe) {
 
 function renderRdv(){
   const el=document.getElementById('rdv');
-  const rdvs = D.rdvList || [];
-  const activeEl = document.activeElement;
-  const focusedId = activeEl ? activeEl.id : null;
+
+  // Filtrer le RDV template vide (owner vide ou match vide créé par défaut sans propriétaire réel)
+  const visibleRdvs = D.rdvList.map((r, ri) => ({...r, _ri: ri})).filter(r => {
+    // Masquer si propriétaire vide ET match vide (c'est le template par défaut)
+    if ((!r.owner || r.owner === '') && (!r.match || r.match === '')) return false;
+    // Masquer si c'est un RDV template auto-créé par "test..." avec champs vides
+    if (r.owner && r.owner.startsWith('test') && (!r.match || r.match === '')) return false;
+    return true;
+  });
 
   el.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <p style="font-size:12px;color:var(--color-text-secondary)">Organisez vos soirées matchs.</p>
@@ -2567,97 +2570,64 @@ function renderRdv(){
       <button class="btn btn-primary" onclick="addRdv()"><i class="ti ti-plus" aria-hidden="true"></i> Ajouter</button>
     </div>
   </div>
-  ${rdvs.length === 0 ? '<p style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px;">Aucun RDV pour le moment. Crée-en un !</p>' : ''}
-  ${rdvs.map((r, ri)=>{
-    const participants = r.participants || [];
-    const count = participants.length;
-    const ownerPseudo = r.owner || '—';
-    const createur = r.createur || '';
-    const canEdit = currentUser && (createur === currentUser.uid || isAdmin);
-    
-    const matchVal = (focusedId === `rdv_match_${r.id}`) ? activeEl.value : (r.match || '');
-    const heureVal = (focusedId === `rdv_heure_${r.id}`) ? activeEl.value : (r.heure || '');
-    const lieuVal = (focusedId === `rdv_lieu_${r.id}`) ? activeEl.value : (r.lieu || '');
-
+  ${visibleRdvs.length === 0 ? '<p style="font-size:13px;color:var(--color-text-tertiary);text-align:center;padding:20px;">Aucun RDV pour le moment. Crée-en un !</p>' : ''}
+  ${visibleRdvs.map((r)=>{
+    const ri = r._ri;
+    if(!r.presents) r.presents={};
+    const owner = r.owner || '';
+    const canEdit = owner === currentPote;
+    const pres=r.presents||{};
+    const count=Object.values(pres).filter(v=>v===1).length;
     return`<div class="rdv-card">
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
         <div style="flex:1">
-          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Créé par <strong style="color:var(--color-text-primary)">${ownerPseudo}</strong></div>
-          <input id="rdv_match_${r.id}" class="inp-sm" value="${matchVal}" onchange="saveRdvField('${r.id}', 'match', this.value)" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
+          <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Créé par <strong style="color:var(--color-text-primary)">${owner || '—'}</strong></div>
+          <input class="inp-sm" value="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <input id="rdv_heure_${r.id}" type="time" class="inp-sm" value="${heureVal}" onchange="saveRdvField('${r.id}', 'heure', this.value)" style="width:110px" ${canEdit?'':'disabled'}>
-            <input id="rdv_lieu_${r.id}" class="inp-sm" value="${lieuVal}" onchange="saveRdvField('${r.id}', 'lieu', this.value)" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
+            <input type="time" class="inp-sm" value="${r.heure||''}" onchange="D.rdvList[${ri}].heure=this.value;saveRdv()" style="width:110px" ${canEdit?'':'disabled'}>
+            <input class="inp-sm" value="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
           </div>
         </div>
-        <button class="btn" onclick="removeRdv('${r.id}')" aria-label="Supprimer ce RDV" style="padding:4px 8px;#c92a2a" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
+        <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
       </div>
       <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.map((p,pi)=>{
-          // Trouver l'UID correspondant au pseudo
-          const uid = Object.keys(PLAYERS_MAP).find(k => PLAYERS_MAP[k] === p);
-          const isPresent = participants.includes(uid);
-          const isMe = uid === currentUser?.uid;
-          return`<div ${isMe ? `onclick="togglePresence('${r.id}')"` : ''} title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:${isMe?'pointer':'default'};background:${AV_BG[pi]};color:${AV_TX[pi]};opacity:${isPresent?'1':'0.35'};border:${isPresent?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.filter(p => p !== owner).map((p,pi)=>{
+          const state=pres[p]||0;
+          const own = p === currentPote;
+          return`<div ${own?`onclick="toggleRdv(${ri},'${p}')"`:''} title="${p}" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;cursor:${own?'pointer':'default'};background:${AV_BG[POTES.indexOf(p)]};color:${AV_TX[POTES.indexOf(p)]};opacity:${state?'1':'0.35'};border:${state?'2px solid #1D9E75':'1.5px solid transparent'}">${p.substring(0,2)}</div>`;
         }).join('')}</div>
         <span style="font-size:12px;color:var(--color-text-secondary)">${count>0?count+' présent'+(count>1?'s':''):'Personne encore'}</span>
       </div>
     </div>`;
   }).join('')}`;
 }
-
-async function togglePresence(rdvId, isCurrentlyPresent) {
-  const db = window._db;
-  const ref = db.collection('rdv').doc(rdvId);
-  const uid = currentUser.uid;
-  try {
-    if (isCurrentlyPresent) {
-      await ref.update({ participants: firebase.firestore.FieldValue.arrayRemove(uid) });
-    } else {
-      await ref.update({ participants: firebase.firestore.FieldValue.arrayUnion(uid) });
-    }
-  } catch(e) {
-    console.error("Erreur togglePresence:", e);
-  }
+function toggleRdv(ri,p){
+  if(p !== currentPote) return;
+  if(!D.rdvList[ri].presents)D.rdvList[ri].presents={};
+  D.rdvList[ri].presents[p]=(D.rdvList[ri].presents[p]||0)===1?0:1;
+  saveRdv();
+  renderRdv();
 }
-
-async function addRdv(){
-  const db = window._db;
-  try {
-    await db.collection('rdv').add({
-      match: '',
-      heure: '',
-      lieu: '',
-      owner: currentPote,
-      createur: currentUser.uid,
-      participants: [currentUser.uid],
-      createdAt: Date.now(),
-      updatedAt: Date.now()
-    });
-  } catch(e) {
-    console.error("Erreur addRdv:", e);
-  }
+function addRdv(){
+  const rdv={id:'rdv_'+Date.now(),match:'',heure:'',where:'',owner:currentPote,presents:{}};
+  rdv.presents[currentPote]=1;
+  D.rdvList.push(rdv);
+  saveRdv();
+  renderRdv();
 }
-
-async function removeRdv(rdvId){
-  if (!confirm("Supprimer ce RDV ?")) return;
-  try {
-    await window._db.collection('rdv').doc(rdvId).delete();
-  } catch(e) {
-    console.error("Erreur removeRdv:", e);
-  }
+function removeRdv(ri){
+  if(!D.rdvList[ri] || (D.rdvList[ri].owner !== currentPote && !isAdmin)) return;
+  if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}}
+  else{D.rdvList.splice(ri,1)}
+  saveRdv();
+  renderRdv();
 }
-
-async function deleteAllRdvs(){
+function deleteAllRdvs(){
   if(!isAdmin) return;
   if(!confirm("Supprimer TOUS les rendez-vous ?")) return;
-  try {
-    const snap = await window._db.collection('rdv').get();
-    const batch = window._db.batch();
-    snap.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
-  } catch(e) {
-    console.error("Erreur deleteAllRdvs:", e);
-  }
+  D.rdvList=[{id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}];
+  saveRdv();
+  renderRdv();
 }
 
 function showTab(id){
