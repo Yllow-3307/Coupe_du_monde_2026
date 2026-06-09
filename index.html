@@ -2184,7 +2184,7 @@ function renderPronos(){
     </div>` : ''}
   </div>
   <div class="section-title" style="margin-top:1.5rem">Calendrier des pronos${!isOwnPronos ? ' — ' + viewingPote : ''}</div>
-  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">2 pts</span> score exact &nbsp;<span class="pts-chip pts-3">3 pts</span> Score exact + buteur</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">6 pts</span> Score exact + buteur</div>
   ${Object.entries(byDate).map(([date,matches])=>`
     <div class="calendar-day">${date}</div>
     ${matches.map(m=>{
