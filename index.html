@@ -571,49 +571,46 @@ function subscribeFirestore() {
   // Pronos Real-time — un listener par utilisateur connu dans PLAYERS_MAP
   // (évite collectionGroup qui nécessite un index Firestore spécial)
   function subscribeAllPronos() {
-    // Désabonner les anciens listeners de pronos
-    Object.keys(unsubscribers).filter(k => k.startsWith('pronos_user_')).forEach(k => {
-      if (typeof unsubscribers[k] === 'function') unsubscribers[k]();
-      delete unsubscribers[k];
-    });
+  // Désabonner les anciens
+  Object.keys(unsubscribers).filter(k => k.startsWith('pronos_user_')).forEach(k => {
+    if (typeof unsubscribers[k] === 'function') unsubscribers[k]();
+    delete unsubscribers[k];
+  });
 
-    const userIds = Object.keys(PLAYERS_MAP);
-    userIds.forEach(userId => {
-      const pseudo = PLAYERS_MAP[userId];
-      if (!pseudo) return;
-      const key = 'pronos_user_' + userId;
-      if (unsubscribers[key]) return; // déjà abonné
+  const userId = currentUser.uid;            // ← seulement l'user courant
+  const pseudo = currentPote;
 
-      // Écouter tous les matchs pronos de cet utilisateur via une query
-      unsubscribers[key] = db.collectionGroup('users')
-        .where(firebase.firestore.FieldPath.documentId(), '==', userId)
-        .onSnapshot(snap => {
-          snap.docChanges().forEach(change => {
-            const doc = change.doc;
-            if (!doc.ref.path.startsWith('pronos/')) return;
-            const matchId = doc.ref.parent.parent.id;
-            const data = doc.data();
-            const k2 = matchId + pseudo;
-            if (change.type === 'removed') {
-              delete D.pronos[k2];
-            } else {
-              D.pronos[k2] = {
-                s1: data.scoreHome ?? data.s1 ?? '',
-                s2: data.scoreAway ?? data.s2 ?? '',
-                buteursHome: data.buteursHome || [],
-                buteursAway: data.buteursAway || [],
-                validatedAt: data.validatedAt || null
-              };
-            }
-          });
-          if (document.getElementById('pronos').classList.contains('active')) renderPronos();
-        }, err => {
-          // Fallback : lecture directe de tous les matchs pour cet user
-          console.warn('collectionGroup listener failed pour', userId, '— fallback lecture directe');
-          loadPronosForUser(userId, pseudo);
-        });
-    });
-  }
+  // Un listener par match pour l'utilisateur connecté
+  PRONO_MATCHES.forEach(m => {
+    const key = 'pronos_match_' + m.id;
+    if (unsubscribers[key]) return;
+
+    unsubscribers[key] = db.collection('pronos').doc(m.id)
+      .collection('users').doc(userId)
+      .onSnapshot(snap => {
+        const k2 = m.id + pseudo;
+        if (snap.exists) {
+          const data = snap.data();
+          D.pronos[k2] = {
+            s1: data.scoreHome ?? '',
+            s2: data.scoreAway ?? '',
+            buteursHome: data.buteursHome || [],
+            buteursAway: data.buteursAway || [],
+            validatedAt: data.validatedAt || null
+          };
+        } else {
+          delete D.pronos[k2];
+        }
+        if (document.getElementById('pronos').classList.contains('active')) renderPronos();
+      }, err => console.error('Erreur listener prono', m.id, err));
+  });
+
+  // Pour les autres potes (lecture seule, sans listener temps réel) :
+  Object.entries(PLAYERS_MAP).forEach(([uid, pseudo2]) => {
+    if (uid === userId) return; // déjà géré au-dessus
+    loadPronosForUser(uid, pseudo2);
+  });
+}
 
   async function loadPronosForUser(userId, pseudo) {
     // Fallback : lit directement pronos/{matchId}/users/{userId} pour chaque match
@@ -2115,7 +2112,7 @@ function propagateWinner(key, winner) {
 // saveSilent kept for compatibility (no-op now)
 function saveSilent(){ save(); }
 
-let viewingPote = null; // null = propres pronos, sinon = pseudo du joueur consulté
+let viewingPotes = new Set(); // vide = tous affichés
 
 function getTeamPlayers(teamLabel) {
   if (!teamLabel) return [];
@@ -2147,8 +2144,6 @@ function renderPronos(){
   const selectionEnd = activeEl ? activeEl.selectionEnd : null;
 
   const lb=calcLB();
-  const displayPote = viewingPote || currentPote;
-  const isOwnPronos = !viewingPote || viewingPote === currentPote;
 
   const byDate = PRONO_MATCHES.reduce((acc,m)=>{
     const key = m.kickoff ? new Date(m.kickoff).toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) : m.date;
@@ -2160,51 +2155,51 @@ function renderPronos(){
   el.innerHTML=`<div style="margin-bottom:16px">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
       <div class="section-title" style="margin:0">Classement</div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <label style="font-size:12px; color:var(--color-text-secondary);"></label>
-        <select class="select-sm" onchange="viewPronosOf(this.value)">
-          <option value="">Moi (${currentPote})</option>
-          ${POTES.filter(p => p !== currentPote).map(p => `<option value="${p}" ${viewingPote === p ? 'selected' : ''}>${p}</option>`).join('')}
-        </select>
-      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+      ${POTES.map((p, pi) => {
+        const active = viewingPotes.size === 0 || viewingPotes.has(p);
+        return `<button onclick="togglePote('${p}')" style="
+          display:flex;align-items:center;gap:5px;
+          padding:3px 10px 3px 6px;
+          border-radius:9999px;
+          border:1.5px solid ${active ? AV_TX[pi] : 'var(--color-border-secondary)'};
+          background:${active ? AV_BG[pi] : 'var(--color-background-secondary)'};
+          color:${active ? AV_TX[pi] : 'var(--color-text-tertiary)'};
+          font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s">
+          <span style="width:18px;height:18px;border-radius:50%;background:${AV_TX[pi]};color:${AV_BG[pi]};display:flex;align-items:center;justify-content:center;font-size:10px">${p.charAt(0)}</span>
+          ${p}
+        </button>`;
+      }).join('')}
     </div>
     <div class="leaderboard">${lb.map((p,i)=>{
       const pi=POTES.indexOf(p.name);const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-      const isViewing = viewingPote === p.name;
+      const isViewing = viewingPotes.has(p.name);
       return`<div class="lb-row${i===0?' lb-winner':''}" style="${isViewing ? 'outline:2px solid var(--color-text-info);outline-offset:1px' : ''}">
         <span style="font-size:15px;font-weight:500;min-width:24px;color:var(--color-text-secondary)">${medal||'#'+(i+1)}</span>
         <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;background:${AV_BG[pi]};color:${AV_TX[pi]}">${p.name.charAt(0)}</div>
-        <span style="flex:1;font-size:14px;font-weight:500;color:var(--color-text-primary);cursor:pointer" onclick="viewPronosOf('${p.name}')">${p.name}</span>
+        <span style="flex:1;font-size:14px;font-weight:500;color:var(--color-text-primary);cursor:pointer" onclick="togglePote('${p.name}')">${p.name}</span>
         <span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">${p.pts}</span>
         <span style="font-size:11px;color:var(--color-text-secondary);margin-left:3px">pts</span>
-        <button class="btn ${isViewing ? 'btn-primary' : ''}" onclick="viewPronosOf('${p.name}')" style="font-size:11px;padding:3px 8px">${isViewing ? '✓ Vu' : 'Voir'}</button>
+        <button class="btn ${isViewing ? 'btn-primary' : ''}" onclick="togglePote('${p.name}')" style="font-size:11px;padding:3px 8px">${isViewing ? '✓ Filtré' : 'Filtrer'}</button>
       </div>`;}).join('')}
     </div>
-    ${viewingPote && viewingPote !== currentPote ? `
-    <div style="margin-top:10px;padding:8px 12px;background:var(--color-background-info);border-radius:var(--border-radius-md);font-size:12px;color:var(--color-text-info);display:flex;align-items:center;justify-content:space-between">
-      <span>👁 Pronos de <strong>${viewingPote}</strong> — lecture seule</span>
-      <button class="btn" onclick="viewPronosOf(null)" style="font-size:11px;padding:3px 8px">Voir les miens</button>
-    </div>` : ''}
   </div>
-  <div class="section-title" style="margin-top:1.5rem">Calendrier des pronos${!isOwnPronos ? ' — ' + viewingPote : ''}</div>
-  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">2 pts</span> score exact &nbsp;<span class="pts-chip pts-3">3 pts</span> Score exact + buteur</div>
+  <div class="section-title" style="margin-top:1.5rem">Calendrier des pronos</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">6 pts</span> Score exact + buteur</div>
   ${Object.entries(byDate).map(([date,matches])=>`
     <div class="calendar-day">${date}</div>
     ${matches.map(m=>{
       const actual=D.actual[m.id]||{s1:'',s2:'',buteursReelsHome:[],buteursReelsAway:[]};
-      const bet=D.pronos[m.id+displayPote]||{s1:'',s2:'',buteursHome:[],buteursAway:[],validatedAt:null};
-      const pts=calcPts(m.id,displayPote);
-      const locked = isOwnPronos ? isLocked(m.id) : true; // toujours verrouillé si on consulte un autre
-      
       const as1Val = (focusedId === `actual_${m.id}_s1`) ? activeEl.value : (actual.s1||'');
       const as2Val = (focusedId === `actual_${m.id}_s2`) ? activeEl.value : (actual.s2||'');
       
-      const bs1Val = (focusedId === `prono_${m.id}_s1`) ? activeEl.value : (bet.s1||'');
-      const bs2Val = (focusedId === `prono_${m.id}_s2`) ? activeEl.value : (bet.s2||'');
-
       const teams = (m.label || '').split(' vs ');
       const players1 = getTeamPlayers(teams[0]);
       const players2 = getTeamPlayers(teams[1]);
+
+      const rawPotesToShow = viewingPotes.size === 0 ? POTES : POTES.filter(p => viewingPotes.has(p));
+      const potesToShow = [currentPote, ...rawPotesToShow.filter(p => p !== currentPote)];
 
       return`<div class="prog-match">
         <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
@@ -2245,54 +2240,73 @@ function renderPronos(){
             </div>
           </div>` : ''}
         </div>
-        <div class="prog-bet-row" style="background:var(--color-background-info); ${!isOwnPronos ? 'opacity: 0.8; background: #f1f3f5;' : ''}; flex-direction: column; align-items: stretch;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="min-width:80px;color:var(--color-text-secondary);font-weight:600">${displayPote} ${!isOwnPronos ? '<i class="ti ti-lock" style="font-size:10px"></i>' : ''}</span>
-            <input id="prono_${m.id}_s1" class="score-in" type="number" min="0" placeholder="?" value="${bs1Val}" oninput="${isOwnPronos ? `setBet('${m.id}','s1',this.value)` : ''}" onblur="resetMobileZoom()" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
-            <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
-            <input id="prono_${m.id}_s2" class="score-in" type="number" min="0" placeholder="?" value="${bs2Val}" oninput="${isOwnPronos ? `setBet('${m.id}','s2',this.value)` : ''}" onblur="resetMobileZoom()" style="width:28px;height:24px;font-size:12px; ${!isOwnPronos ? 'background:#e9ecef; border-color:#dee2e6;' : ''}" ${locked?'disabled':''}>
-            <div style="flex:1"></div>
-            ${locked && isOwnPronos?'<span class="pts-chip pts-0">verrouillé</span>':''}
-            ${!isOwnPronos?'<span class="pts-chip pts-0">lecture seule</span>':''}
-            ${pts>0?`<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
-          </div>
-          
-          <div style="display:flex; gap:12px; margin-top:8px; border-top:0.5px solid var(--color-border-tertiary); padding-top:8px;">
-            <div style="flex:1;">
-              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs ${teams[0]}</div>
-              <div style="display:flex; flex-wrap:wrap; gap:4px;">
-                ${Array.from({length: parseInt(bet.s1)||0}).map((_, i) => {
-                  const players = getTeamPlayers(teams[0]);
-                  const selected = (bet.buteursHome || [])[i] || '';
-                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:120px; ${!isOwnPronos ? 'background:#e9ecef;' : ''}" onchange="${isOwnPronos ? `setBet('${m.id}', 'buteursHome_${i}', this.value)` : ''}" onblur="resetMobileZoom()" ${locked || !isOwnPronos ? 'disabled' : ''}>
-                    <option value="">-- Choisir --</option>
-                    ${players.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
-                  </select>`;
-                }).join('') || '<span style="font-size:11px; color:var(--color-text-tertiary);">Aucun but</span>'}
-              </div>
+        ${potesToShow.map(p => {
+          const pi = POTES.indexOf(p);
+          const isOwn = p === currentPote;
+          const bet = D.pronos[m.id + p] || {s1:'', s2:'', buteursHome:[], buteursAway:[], validatedAt:null};
+          const locked = isOwn ? isLocked(m.id) : true;
+          const pts = calcPts(m.id, p);
+
+          const bs1Val = (isOwn && focusedId === `prono_${m.id}_s1`) ? activeEl.value : (bet.s1||'');
+          const bs2Val = (isOwn && focusedId === `prono_${m.id}_s2`) ? activeEl.value : (bet.s2||'');
+
+          return `<div class="prog-bet-row" style="background:${AV_BG[pi]};flex-direction:column;align-items:stretch;border-top:0.5px solid var(--color-border-tertiary)">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="min-width:80px;color:${AV_TX[pi]};font-weight:600">${p} ${!isOwn ? '<i class="ti ti-lock" style="font-size:10px"></i>' : ''}</span>
+              <input id="prono_${m.id}_s1" class="score-in" type="number" min="0" placeholder="?" value="${bs1Val}"
+                oninput="${isOwn ? `setBet('${m.id}','s1',this.value)` : ''}" onblur="resetMobileZoom()"
+                style="width:28px;height:24px;font-size:12px;${!isOwn ? 'background:#e9ecef;border-color:#dee2e6;' : ''}"
+                ${locked ? 'disabled' : ''}>
+              <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
+              <input id="prono_${m.id}_s2" class="score-in" type="number" min="0" placeholder="?" value="${bs2Val}"
+                oninput="${isOwn ? `setBet('${m.id}','s2',this.value)` : ''}" onblur="resetMobileZoom()"
+                style="width:28px;height:24px;font-size:12px;${!isOwn ? 'background:#e9ecef;border-color:#dee2e6;' : ''}"
+                ${locked ? 'disabled' : ''}>
+              <div style="flex:1"></div>
+              ${locked && isOwn ? '<span class="pts-chip pts-0">verrouillé</span>' : ''}
+              ${pts > 0 ? `<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>` : '<span class="pts-chip pts-0">—</span>'}
             </div>
-            <div style="flex:1;">
-              <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs ${teams[1]}</div>
-              <div style="display:flex; flex-wrap:wrap; gap:4px;">
-                ${Array.from({length: parseInt(bet.s2)||0}).map((_, i) => {
-                  const players = getTeamPlayers(teams[1]);
-                  const selected = (bet.buteursAway || [])[i] || '';
-                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:120px; ${!isOwnPronos ? 'background:#e9ecef;' : ''}" onchange="${isOwnPronos ? `setBet('${m.id}', 'buteursAway_${i}', this.value)` : ''}" onblur="resetMobileZoom()" ${locked || !isOwnPronos ? 'disabled' : ''}>
-                    <option value="">-- Choisir --</option>
-                    ${players.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
-                  </select>`;
-                }).join('') || '<span style="font-size:11px; color:var(--color-text-tertiary);">Aucun but</span>'}
+
+            ${/* Buteurs — seulement si score saisi */(parseInt(bet.s1)||0) + (parseInt(bet.s2)||0) > 0 ? `
+            <div style="display:flex;gap:12px;margin-top:8px;border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;">
+              <div style="flex:1;">
+                <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px;">Buteurs ${teams[0]}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                  ${Array.from({length: parseInt(bet.s1)||0}).map((_,i) => {
+                    const selected = (bet.buteursHome||[])[i]||'';
+                    return `<select class="select-sm" style="font-size:11px;flex:1;min-width:120px;${!isOwn?'background:#e9ecef;':''}"
+                      onchange="${isOwn ? `setBet('${m.id}','buteursHome_${i}',this.value)` : ''}"
+                      onblur="resetMobileZoom()" ${locked || !isOwn ? 'disabled' : ''}>
+                      <option value="">-- Choisir --</option>
+                      ${players1.map(p2 => `<option value="${p2.name}" ${selected===p2.name?'selected':''}>${p2.name}</option>`).join('')}
+                    </select>`;
+                  }).join('') || '<span style="font-size:11px;color:var(--color-text-tertiary);">Aucun but</span>'}
+                </div>
               </div>
-            </div>
-          </div>
-          ${isOwnPronos && !locked ? `
-            <div style="margin-top:10px; text-align:right;">
-              <button class="btn btn-primary" onclick="this.textContent='Enregistré ✓'; this.style.background='var(--color-background-success)'; this.style.color='var(--color-text-success)'; saveBet('${m.id}','validate',true); setTimeout(()=>renderPronos(), 2000)" style="padding:4px 12px; font-weight:500;">
+              <div style="flex:1;">
+                <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px;">Buteurs ${teams[1]}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                  ${Array.from({length: parseInt(bet.s2)||0}).map((_,i) => {
+                    const selected = (bet.buteursAway||[])[i]||'';
+                    return `<select class="select-sm" style="font-size:11px;flex:1;min-width:120px;${!isOwn?'background:#e9ecef;':''}"
+                      onchange="${isOwn ? `setBet('${m.id}','buteursAway_${i}',this.value)` : ''}"
+                      onblur="resetMobileZoom()" ${locked || !isOwn ? 'disabled' : ''}>
+                      <option value="">-- Choisir --</option>
+                      ${players2.map(p2 => `<option value="${p2.name}" ${selected===p2.name?'selected':''}>${p2.name}</option>`).join('')}
+                    </select>`;
+                  }).join('') || '<span style="font-size:11px;color:var(--color-text-tertiary);">Aucun but</span>'}
+                </div>
+              </div>
+            </div>` : ''}
+
+            ${isOwn && !locked ? `
+            <div style="margin-top:10px;text-align:right;">
+              <button class="btn btn-primary" onclick="this.textContent='Enregistré ✓';this.style.background='var(--color-background-success)';this.style.color='var(--color-text-success)';saveBet('${m.id}','validate',true);setTimeout(()=>renderPronos(),2000)" style="padding:4px 12px;font-weight:500;">
                 ${bet.validatedAt ? 'Enregistrer ✓' : 'Valider mon prono'}
               </button>
-            </div>
-          ` : ''}
-        </div>
+            </div>` : ''}
+          </div>`;
+        }).join('')}
       </div>`;
     }).join('')}
   `).join('')}`;
@@ -2308,8 +2322,12 @@ function renderPronos(){
   }
 }
 
-function viewPronosOf(pote) {
-  viewingPote = (pote === currentPote || pote === null) ? null : pote;
+function togglePote(pote) {
+  if (viewingPotes.has(pote)) {
+    viewingPotes.delete(pote);
+  } else {
+    viewingPotes.add(pote);
+  }
   renderPronos();
 }
 
@@ -2781,4 +2799,3 @@ async function deleteUser(pote) {
 </script>
 </body>
 </html>
-
