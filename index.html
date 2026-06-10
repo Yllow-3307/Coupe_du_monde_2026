@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CDM 2026</title>
+  <title>Tracker Coupe du Monde 2026</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -361,12 +361,12 @@
   <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout" aria-hidden="true"></i> Déconnexion</button>
 </div>
 
-<h2 class="sr-only"> CDM 2026 — groupes, bracket, pronos, stats équipes, fiches joueurs et RDV soirées</h2>
+<h2 class="sr-only">Tracker Coupe du Monde 2026 — groupes, bracket, pronos, stats équipes, fiches joueurs et RDV soirées</h2>
 
 <div class="hdr">
   <span style="font-size:28px">🏆</span>
   <div style="flex:1">
-    <h1 class="desktop-title">CDMFIFA 2026</h1>
+    <h1 class="desktop-title">Coupe du Monde FIFA 2026</h1>
     <h1 class="mobile-title">CDM 2026</h1>
   </div>
   <button class="btn" onclick="toggleView()" id="view-toggle" title="Alterner entre vue PC et Mobile">
@@ -1751,22 +1751,10 @@ function autoComputeTeamStats() {
 
 async function saveRdv() {
   if (!currentUser) return;
-  const db = window._db;
   try {
-    const batch = db.batch();
-    D.rdvList.forEach(rdv => {
-      const ref = db.collection('rdv').doc(rdv.id);
-      batch.set(ref, {
-        match:    rdv.match   || '',
-        heure:    rdv.heure   || '',
-        where:    rdv.where   || '',
-        owner:    rdv.owner   || '',
-        presents: rdv.presents || {}
-      });
-    });
-    await batch.commit();
+    await window._db.collection('shared').doc('data').set({ rdvList: D.rdvList || [] }, { merge: true });
   } catch(e) {
-    console.error("ERREUR saveRdv :", e);
+    console.error("ERREUR COMPLETE :", e);
   }
 }
 
@@ -2067,7 +2055,7 @@ function createBracketFinalCol() {
 
 function createRound32Bracket() {
   return `
-    <div style="margin-bottom:12px;font-weight:500;color:var(--color-text-secondary)">16es de finale (16 matchs)</div>
+    <div style="margin-bottom:12px;font-weight:500;color:var(--color-text-secondary)">32es de finale (16 matchs)</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px">
       ${Array.from({length: 16}, (_, i) => createMatchCard(`r32_${i}`, false)).join('')}
     </div>`;
@@ -2114,7 +2102,7 @@ function createRound16BracketView() {
     <div style="display:flex;gap:24px;overflow-x:auto;padding:10px 0">
       <div style="min-width:280px">
         <div style="text-align:center;margin-bottom:16px">
-          <span style="background:var(--color-background-info);color:var(--color-text-info);padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">16es de finale</span>
+          <span style="background:var(--color-background-info);color:var(--color-text-info);padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">32es de finale</span>
         </div>
         ${generateMatches(16, 'r32')}
       </div>
@@ -2145,6 +2133,25 @@ function createRound16BracketView() {
     </div>`;
 }
 
+function bracketTeamSelect(key, slot, currentVal) {
+  const opts = TEAMS_DATA.map(t =>
+    `<option value="${t.flag} ${t.name}" ${currentVal === t.flag + ' ' + t.name ? 'selected' : ''}>${t.flag} ${t.name}</option>`
+  ).join('');
+  return `<select onchange="setBracketTeam('${key}','${slot}',this.value)"
+    style="width:100%;padding:8px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);font-size:13px;color:var(--color-text-primary);cursor:pointer;outline:none">
+    <option value="">— Choisir une équipe —</option>
+    ${opts}
+  </select>`;
+}
+
+function setBracketTeam(key, slot, value) {
+  if (!isAdmin) return;
+  if (!value) return;
+  D.bracket[key + slot] = value;
+  save();
+  renderBracket();
+}
+
 function generateMatches(count, prefix) {
   let html = '';
   for (let i = 0; i < count; i++) {
@@ -2153,15 +2160,21 @@ function generateMatches(count, prefix) {
     const t2 = D.bracket[key + '_t2'] || 'À dét.';
     const winner = D.bracket[key + '_w'];
 
+    const isR32 = prefix === 'r32';
+
+    const team1El = (isR32 && isAdmin && t1 === 'À dét.')
+      ? bracketTeamSelect(key, '_t1', t1)
+      : `<div onclick="pickWinner('${key}',1)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:6px;cursor:pointer;font-size:13px;color:${winner === t1 && t1 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};transition:all 0.15s">${t1}</div>`;
+
+    const team2El = (isR32 && isAdmin && t2 === 'À dét.')
+      ? bracketTeamSelect(key, '_t2', t2)
+      : `<div onclick="pickWinner('${key}',2)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:6px;cursor:pointer;font-size:13px;color:${winner === t2 && t2 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};transition:all 0.15s">${t2}</div>`;
+
     html += `
       <div style="margin-bottom:20px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px">
-        <div onclick="pickWinner('${key}',1)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:6px;cursor:pointer;font-size:13px;color:${winner === t1 && t1 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};transition:all 0.15s">
-          ${t1}
-        </div>
-        <div style="text-align:center;font-size:11px;color:var(--color-text-tertiary);padding:2px 0">VS</div>
-        <div onclick="pickWinner('${key}',2)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:6px;cursor:pointer;font-size:13px;color:${winner === t2 && t2 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};transition:all 0.15s">
-          ${t2}
-        </div>
+        ${team1El}
+        <div style="text-align:center;font-size:11px;color:var(--color-text-tertiary);padding:4px 0">VS</div>
+        ${team2El}
       </div>`;
   }
   return html;
@@ -2232,7 +2245,7 @@ function pickWinner(key, teamNum) {
   
   const winner = teamNum === 1 ? t1 : t2;
   
-  if (winner === 'À déterminer') return;
+  if (winner === 'À déterminer' || winner === 'À dét.' || winner === '?') return;
 
   D.bracket[key + '_w'] = winner;
   
@@ -2782,7 +2795,6 @@ function removeRdv(ri){
   saveRdv();
   renderRdv();
 }
-
 function deleteAllRdvs(){
   if(!isAdmin) return;
   if(!confirm("Supprimer TOUS les rendez-vous ?")) return;
