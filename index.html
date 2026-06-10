@@ -2505,7 +2505,7 @@ function initBracketPanZoom() {
 
 function createFullBracket() {
   return `<div style="display:flex;gap:16px;align-items:flex-start">
-    ${createBracketRoundCol('16es de finale', 16, 'r32')}
+    ${createBracketRoundCol('16es de finale', 16, 'r16')}
     ${createBracketRoundCol('8es de finale', 8, '16')}
     ${createBracketRoundCol('Quarts de finale', 4, 'qf')}
     ${createBracketRoundCol('Demi-finales', 2, 'sf')}
@@ -2514,8 +2514,8 @@ function createFullBracket() {
 }
 
 function createBracketRoundCol(title, count, prefix) {
-  const labelBg = prefix === 'r32' ? 'var(--color-background-secondary)' : 'var(--color-background-info)';
-  const labelColor = prefix === 'r32' ? 'var(--color-text-secondary)' : 'var(--color-text-info)';
+  const labelBg = prefix === 'r16' ? 'var(--color-background-secondary)' : 'var(--color-background-info)';
+  const labelColor = prefix === 'r16' ? 'var(--color-text-secondary)' : 'var(--color-text-info)';
   return `<div style="min-width:190px">
     <div style="text-align:center;margin-bottom:10px">
       <span style="background:${labelBg};color:${labelColor};padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">${title}</span>
@@ -2535,27 +2535,77 @@ function createBracketRoundCol(title, count, prefix) {
 }
 
 function createBracketFinalCol() {
-  const key = 'final';
-  const t1 = D.bracket[key + '_t1'] || 'À dét.';
-  const t2 = D.bracket[key + '_t2'] || 'À dét.';
-  const w = D.bracket[key + '_w'];
-  return `<div style="min-width:190px">
+  const finalKey = 'final';
+  const finalT1 = D.bracket[finalKey + '_t1'] || 'À dét.';
+  const finalT2 = D.bracket[finalKey + '_t2'] || 'À dét.';
+  const finalW = D.bracket[finalKey + '_w'];
+
+  const thirdKey = 'third';
+  const thirdT1 = D.bracket[thirdKey + '_t1'] || 'À dét.';
+  const thirdT2 = D.bracket[thirdKey + '_t2'] || 'À dét.';
+  const thirdW = D.bracket[thirdKey + '_w'];
+
+  return `
+  <div style="min-width:190px">
+
+    <!-- Finale -->
     <div style="text-align:center;margin-bottom:10px">
-      <span style="background:var(--color-background-warning);color:#633806;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">🏆 FINALE</span>
+      <span style="background:var(--color-background-warning);color:#633806;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">
+        🏆 FINALE
+      </span>
     </div>
-    <div style="background:var(--color-background-primary);border:2px solid #EF9F27;border-radius:var(--border-radius-lg);padding:12px">
-      <div onclick="pickWinner('${key}',1)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:8px;cursor:pointer;font-size:12px;color:${w===t1&&t1!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t1}</div>
-      <div style="text-align:center;font-size:22px;margin:6px 0">🏆</div>
-      <div onclick="pickWinner('${key}',2)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:8px;cursor:pointer;font-size:12px;color:${w===t2&&t2!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t2}</div>
+
+    <div style="background:var(--color-background-primary);border:2px solid #EF9F27;border-radius:var(--border-radius-lg);padding:12px;margin-bottom:24px">
+      <div onclick="pickWinner('${finalKey}',1)"
+           style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:8px;cursor:pointer;
+           color:${finalW===finalT1&&finalT1!=='À dét.'?'#fff':'var(--color-text-primary)'};
+           background:${finalW===finalT1&&finalT1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
+        ${finalT1}
+      </div>
+
+      <div style="text-align:center;font-size:22px">🏆</div>
+
+      <div onclick="pickWinner('${finalKey}',2)"
+           style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:8px;cursor:pointer;
+           color:${finalW===finalT2&&finalT2!=='À dét.'?'#fff':'var(--color-text-primary)'};
+           background:${finalW===finalT2&&finalT2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
+        ${finalT2}
+      </div>
     </div>
+
+    <!-- Petite finale -->
+    <div style="text-align:center;margin-bottom:10px">
+      <span style="background:#f1f3f5;color:#495057;padding:3px 10px;border-radius:9999px;font-size:11px;font-weight:600">
+        🥉 PETITE FINALE
+      </span>
+    </div>
+
+    <div style="background:var(--color-background-primary);border:2px solid #adb5bd;border-radius:var(--border-radius-lg);padding:12px">
+      <div onclick="pickWinner('${thirdKey}',1)"
+           style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:8px;cursor:pointer;
+           color:${thirdW===thirdT1&&thirdT1!=='À dét.'?'#fff':'var(--color-text-primary)'};
+           background:${thirdW===thirdT1&&thirdT1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
+        ${thirdT1}
+      </div>
+
+      <div style="text-align:center;font-size:20px">🥉</div>
+
+      <div onclick="pickWinner('${thirdKey}',2)"
+           style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:8px;cursor:pointer;
+           color:${thirdW===thirdT2&&thirdT2!=='À dét.'?'#fff':'var(--color-text-primary)'};
+           background:${thirdW===thirdT2&&thirdT2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
+        ${thirdT2}
+      </div>
+    </div>
+
   </div>`;
 }
 
-function createRound32Bracket() {
+function createRound16Bracket() {
   return `
     <div style="margin-bottom:12px;font-weight:500;color:var(--color-text-secondary)">16es de finale (16 matchs)</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px">
-      ${Array.from({length: 16}, (_, i) => createMatchCard(`r32_${i}`, false)).join('')}
+      ${Array.from({length: 16}, (_, i) => createMatchCard(`r16_${i}`, false)).join('')}
     </div>`;
 }
 
@@ -2602,7 +2652,7 @@ function createRound16BracketView() {
         <div style="text-align:center;margin-bottom:16px">
           <span style="background:var(--color-background-info);color:var(--color-text-info);padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">16es de finale</span>
         </div>
-        ${generateMatches(16, 'r32')}
+        ${generateMatches(16, 'r16')}
       </div>
       <div style="min-width:280px">
         <div style="text-align:center;margin-bottom:16px">
@@ -2658,13 +2708,13 @@ function generateMatches(count, prefix) {
     const t2 = D.bracket[key + '_t2'] || 'À dét.';
     const winner = D.bracket[key + '_w'];
 
-    const isR32 = prefix === 'r32';
+    const isR16 = prefix === 'r16';
 
-    const team1El = (isR32 && isAdmin && t1 === 'À dét.')
+    const team1El = (isR16 && isAdmin && t1 === 'À dét.')
       ? bracketTeamSelect(key, '_t1', t1)
       : `<div onclick="pickWinner('${key}',1)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:6px;cursor:pointer;font-size:13px;color:${winner === t1 && t1 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t1 && t1 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};transition:all 0.15s">${t1}</div>`;
 
-    const team2El = (isR32 && isAdmin && t2 === 'À dét.')
+    const team2El = (isR16 && isAdmin && t2 === 'À dét.')
       ? bracketTeamSelect(key, '_t2', t2)
       : `<div onclick="pickWinner('${key}',2)" style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:6px;cursor:pointer;font-size:13px;color:${winner === t2 && t2 !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${winner === t2 && t2 !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};transition:all 0.15s">${t2}</div>`;
 
@@ -2760,7 +2810,7 @@ function propagateWinner(key, winner) {
 
   let nextKey = null;
 
-  if (phase === 'r32') {
+  if (phase === 'r16') {
     nextKey = `16_${Math.floor(index / 2)}`;
   } else if (phase === '16') {
     nextKey = `qf_${Math.floor(index / 2)}`;
