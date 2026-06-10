@@ -1751,24 +1751,12 @@ function autoComputeTeamStats() {
 
 async function saveRdv() {
   if (!currentUser) return;
-  const db = window._db;
   try {
-    const batch = db.batch();
-    D.rdvList.forEach(rdv => {
-      const ref = db.collection('rdv').doc(rdv.id);
-      batch.set(ref, {
-        match:    rdv.match   || '',
-        heure:    rdv.heure   || '',
-        where:    rdv.where   || '',
-        owner:    rdv.owner   || '',
-        presents: rdv.presents || {}
-      });
-    });
-    await batch.commit();
+    await window._db.collection('shared').doc('data').set({ rdvList: D.rdvList || [] }, { merge: true });
   } catch(e) {
-    console.error("ERREUR saveRdv :", e);
+    console.error("ERREUR COMPLETE :", e);
   }
-}*
+}
 
 function setStatsSection(section) {
   currentStatsSection = section;
@@ -2775,37 +2763,20 @@ function addRdv(){
   saveRdv();
   renderRdv();
 }
-async function removeRdv(ri) {
-  if (!D.rdvList[ri] || (D.rdvList[ri].owner !== currentPote && !isAdmin)) return;
-  const db = window._db;
-  const rdvId = D.rdvList[ri].id;
-
-  if (D.rdvList.length <= 1) {
-    // On réinitialise le seul RDV plutôt que de supprimer
-    D.rdvList[0] = {id: rdvId, match: '', heure: '', where: '', owner: currentPote, presents: {[currentPote]: 1}};
-    await db.collection('rdv').doc(rdvId).set(D.rdvList[0]);
-  } else {
-    D.rdvList.splice(ri, 1);
-    await db.collection('rdv').doc(rdvId).delete();
-  }
+function removeRdv(ri){
+  if(!D.rdvList[ri] || (D.rdvList[ri].owner !== currentPote && !isAdmin)) return;
+  if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}}
+  else{D.rdvList.splice(ri,1)}
+  saveRdv();
   renderRdv();
 }
-  
-async function deleteAllRdvs() {
-  if (!isAdmin) return;
-  if (!confirm("Supprimer TOUS les rendez-vous ?")) return;
-  const db = window._db;
-  const snap = await db.collection('rdv').get();
-  const batch = db.batch();
-  snap.docs.forEach(doc => batch.delete(doc.ref));
-  const newId = 'rdv_0_' + Date.now();
-  const newRdv = {id: newId, match: '', heure: '', where: '', owner: currentPote, presents: {[currentPote]: 1}};
-  batch.set(db.collection('rdv').doc(newId), newRdv);
-  await batch.commit();
-  D.rdvList = [newRdv];
+function deleteAllRdvs(){
+  if(!isAdmin) return;
+  if(!confirm("Supprimer TOUS les rendez-vous ?")) return;
+  D.rdvList=[{id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}];
+  saveRdv();
   renderRdv();
 }
-
 
 function showTab(id){
   const tabs = ['groupes','matchs','bracket','pronos','stats','equipes','rdv','admin'];
