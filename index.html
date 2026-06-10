@@ -2067,7 +2067,7 @@ function createBracketFinalCol() {
 
 function createRound32Bracket() {
   return `
-    <div style="margin-bottom:12px;font-weight:500;color:var(--color-text-secondary)">32es de finale (16 matchs)</div>
+    <div style="margin-bottom:12px;font-weight:500;color:var(--color-text-secondary)">16es de finale (16 matchs)</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:16px">
       ${Array.from({length: 16}, (_, i) => createMatchCard(`r32_${i}`, false)).join('')}
     </div>`;
@@ -2114,7 +2114,7 @@ function createRound16BracketView() {
     <div style="display:flex;gap:24px;overflow-x:auto;padding:10px 0">
       <div style="min-width:280px">
         <div style="text-align:center;margin-bottom:16px">
-          <span style="background:var(--color-background-info);color:var(--color-text-info);padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">32es de finale</span>
+          <span style="background:var(--color-background-info);color:var(--color-text-info);padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500">16es de finale</span>
         </div>
         ${generateMatches(16, 'r32')}
       </div>
