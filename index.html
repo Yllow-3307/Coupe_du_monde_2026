@@ -921,101 +921,116 @@ async function saveMatchActual(matchId, field, value) {
 }
 
 const MATCHS_DATA = [
-  // --- GROUPE A ---
+  // 11 Juin
   { day: "11 Juin", stage: "Phase de Groupes", g: "A", t1: "🇲🇽 Mexique", t2: "🇿🇦 Afrique du Sud", heure: "21:00" },
+  
+  // 12 Juin
+  
   { day: "12 Juin", stage: "Phase de Groupes", g: "A", t1: "🇰🇷 Corée du Sud", t2: "🇨🇿 Tchéquie", heure: "04:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "A", t1: "🇨🇿 Tchéquie", t2: "🇿🇦 Afrique du Sud", heure: "17:00" },
-  { day: "19 Juin", stage: "Phase de Groupes", g: "A", t1: "🇲🇽 Mexique", t2: "🇰🇷 Corée du Sud", heure: "02:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "A", t1: "🇨🇿 Tchéquie", t2: "🇲🇽 Mexique", heure: "02:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "A", t1: "🇿🇦 Afrique du Sud", t2: "🇰🇷 Corée du Sud", heure: "09:00" },
-
-  // --- GROUPE B ---
   { day: "12 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇧🇦 Bosnie-Herz.", heure: "21:00" },
-  { day: "13 Juin", stage: "Phase de Groupes", g: "B", t1: "🇶🇦 Qatar", t2: "🇨🇭 Suisse", heure: "15:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇶🇦 Qatar", heure: "21:00" },
-  { day: "19 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇧🇦 Bosnie-Herz.", heure: "03:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇨🇦 Canada", heure: "03:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "B", t1: "🇧🇦 Bosnie-Herz.", t2: "🇶🇦 Qatar", heure: "09:00" },
 
-  // --- GROUPE C ---
-  { day: "14 Juin", stage: "Phase de Groupes", g: "C", t1: "🇺🇸 États-Unis", t2: "🇵🇾 Paraguay", heure: "21:00" },
-  { day: "14 Juin", stage: "Phase de Groupes", g: "C", t1: "🇬🇭 Ghana", t2: "🇬🇪 Géorgie", heure: "03:00" },
-  { day: "20 Juin", stage: "Phase de Groupes", g: "C", t1: "🇺🇸 États-Unis", t2: "🇬🇭 Ghana", heure: "03:00" },
-  { day: "20 Juin", stage: "Phase de Groupes", g: "C", t1: "🇬🇪 Géorgie", t2: "🇵🇾 Paraguay", heure: "09:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "C", t1: "🇬🇪 Géorgie", t2: "🇺🇸 États-Unis", heure: "03:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "C", t1: "🇵🇾 Paraguay", t2: "🇬🇭 Ghana", heure: "09:00" },
+// 13 Juin
+  { day: "13 Juin", stage: "Phase de Groupes", g: "D", t1: "🇺🇸 États-Unis", t2: "🇵🇾 Paraguay", heure: "03:00" },
+  { day: "13 Juin", stage: "Phase de Groupes", g: "B", t1: "🇶🇦 Qatar", t2: "🇨🇭 Suisse", heure: "21:00" },
 
-  // --- GROUPE D ---
-  { day: "13 Juin", stage: "Phase de Groupes", g: "D", t1: "🇦🇷 Argentine", t2: "🇵🇪 Pérou", heure: "15:00" },
-  { day: "14 Juin", stage: "Phase de Groupes", g: "D", t1: "🇨🇮 Côte d'Ivoire", t2: "🇸🇮 Slovénie", heure: "18:00" },
-  { day: "19 Juin", stage: "Phase de Groupes", g: "D", t1: "🇦🇷 Argentine", t2: "🇨🇮 Côte d'Ivoire", heure: "21:00" },
-  { day: "20 Juin", stage: "Phase de Groupes", g: "D", t1: "🇸🇮 Slovénie", t2: "🇵🇪 Pérou", heure: "03:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "D", t1: "🇸🇮 Slovénie", t2: "🇦🇷 Argentine", heure: "03:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "D", t1: "🇵🇪 Pérou", t2: "🇨🇮 Côte d'Ivoire", heure: "09:00" },
+// 14 Juin 
+  { day: "14 Juin", stage: "Phase de Groupes", g: "C", t1: "🇧🇷 Brésil", t2: "🇲🇦 Maroc", heure: "00:00" },
+  { day: "14 Juin", stage: "Phase de Groupes", g: "C", t1: "🇭🇹 Haïti", t2: "🏴󠁧󠁢󠁳󠁣󠁴󠁿\u{e007f} Écosse", heure: "03:00" },
+  { day: "14 Juin", stage: "Phase de Groupes", g: "D", t1: "🇦🇺 Australie", t2 "🇹🇷 Turquie", heure: "06:00" },
+  { day: "14 Juin", stage: "Phase de Groupes", g: "E", t1: "🇩🇪 Allemagne", t2: "🇨🇼 Curaçao", heure: "19:00" },
+  { day: "14 Juin", stage: "Phase de Groupes", g: "F", t1: "🇳🇱 Pays-Bas", t2: "🇯🇵 Japon", heure: "22:00" },
 
-  // --- GROUPE E ---
-  { day: "14 Juin", stage: "Phase de Groupes", g: "E", t1: "🇧🇷 Brésil", t2: "🇲🇦 Maroc", heure: "18:00" },
-  { day: "15 Juin", stage: "Phase de Groupes", g: "E", t1: "🇯🇵 Japon", t2: "🇨🇴 Colombie", heure: "03:00" },
-  { day: "20 Juin", stage: "Phase de Groupes", g: "E", t1: "🇧🇷 Brésil", t2: "🇨🇴 Colombie", heure: "03:00" },
-  { day: "21 Juin", stage: "Phase de Groupes", g: "E", t1: "🇲🇦 Maroc", t2: "🇯🇵 Japon", heure: "09:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "E", t1: "🇲🇦 Maroc", t2: "🇧🇷 Brésil", heure: "03:00" },
-  { day: "25 Juin", stage: "Phase de Groupes", g: "E", t1: "🇯🇵 Japon", t2: "🇨🇴 Colombie", heure: "09:00" },
+// 15 Juin 
+  { day: "15 Juin", stage: "Phase de Groupes", g: "E", t1: "🇨🇮 Côte d'Ivoire", t2: "🇪🇨 Équateur", heure: "01:00" },
+  { day: "15 Juin", stage: "Phase de Groupes", g: "F", t1: "🇸🇪 Suède", t2: "🇹🇳 Tunisie", heure: "04:00" },
+  { day: "15 Juin", stage: "Phase de Groupes", g: "H", t1: "🇪🇸 Espagne", t2: "🇨🇻 Cap-Vert", heure: "18:00" },
+  { day: "15 Juin", stage: "Phase de Groupes", g: "G", t1: "🇧🇪 Belgique", t2: "🇪🇬 Égypte", heure: "21:00" },
 
-  // --- GROUPE F ---
-  { day: "14 Juin", stage: "Phase de Groupes", g: "F", t1: "🇪🇸 Espagne", t2: "🇩🇰 Danemark", heure: "12:00" },
-  { day: "15 Juin", stage: "Phase de Groupes", g: "F", t1: "🇷🇸 Serbie", t2: "🇹🇳 Tunisie", heure: "15:00" },
-  { day: "20 Juin", stage: "Phase de Groupes", g: "F", t1: "🇪🇸 Espagne", t2: "🇷🇸 Serbie", heure: "03:00" },
-  { day: "21 Juin", stage: "Phase de Groupes", g: "F", t1: "🇹🇳 Tunisie", t2: "🇩🇰 Danemark", heure: "09:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "F", t1: "🇹🇳 Tunisie", t2: "🇪🇸 Espagne", heure: "03:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "F", t1: "🇩🇰 Danemark", t2: "🇷🇸 Serbie", heure: "09:00" },
-
-  // --- GROUPE G ---
-  { day: "15 Juin", stage: "Phase de Groupes", g: "G", t1: "🇬🇧 Angleterre", t2: "🇸🇰 Slovaquie", heure: "21:00" },
-  { day: "16 Juin", stage: "Phase de Groupes", g: "G", t1: "🇺🇾 Uruguay", t2: "🇮🇷 Iran", heure: "03:00" },
-  { day: "21 Juin", stage: "Phase de Groupes", g: "G", t1: "🇬🇧 Angleterre", t2: "🇺🇾 Uruguay", heure: "03:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "G", t1: "🇮🇷 Iran", t2: "🇸🇰 Slovaquie", heure: "09:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "G", t1: "🇮🇷 Iran", t2: "🇬🇧 Angleterre", heure: "03:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "G", t1: "🇸🇰 Slovaquie", t2: "🇺🇾 Uruguay", heure: "09:00" },
-
-  // --- GROUPE H ---
-  { day: "15 Juin", stage: "Phase de Groupes", g: "H", t1: "🇵🇹 Portugal", t2: "🇰🇪 Kenya", heure: "03:00" },
-  { day: "16 Juin", stage: "Phase de Groupes", g: "H", t1: "🇭🇷 Croatie", t2: "🇺🇿 Ouzbékistan", heure: "12:00" },
-  { day: "21 Juin", stage: "Phase de Groupes", g: "H", t1: "🇵🇹 Portugal", t2: "🇭🇷 Croatie", heure: "03:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "H", t1: "🇺🇿 Ouzbékistan", t2: "🇰🇪 Kenya", heure: "09:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "H", t1: "🇺🇿 Ouzbékistan", t2: "🇵🇹 Portugal", heure: "03:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "H", t1: "🇰🇪 Kenya", t2: "🇭🇷 Croatie", heure: "09:00" },
-
-  // --- GROUPE I ---
+//16 Juin
+  { day: "16 Juin", stage: "Phase de Groupes", g: "H", t1: "🇸🇦 Arabie Saoudite", t2: "🇺🇾 Uruguay", heure: "00:00" },
+  { day: "16 Juin", stage: "Phase de Groupes", g: "G", t1: "🇮🇷 Iran", t2: "🇳🇿 Nouvelle-Zélande", heure: "03:00" },
   { day: "16 Juin", stage: "Phase de Groupes", g: "I", t1: "🇫🇷 France", t2: "🇸🇳 Sénégal", heure: "21:00" },
-  { day: "17 Juin", stage: "Phase de Groupes", g: "I", t1: "🇳🇴 Norvège", t2: "🇮🇶 Irak", heure: "03:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "I", t1: "🇫🇷 France", t2: "🇳🇴 Norvège", heure: "21:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "I", t1: "🇮🇶 Irak", t2: "🇸🇳 Sénégal", heure: "09:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "I", t1: "🇮🇶 Irak", t2: "🇫🇷 France", heure: "23:00" },
-  { day: "26 Juin", stage: "Phase de Groupes", g: "I", t1: "🇸🇳 Sénégal", t2: "🇳🇴 Norvège", heure: "09:00" },
 
-  // --- GROUPE J ---
-  { day: "17 Juin", stage: "Phase de Groupes", g: "J", t1: "🇩🇪 Allemagne", t2: "🇦🇺 Australie", heure: "03:00" },
-  { day: "17 Juin", stage: "Phase de Groupes", g: "J", t1: "🇺🇦 Ukraine", t2: "🇯🇴 Jordanie", heure: "03:00" },
-  { day: "22 Juin", stage: "Phase de Groupes", g: "J", t1: "🇩🇪 Allemagne", t2: "🇺🇦 Ukraine", heure: "03:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "J", t1: "🇯🇴 Jordanie", t2: "🇦🇺 Australie", heure: "09:00" },
-  { day: "28 Juin", stage: "Phase de Groupes", g: "J", t1: "🇯🇴 Jordanie", t2: "🇩🇪 Allemagne", heure: "03:00" },
-  { day: "28 Juin", stage: "Phase de Groupes", g: "J", t1: "🇦🇺 Australie", t2: "🇺🇦 Ukraine", heure: "09:00" },
+// 17 Juin 
+  { day: "17 Juin", stage: "Phase de Groupes", g: "I", t1: "🇳🇴 Norvège", t2: "🇮🇶 Irak", heure: "00:00" },
+  { day: "17 Juin", stage: "Phase de Groupes", g: "J", t1: "🇦🇷 Argentine", t2: "🇩🇿 Algérie", heure: "03:00" },
+  { day: "17 Juin", stage: "Phase de Groupes", g: "J", t1: "🇦🇹 Autriche", t2: "🇯🇴 Jordanie", heure: "06:00" },
+  { day: "17 Juin", stage: "Phase de Groupes", g: "K", t1: "🇵🇹 Portugal", t2: "🇨🇩 RD Congo", heure: "19:00" },
+  { day: "15 Juin", stage: "Phase de Groupes", g: "L", t1: "🇬🇧 Angleterre", t2: "🇭🇷 Croatie", heure: "21:00" },
 
-  // --- GROUPE K ---
-  { day: "17 Juin", stage: "Phase de Groupes", g: "K", t1: "🇳🇱 Pays-Bas", t2: "🇲🇾 Malaisie", heure: "03:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "K", t1: "🇨🇱 Chili", t2: "🇸🇦 Arabie Saoudite", heure: "03:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "K", t1: "🇳🇱 Pays-Bas", t2: "🇨🇱 Chili", heure: "03:00" },
-  { day: "24 Juin", stage: "Phase de Groupes", g: "K", t1: "🇸🇦 Arabie Saoudite", t2: "🇲🇾 Malaisie", heure: "09:00" },
-  { day: "28 Juin", stage: "Phase de Groupes", g: "K", t1: "🇸🇦 Arabie Saoudite", t2: "🇳🇱 Pays-Bas", heure: "03:00" },
-  { day: "28 Juin", stage: "Phase de Groupes", g: "K", t1: "🇲🇾 Malaisie", t2: "🇨🇱 Chili", heure: "09:00" },
+// 18 Juin
+  { day: "18 Juin", stage: "Phase de Groupes", g: "L", t1: "🇬🇭 Ghana", t2: "🇵🇦 Panama", heure: "01:00" },
+  { day: "18 Juin", stage: "Phase de Groupes", g: "K", t1: "🇺🇿 Ouzbékistan", t2: "🇨🇴 Colombie", heure: "04:00" },
+  { day: "18 Juin", stage: "Phase de Groupes", g: "A", t1: "🇨🇿 Tchéquie", t2: "🇿🇦 Afrique du Sud", heure: "18:00" },
+  { day: "18 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇧🇦 Bosnie-Herz.", heure: "21:00" },
 
-  // --- GROUPE L ---
-  { day: "17 Juin", stage: "Phase de Groupes", g: "L", t1: "🇧🇪 Belgique", t2: "🇨🇺 Cuba", heure: "03:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "L", t1: "🇷🇴 Roumanie", t2: "🇨🇻 Cap-Vert", heure: "09:00" },
-  { day: "23 Juin", stage: "Phase de Groupes", g: "L", t1: "🇧🇪 Belgique", t2: "🇷🇴 Roumanie", heure: "03:00" },
-  { day: "24 Juin", stage: "Phase de Groupes", g: "L", t1: "🇨🇻 Cap-Vert", t2: "🇨🇺 Cuba", heure: "09:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "L", t1: "🇨🇻 Cap-Vert", t2: "🇧🇪 Belgique", heure: "03:00" },
-  { day: "27 Juin", stage: "Phase de Groupes", g: "L", t1: "🇨🇺 Cuba", t2: "🇷🇴 Roumanie", heure: "09:00" },
+// 19 Juin
+  { day: "19 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇶🇦 Qatar", heure: "00:00" },
+  { day: "19 Juin", stage: "Phase de Groupes", g: "A", t1: "🇲🇽 Mexique", t2: "🇰🇷 Corée du Sud", heure: "03:00" },
+  { day: "19 Juin", stage: "Phase de Groupes", g: "D", t1: "🇺🇸 États-Unis", t2: "🇦🇺 Australie", heure: "21:00" },
+
+// 20 Juin
+  { day: "20 Juin", stage: "Phase de Groupes", g: "C", t1: "🏴󠁧󠁢󠁳󠁣󠁴󠁿\u{e007f} Écosse", t2: "🇲🇦 Maroc", heure: "00:00" },
+  { day: "20 Juin", stage: "Phase de Groupes", g: "E", t1: "🇧🇷 Brésil", t2: "🇭🇹 Haïti", heure: "02:30" },
+  { day: "20 Juin", stage: "Phase de Groupes", g: "D", t1: "🇹🇷 Turquie", t2: "🇵🇾 Paraguay", heure: "05:00" },
+  { day: "20 Juin", stage: "Phase de Groupes", g: "F", t1: "🇳🇱 Pays-Bas", t2: "🇸🇪 Suède", heure: "19:00" },
+  { day: "20 Juin", stage: "Phase de Groupes", g: "E", t1: "🇩🇪 Allemagne", t2: "🇨🇮 Côte d'Ivoire", heure: "22:00" },
+
+
+// 21 Juin
+  { day: "21 Juin", stage: "Phase de Groupes", g: "E", t1: "🇪🇨 Équateur", t2: "🇨🇼 Curaçao", heure: "02:00" },
+  { day: "21 Juin", stage: "Phase de Groupes", g: "F", t1: "🇹🇳 Tunisie", t2: "🇯🇵 Japon", heure: "21:00" },
+  { day: "21 Juin", stage: "Phase de Groupes", g: "H", t1: "🇪🇸 Espagne", t2: "🇸🇦 Arabie Saoudite", heure: "18:00" },
+  { day: "21 Juin", stage: "Phase de Groupes", g: "G", t1: "🇧🇪 Belgique", t2: "🇮🇷 Iran", heure: "21:00" },
+
+
+// 22 Juin
+  { day: "22 Juin", stage: "Phase de Groupes", g: "H", t1: "🇺🇾 Uruguay", t2: "🇨🇻 Cap-Vert", heure: "00:00" },
+  { day: "22 Juin", stage: "Phase de Groupes", g: "G", t1: "🇳🇿 Nouvelle-Zélande", t2: "🇪🇬 Égypte", heure: "03:00" },
+  { day: "22 Juin", stage: "Phase de Groupes", g: "J", t1: "🇦🇷 Argentine", t2: "🇦🇹 Autriche", heure: "19:00" },
+  { day: "22 Juin", stage: "Phase de Groupes", g: "I", t1: "🇮🇶 Irak", t2: "🇫🇷 France", heure: "23:00" },
+
+// 23 Juin
+  { day: "23 Juin", stage: "Phase de Groupes", g: "I", t1: "🇸🇳 Sénégal", t2: "🇳🇴 Norvège", heure: "02:00" },
+  { day: "23 Juin", stage: "Phase de Groupes", g: "J", t1: "🇯🇴 Jordanie", t2: "🇩🇿 Algérie", heure: "05:00" },
+  { day: "23 Juin", stage: "Phase de Groupes", g: "K", t1: "🇺🇿 Ouzbékistan", t2: "🇵🇹 Portugal", heure: "19:00" },
+  { day: "20 Juin", stage: "Phase de Groupes", g: "L", t1: "🇬🇧 Angleterre", t2: "🇬🇭 Ghana", heure: "22:00" },
+
+// 24 Juin
+  { day: "24 Juin", stage: "Phase de Groupes", g: "L", t1: "🇵🇦 Panama", t2: "🇭🇷 Croatie", heure: "01:00" },
+  { day: "24 Juin", stage: "Phase de Groupes", g: "K", t1: "🇨🇩 RD Congo", t2: "🇨🇴 Colombie", heure: "04:00" },
+  { day: "24 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇨🇦 Canada", heure: "21:00" },
+  { day: "24 Juin", stage: "Phase de Groupes", g: "B", t1: "🇧🇦 Bosnie-Herz.", t2: "🇶🇦 Qatar", heure: "09:00" },
+
+// 25 Juin
+  { day: "25 Juin", stage: "Phase de Groupes", g: "C", t1: "🇲🇦 Maroc", t2: "🇭🇹 Haïti", heure: "00:00" },
+  { day: "25 Juin", stage: "Phase de Groupes", g: "C", t1: "🏴󠁧󠁢󠁳󠁣󠁴󠁿\u{e007f} Écosse", t2: "🇧🇷 Brésil", heure: "00:00" },
+  { day: "25 Juin", stage: "Phase de Groupes", g: "A", t1: "🇿🇦 Afrique du Sud", t2: "🇰🇷 Corée du Sud", heure: "03:00" },
+  { day: "25 Juin", stage: "Phase de Groupes", g: "A", t1: "🇨🇿 Tchéquie", t2: "🇲🇽 Mexique", heure: "03:00" },
+  { day: "25 Juin", stage: "Phase de Groupes", g: "E", t1: "🇨🇼 Curaçao", t2: "🇨🇮 Côte d'Ivoire", heure: "22:00" },
+  { day: "25 Juin", stage: "Phase de Groupes", g: "E", t1: "🇪🇨 Équateur", t2: "🇩🇪 Allemagne", heure: "22:00" },
+
+// 26 Juin
+  { day: "26 Juin", stage: "Phase de Groupes", g: "F", t1: "🇹🇳 Tunisie", t2: "🇳🇱 Pays-Bas", heure: "01:00" },
+  { day: "26 Juin", stage: "Phase de Groupes", g: "F", t1: "🇯🇵 Japon", t2: "🇸🇪 Suède", heure: "01:00" },
+  { day: "26 Juin", stage: "Phase de Groupes", g: "D", t1: "🇹🇷 Turquie", t2: "🇺🇸 États-Unis", heure: "04:00" },
+  { day: "26 Juin", stage: "Phase de Groupes", g: "D", t1: "🇵🇾 Paraguay", t2: "🇦🇺 Australie", heure: "04:00" },
+  { day: "26 Juin", stage: "Phase de Groupes", g: "I", t1: "🇫🇷 France", t2: "🇳🇴 Norvège", heure: "21:00" },
+  { day: "26 Juin", stage: "Phase de Groupes", g: "I", t1: "🇮🇶 Irak", t2: "🇸🇳 Sénégal", heure: "21:00" },
+
+// 27 Juin
+  { day: "27 Juin", stage: "Phase de Groupes", g: "H", t1: "🇨🇻 Cap-Vert", t2: "🇸🇦 Arabie Saoudite", heure: "02:00" },
+  { day: "27 Juin", stage: "Phase de Groupes", g: "H", t1: "🇺🇾 Uruguay", t2: "🇪🇸 Espagne", heure: "02:00" },
+  { day: "27 Juin", stage: "Phase de Groupes", g: "G", t1: "🇳🇿 Nouvelle-Zélande", t2: "🇧🇪 Belgique", heure: "05:00" },
+  { day: "16 Juin", stage: "Phase de Groupes", g: "G", t1: "🇪🇬 Égypte", t2: "🇮🇷 Iran", heure: "05:00" },
+  { day: "24 Juin", stage: "Phase de Groupes", g: "L", t1: "🇵🇦 Panama", t2: "🇬🇧 Angleterre", heure: "23:00" },
+  { day: "20 Juin", stage: "Phase de Groupes", g: "C", t1: "🇭🇷 Croatie", t2: "🇬🇭 Ghana", heure: "23:00" },
+
+// 28 Juin
+  { day: "28 Juin", stage: "Phase de Groupes", g: "H", t1: "🇵🇹 Portugal", t2: "🇨🇴 Colombie", heure: "01:30" },
+  { day: "28 Juin", stage: "Phase de Groupes", g: "H", t1: "🇨🇩 RD Congo", t2: "🇺🇿 Ouzbékistan", heure: "01:30" },
+  { day: "28 Juin", stage: "Phase de Groupes", g: "J", t1: "🇩🇿 Algérie", t2: "🇦🇹 Autriche", heure: "04:00" },
+  { day: "23 Juin", stage: "Phase de Groupes", g: "J", t1: "🇯🇴 Jordanie", t2: "🇦🇷 Argentine", heure: "04:00" },
 
   // --- PHASES ÉLIMINATOIRES ---
 { day: "28 Juin", stage: "16es de Finale 1", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 16e" },
