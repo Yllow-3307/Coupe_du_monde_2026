@@ -2465,6 +2465,7 @@ function resolveBracketTeam(rule) {
 }
 
 function setBracketSlot(key, slot, value) {
+  if (!isAdmin) return;
   D.bracket[key + slot] = value;
   save();
   renderBracket();
@@ -2874,6 +2875,7 @@ function createFinalMatch() {
 }
 
 function pickWinner(key, teamNum) {
+  if (!isAdmin) return;
   let t1 = D.bracket[key + '_t1'];
   let t2 = D.bracket[key + '_t2'];
 
@@ -2900,6 +2902,7 @@ function pickWinner(key, teamNum) {
 }
 
 function propagateWinner(key, winner) {
+  if (!isAdmin) return;
   const parts = key.split('_');
   const phase = parts[0];
   const index = parseInt(parts[1]);
