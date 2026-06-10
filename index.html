@@ -1751,10 +1751,22 @@ function autoComputeTeamStats() {
 
 async function saveRdv() {
   if (!currentUser) return;
+  const db = window._db;
   try {
-    await window._db.collection('shared').doc('data').set({ rdvList: D.rdvList || [] }, { merge: true });
+    const batch = db.batch();
+    D.rdvList.forEach(rdv => {
+      const ref = db.collection('rdv').doc(rdv.id);
+      batch.set(ref, {
+        match:    rdv.match   || '',
+        heure:    rdv.heure   || '',
+        where:    rdv.where   || '',
+        owner:    rdv.owner   || '',
+        presents: rdv.presents || {}
+      });
+    });
+    await batch.commit();
   } catch(e) {
-    console.error("ERREUR COMPLETE :", e);
+    console.error("ERREUR saveRdv :", e);
   }
 }
 
