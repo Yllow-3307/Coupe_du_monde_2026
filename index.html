@@ -646,6 +646,7 @@ function subscribeFirestore() {
       D.bracket   = data.bracket   || {};
       D.teamStats = data.teamStats || TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0,against:0}));
       D.playerRatings = data.playerRatings || {};
+      D.rdvList   = (data.rdvList || [{id:'rdv_0',match:'',heure:'',where:'',owner:'',presents:{}}]).map(r => ({...r, presents:r.presents||{}}));
       D.pts       = data.pts       || {};
 
       syncScoresFromActuals();
@@ -653,44 +654,6 @@ function subscribeFirestore() {
       if (activeTab && activeTab.textContent.trim() !== 'RDV') activeTab.click();
     }
   });
-
-  // RDVs Real-time
-  if (!unsubscribers['rdvs']) {
-    unsubscribers['rdvs'] = db.collection('rdv').onSnapshot(snap => {
-      const activeEl = document.activeElement;
-      const focusedId = activeEl ? activeEl.id : null;
-
-      const newRdvList = snap.docs.map(doc => {
-          const data = doc.data();
-          const rdvId = doc.id;
-          // Si on est en train d'éditer un champ de ce RDV, on garde la valeur locale
-          if (focusedId === `rdv_match_${rdvId}`) data.match = activeEl.value;
-          if (focusedId === `rdv_heure_${rdvId}`) data.heure = activeEl.value;
-          if (focusedId === `rdv_lieu_${rdvId}`) data.lieu = activeEl.value;
-          return { id: rdvId, ...data };
-      });
-
-      D.rdvList = newRdvList;
-      
-      const activeTab = document.querySelector('.tab.active');
-      if (activeTab && activeTab.textContent.trim() === 'RDV') {
-         const selectionStart = (activeEl && activeEl.selectionStart !== undefined) ? activeEl.selectionStart : null;
-         const selectionEnd = (activeEl && activeEl.selectionEnd !== undefined) ? activeEl.selectionEnd : null;
-         
-         renderRdv();
-         
-         if (focusedId) {
-           const el = document.getElementById(focusedId);
-           if (el) {
-             el.focus();
-             if (selectionStart !== null && el.setSelectionRange) {
-                 try { el.setSelectionRange(selectionStart, selectionEnd); } catch(e) {}
-             }
-           }
-         }
-      }
-    });
-  }
 
   // Actual scores (backup)
   unsubscribers['actuals'] = db.collection('shared').doc('actuals').onSnapshot(snap => {
@@ -2774,6 +2737,7 @@ function renderRdv(){
     </div>`;
   }).join('')}`;
 }
+
 function toggleRdv(ri,p){
   if(p !== currentPote) return;
   if(!D.rdvList[ri].presents)D.rdvList[ri].presents={};
@@ -2781,6 +2745,7 @@ function toggleRdv(ri,p){
   saveRdv();
   renderRdv();
 }
+  
 function addRdv(){
   const rdv={id:'rdv_'+Date.now(),match:'',heure:'',where:'',owner:currentPote,presents:{}};
   rdv.presents[currentPote]=1;
@@ -2788,6 +2753,7 @@ function addRdv(){
   saveRdv();
   renderRdv();
 }
+
 function removeRdv(ri){
   if(!D.rdvList[ri] || (D.rdvList[ri].owner !== currentPote && !isAdmin)) return;
   if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',match:'',heure:'',where:'',owner:currentPote,presents:{[currentPote]:1}}}
@@ -2795,6 +2761,7 @@ function removeRdv(ri){
   saveRdv();
   renderRdv();
 }
+
 function deleteAllRdvs(){
   if(!isAdmin) return;
   if(!confirm("Supprimer TOUS les rendez-vous ?")) return;
