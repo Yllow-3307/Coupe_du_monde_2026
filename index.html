@@ -2434,6 +2434,82 @@ function updateMatchFilters(){
 
 let bracketZoom = 1.0;
 
+const R16_MATCH_RULES = [
+  { t1: '1E', t2: ['3A', '3B', '3C', '3D', '3F'] },
+  { t1: '1I', t2: ['3C', '3D', '3F', '3G', '3H'] },
+  { t1: '2A', t2: '2B' },
+  { t1: '1F', t2: '2C' },
+  { t1: '2K', t2: '2L' },
+  { t1: '1H', t2: '2J' },
+  { t1: '1D', t2: ['3B', '3E', '3F', '3I', '3J'] },
+  { t1: '1G', t2: ['3A', '3E', '3H', '3I', '3J'] },
+  { t1: '1C', t2: '1F' },
+  { t1: '2E', t2: '2I' },
+  { t1: '1A', t2: ['3C', '3E', '3F', '3H', '3I'] },
+  { t1: '1L', t2: ['3E', '3H', '3I', '3J', '3K'] },
+  { t1: '1J', t2: '2H' },
+  { t1: '2D', t2: '2G' },
+  { t1: '1B', t2: ['3E', '3F', '3G', '3I', '3J'] },
+  { t1: '1K', t2: ['3D', '3E', '3I', '3J', '3L'] }
+];
+
+function resolveBracketTeam(rule) {
+  if (!rule || (typeof rule !== 'string' && !Array.isArray(rule))) return 'À dét.';
+  if (Array.isArray(rule)) return 'À dét.';
+  const rank = parseInt(rule[0]);
+  const group = rule.substring(1);
+  if (isNaN(rank)) return 'À dét.';
+  const classement = getGroupeClassement(group);
+  const team = classement[rank - 1];
+  return team ? `${team.flag} ${team.nom}` : `(${rule})`;
+}
+
+function setBracketSlot(key, slot, value) {
+  if (!isAdmin) return;
+  D.bracket[key + slot] = value;
+  save();
+  renderBracket();
+}
+
+function renderR16Slot(key, slot, rule) {
+  const current = D.bracket[key + slot];
+  const winner = D.bracket[key + '_w'];
+
+  if (Array.isArray(rule)) {
+    const options = rule.map(r => {
+      const team = resolveBracketTeam(r);
+      return `<option value="${team}" ${current === team ? 'selected' : ''}>${team} (${r})</option>`;
+    }).join('');
+
+    const isSelected = winner && winner === current && current !== 'À dét.';
+
+    return `<div style="display:flex; gap:4px; align-items:center;">
+      <select class="select-sm" onchange="setBracketSlot('${key}', '${slot}', this.value)"
+        style="flex:1; font-size:11px; height:26px; border-radius:4px; border:0.5px solid var(--color-border-tertiary); background:var(--color-background-secondary);">
+        <option value="">-- 3e ${rule.join('/')} --</option>
+        ${options}
+      </select>
+      <button class="btn" onclick="pickWinner('${key}', ${slot === '_t1' ? 1 : 2})"
+        style="padding:2px 6px; height:26px; font-size:10px; min-width:24px;
+        ${isSelected ? 'background:#1D9E75; color:#fff; border-color:#1D9E75;' : 'background:var(--color-background-secondary);'}"
+        title="Désigner comme vainqueur">
+        <i class="ti ti-check"></i>
+      </button>
+    </div>`;
+  } else {
+    const team = resolveBracketTeam(rule);
+    const displayTeam = current || team;
+    const isSelected = winner === displayTeam && displayTeam !== 'À dét.' && !displayTeam.startsWith('(');
+    return `<div onclick="pickWinner('${key}', ${slot === '_t1' ? 1 : 2})"
+      style="padding:7px 10px; border-radius:var(--border-radius-md); cursor:pointer; font-size:12px;
+      color:${isSelected ? '#fff' : 'var(--color-text-primary)'};
+      background:${isSelected ? '#1D9E75' : 'var(--color-background-secondary)'};
+      border:0.5px solid ${isSelected ? '#1D9E75' : 'var(--color-border-tertiary)'};">
+      ${displayTeam}
+    </div>`;
+  }
+}
+
 function renderBracket() {
   const el = document.getElementById('bracket');
   if (!el) return;
@@ -2522,13 +2598,24 @@ function createBracketRoundCol(title, count, prefix) {
     </div>
     ${Array.from({length: count}, (_, i) => {
       const key = prefix + '_' + i;
-      const t1 = D.bracket[key + '_t1'] || 'À dét.';
-      const t2 = D.bracket[key + '_t2'] || 'À dét.';
       const w = D.bracket[key + '_w'];
+
+      let t1El, t2El;
+      if (prefix === 'r16') {
+        const rules = R16_MATCH_RULES[i] || { t1: '?', t2: '?' };
+        t1El = renderR16Slot(key, '_t1', rules.t1);
+        t2El = renderR16Slot(key, '_t2', rules.t2);
+      } else {
+        const t1 = D.bracket[key + '_t1'] || 'À dét.';
+        const t2 = D.bracket[key + '_t2'] || 'À dét.';
+        t1El = `<div onclick="pickWinner('${key}',1)" style="padding:7px 10px;border-radius:var(--border-radius-md);margin-bottom:4px;cursor:pointer;font-size:12px;color:${w===t1&&t1!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t1}</div>`;
+        t2El = `<div onclick="pickWinner('${key}',2)" style="padding:7px 10px;border-radius:var(--border-radius-md);margin-top:4px;cursor:pointer;font-size:12px;color:${w===t2&&t2!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t2}</div>`;
+      }
+
       return `<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:8px;margin-bottom:10px">
-        <div onclick="pickWinner('${key}',1)" style="padding:7px 10px;border-radius:var(--border-radius-md);margin-bottom:4px;cursor:pointer;font-size:12px;color:${w===t1&&t1!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t1}</div>
+        <div style="margin-bottom:4px">${t1El}</div>
         <div style="text-align:center;font-size:10px;color:var(--color-text-tertiary)">VS</div>
-        <div onclick="pickWinner('${key}',2)" style="padding:7px 10px;border-radius:var(--border-radius-md);margin-top:4px;cursor:pointer;font-size:12px;color:${w===t2&&t2!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t2}</div>
+        <div style="margin-top:4px">${t2El}</div>
       </div>`;
     }).join('')}
   </div>`;
@@ -2788,22 +2875,34 @@ function createFinalMatch() {
 }
 
 function pickWinner(key, teamNum) {
-  const t1 = D.bracket[key + '_t1'] || 'À déterminer';
-  const t2 = D.bracket[key + '_t2'] || 'À déterminer';
+  if (!isAdmin) return;
+  let t1 = D.bracket[key + '_t1'];
+  let t2 = D.bracket[key + '_t2'];
+
+  if (key.startsWith('r16_')) {
+    const idx = parseInt(key.split('_')[1]);
+    const rules = R16_MATCH_RULES[idx];
+    if (!t1) t1 = resolveBracketTeam(rules.t1);
+    if (!t2) t2 = resolveBracketTeam(rules.t2);
+  }
+
+  t1 = t1 || 'À dét.';
+  t2 = t2 || 'À dét.';
   
   const winner = teamNum === 1 ? t1 : t2;
   
-  if (winner === 'À déterminer' || winner === 'À dét.' || winner === '?') return;
+  if (winner === 'À déterminer' || winner === 'À dét.' || winner === '?' || winner.startsWith('(')) return;
 
   D.bracket[key + '_w'] = winner;
   
-  propagateWinner(key, winner); // propagation automatique
+  propagateWinner(key, winner);
   
   save();
   renderBracket();
 }
 
 function propagateWinner(key, winner) {
+  if (!isAdmin) return;
   const parts = key.split('_');
   const phase = parts[0];
   const index = parseInt(parts[1]);
