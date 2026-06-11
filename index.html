@@ -2729,18 +2729,18 @@ function createBracketFinalCol() {
       </span>
     </div>
 
-    <div style="background:var(--color-background-primary);border:2px solid #adb5bd;border-radius:var(--border-radius-lg);padding:8px">
+    <div style="background:var(--color-background-primary);border:1px solid #adb5bd;border-radius:var(--border-radius-lg);padding:4px">
       <div onclick="pickWinner('${thirdKey}',1)"
-           style="padding:6px 10px;border-radius:var(--border-radius-md);margin-bottom:8px;cursor:pointer;
+           style="padding:3px 6px;border-radius:var(--border-radius-md);margin-bottom:4px;cursor:pointer;font-size:10.5px;
            color:${thirdW===thirdT1&&thirdT1!=='À dét.'?'#fff':'var(--color-text-primary)'};
            background:${thirdW===thirdT1&&thirdT1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
         ${getDisplayName(thirdT1)}
       </div>
 
-      <div style="text-align:center;font-size:16px">🥉</div>
+      <div style="text-align:center;font-size:12px">🥉</div>
 
       <div onclick="pickWinner('${thirdKey}',2)"
-           style="padding:6px 10px;border-radius:var(--border-radius-md);margin-top:8px;cursor:pointer;
+           style="padding:3px 6px;border-radius:var(--border-radius-md);margin-top:4px;cursor:pointer;font-size:10.5px;
            color:${thirdW===thirdT2&&thirdT2!=='À dét.'?'#fff':'var(--color-text-primary)'};
            background:${thirdW===thirdT2&&thirdT2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
         ${getDisplayName(thirdT2)}
@@ -3005,6 +3005,19 @@ function propagateWinner(key, winner) {
   if (nextKey) {
     const slot = (index % 2 === 0) ? '_t1' : '_t2';
     D.bracket[nextKey + slot] = winner;
+
+    // Petite finale logic for semi-final losers
+    if (phase === 'sf') {
+      let loser = 'À dét.';
+      const t1 = D.bracket[key + '_t1'];
+      const t2 = D.bracket[key + '_t2'];
+      if (winner !== 'À dét.') {
+        loser = (winner === t1) ? t2 : t1;
+      }
+      D.bracket['third' + slot] = loser;
+      // Reset third place winner if loser changed
+      delete D.bracket['third_w'];
+    }
     
     // If the winner changed (or was removed), we must also clear the winner of the next match
     // and propagate that change downstream.
