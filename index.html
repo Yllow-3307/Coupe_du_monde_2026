@@ -41,36 +41,45 @@
     @media (max-width: 768px) {
       body:not(.forced-pc) .desktop-title { display: none; }
       body:not(.forced-pc) .mobile-title { display: block; }
-      body:not(.forced-pc) { padding: 10px; }
-      body:not(.forced-pc) .hdr { padding: 1rem 0; }
-      body:not(.forced-pc) .hdr h1 { font-size: 18px; }
-      body:not(.forced-pc) .tabs { gap: 0; margin-bottom: 1rem; }
-      body:not(.forced-pc) .tab { padding: 8px 10px; font-size: 12px; }
-      body:not(.forced-pc) .card { padding: 10px; }
-      body:not(.forced-pc) .grp-grid { grid-template-columns: 1fr; }
-      body:not(.forced-pc) .match-score { font-size: 14px; min-width: 45px; }
-      body:not(.forced-pc) .team-name { font-size: 11px !important; }
-      body:not(.forced-pc) .bracket-wrapper { padding: 10px; gap: 20px; }
-      body:not(.forced-pc) .round { gap: 10px; }
-      body:not(.forced-pc) .match { width: 150px; margin: 10px 0; }
-      body:not(.forced-pc) .team { height: 32px; font-size: 11px; padding: 0 6px; }
+      body:not(.forced-pc) { padding: 8px; }
+      body:not(.forced-pc) .hdr { padding: 0.8rem 0; margin-bottom: 1rem; }
+      body:not(.forced-pc) .hdr h1 { font-size: 16px; }
+      body:not(.forced-pc) .tabs { gap: 0; margin-bottom: 0.8rem; }
+      body:not(.forced-pc) .tab { padding: 4px 2px; font-size: 9px; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+      body:not(.forced-pc) .tab i { font-size: 14px; }
+      body:not(.forced-pc) .tab span { display: block; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+      body:not(.forced-pc) .card { padding: 8px; margin-bottom: 8px; }
+      body:not(.forced-pc) .grp-grid { grid-template-columns: 1fr; gap: 8px; }
+      body:not(.forced-pc) .match-score { font-size: 13px; min-width: 40px; }
+      body:not(.forced-pc) .team-name { font-size: 10px !important; }
+      body:not(.forced-pc) .section-title { font-size: 10px; margin-bottom: 6px; }
+      body:not(.forced-pc) .bracket-wrapper { padding: 8px; gap: 15px; }
+      body:not(.forced-pc) .round { gap: 8px; }
+      body:not(.forced-pc) .match { width: 140px; margin: 8px 0; }
+      body:not(.forced-pc) .team { height: 28px; font-size: 10px; padding: 0 4px; }
+      body:not(.forced-pc) .prog-match-hdr { font-size: 11px; padding: 6px 10px; }
+      body:not(.forced-pc) .prog-bet-row { padding: 5px 10px; font-size: 11px; }
     }
 
-    body.forced-mobile { padding: 10px; max-width: 400px; margin: 0 auto; border: 1px solid var(--color-border-tertiary); box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+    body.forced-mobile { padding: 8px; max-width: 400px; margin: 0 auto; border: 1px solid var(--color-border-tertiary); box-shadow: 0 0 20px rgba(0,0,0,0.1); }
     body.forced-mobile .desktop-title { display: none; }
     body.forced-mobile .mobile-title { display: block; }
-    body.forced-mobile .hdr { padding: 1rem 0; }
-    body.forced-mobile .hdr h1 { font-size: 18px; }
-    body.forced-mobile .tabs { gap: 0; margin-bottom: 1rem; }
-    body.forced-mobile .tab { padding: 8px 10px; font-size: 12px; }
-    body.forced-mobile .card { padding: 10px; }
-    body.forced-mobile .grp-grid { grid-template-columns: 1fr; }
-    body.forced-mobile .match-score { font-size: 14px; min-width: 45px; }
-    body.forced-mobile .team-name { font-size: 11px !important; }
-    body.forced-mobile .bracket-wrapper { padding: 10px; gap: 20px; }
-    body.forced-mobile .round { gap: 10px; }
-    body.forced-mobile .match { width: 150px; margin: 10px 0; }
-    body.forced-mobile .team { height: 32px; font-size: 11px; padding: 0 6px; }
+    body.forced-mobile .hdr { padding: 0.8rem 0; margin-bottom: 1rem; }
+    body.forced-mobile .hdr h1 { font-size: 16px; }
+    body.forced-mobile .tabs { gap: 0; margin-bottom: 0.8rem; }
+    body.forced-mobile .tab { padding: 4px 2px; font-size: 9px; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+    body.forced-mobile .tab i { font-size: 14px; }
+    body.forced-mobile .card { padding: 8px; margin-bottom: 8px; }
+    body.forced-mobile .grp-grid { grid-template-columns: 1fr; gap: 8px; }
+    body.forced-mobile .match-score { font-size: 13px; min-width: 40px; }
+    body.forced-mobile .team-name { font-size: 10px !important; }
+    body.forced-mobile .section-title { font-size: 10px; margin-bottom: 6px; }
+    body.forced-mobile .bracket-wrapper { padding: 8px; gap: 15px; }
+    body.forced-mobile .round { gap: 8px; }
+    body.forced-mobile .match { width: 140px; margin: 8px 0; }
+    body.forced-mobile .team { height: 28px; font-size: 10px; padding: 0 4px; }
+    body.forced-mobile .prog-match-hdr { font-size: 11px; padding: 6px 10px; }
+    body.forced-mobile .prog-bet-row { padding: 5px 10px; font-size: 11px; }
     
     :root {
       --color-background-primary: #ffffff;
@@ -93,7 +102,8 @@
     .hdr h1{font-size:20px;font-weight:500;color:var(--color-text-primary)}
     .hdr p{font-size:13px;color:var(--color-text-secondary);margin-top:2px}
     
-    .tabs{display:flex;gap:0;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);overflow-x:auto}
+    .tabs{display:flex;gap:0;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);overflow-x:auto;scrollbar-width:none}
+    .tabs::-webkit-scrollbar { display: none; }
     .tab{padding:8px 12px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-0.5px;white-space:nowrap;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
     .tab.active{color:var(--color-text-primary);font-weight:500;border-bottom-color:var(--color-text-primary)}
     .tab:hover:not(.active){color:var(--color-text-primary)}
@@ -375,14 +385,14 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" onclick="showTab('groupes')"><i class="ti ti-table" aria-hidden="true"></i> Groupes</button>
-  <button class="tab" onclick="showTab('matchs')"><i class="ti ti-calendar" aria-hidden="true"></i> Matchs</button>
-  <button class="tab" onclick="showTab('bracket')"><i class="ti ti-tournament" aria-hidden="true"></i> Bracket</button>
-  <button class="tab" onclick="showTab('pronos')"><i class="ti ti-podium" aria-hidden="true"></i> Pronos</button>
-  <button class="tab" onclick="showTab('stats')"><i class="ti ti-chart-bar" aria-hidden="true"></i> Stats</button>
-  <button class="tab" onclick="showTab('equipes')"><i class="ti ti-shirt" aria-hidden="true"></i> Équipes</button>
-  <button class="tab" onclick="showTab('rdv')"><i class="ti ti-map-pin" aria-hidden="true"></i> RDV</button>
-  <button class="tab" onclick="showTab('admin')"><i class="ti ti-users" aria-hidden="true"></i> Admin</button>
+  <button class="tab active" onclick="showTab('groupes')"><i class="ti ti-table" aria-hidden="true"></i> <span>Groupes</span></button>
+  <button class="tab" onclick="showTab('matchs')"><i class="ti ti-calendar" aria-hidden="true"></i> <span>Matchs</span></button>
+  <button class="tab" onclick="showTab('bracket')"><i class="ti ti-tournament" aria-hidden="true"></i> <span>Bracket</span></button>
+  <button class="tab" onclick="showTab('pronos')"><i class="ti ti-podium" aria-hidden="true"></i> <span>Pronos</span></button>
+  <button class="tab" onclick="showTab('stats')"><i class="ti ti-chart-bar" aria-hidden="true"></i> <span>Stats</span></button>
+  <button class="tab" onclick="showTab('equipes')"><i class="ti ti-shirt" aria-hidden="true"></i> <span>Équipes</span></button>
+  <button class="tab" onclick="showTab('rdv')"><i class="ti ti-map-pin" aria-hidden="true"></i> <span>RDV</span></button>
+  <button class="tab" onclick="showTab('admin')"><i class="ti ti-users" aria-hidden="true"></i> <span>Admin</span></button>
 </div>
 
 <div id="groupes" class="sec active"></div>
@@ -854,38 +864,38 @@ const PRONO_MATCHES = [
   {id:"p72", label:"🇭🇷 Croatie vs 🇬🇭 Ghana", date:"27 Juin", group:"Gr. L", kickoff:"2026-06-27T23:00:00", matchIdx:71},
  
   // --- PHASES ÉLIMINATOIRES ---
-  {id:"p73", label:"16es de Finale 1", date:"28 Juin", group:"Élim.", kickoff:"2026-06-28T21:00:00", matchIdx:null},
-  {id:"p74", label:"16es de Finale 2", date:"29 Juin", group:"Élim.", kickoff:"2026-06-29T19:00:00", matchIdx:null},
-  {id:"p75", label:"16es de Finale 3", date:"29 Juin", group:"Élim.", kickoff:"2026-06-29T22:30:00", matchIdx:null},
-  {id:"p76", label:"16es de Finale 4", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T03:00:00", matchIdx:null},
-  {id:"p77", label:"16es de Finale 5", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T19:00:00", matchIdx:null},
-  {id:"p78", label:"16es de Finale 6", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T23:00:00", matchIdx:null},
-  {id:"p79", label:"16es de Finale 7", date:"1e Juillet", group:"Élim.", kickoff:"2026-07-01T03:00:00", matchIdx:null},
-  {id:"p80", label:"16es de Finale 8", date:"1e Juillet", group:"Élim.", kickoff:"2026-07-01T18:00:00", matchIdx:null},
-  {id:"p81", label:"16es de Finale 9", date:"1e Juillet", group:"Élim.", kickoff:"2026-07-01T22:00:00", matchIdx:null},
-  {id:"p82", label:"16es de Finale 10", date:"2 Juillet", group:"Élim.", kickoff:"2026-07-02T02:00:00", matchIdx:null},
-  {id:"p83", label:"16es de Finale 11", date:"2 Juillet", group:"Élim.", kickoff:"2026-07-02T21:00:00", matchIdx:null},
-  {id:"p84", label:"16es de Finale 12", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T01:00:00", matchIdx:null},
-  {id:"p85", label:"16es de Finale 13", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T05:00:00", matchIdx:null},
-  {id:"p86", label:"16es de Finale 14", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T20:00:00", matchIdx:null},
-  {id:"p87", label:"16es de Finale 15", date:"4 Juillet", group:"Élim.", kickoff:"2026-07-04T00:00:00", matchIdx:null},
-  {id:"p88", label:"16es de Finale 16", date:"4 Juillet", group:"Élim.", kickoff:"2026-07-04T03:30:00", matchIdx:null},
-  {id:"p89", label:"8es de Finale 1", date:"04 Juillet", group:"Élim.", kickoff:"2026-07-04T19:00:00", matchIdx:null},
-  {id:"p90", label:"8es de Finale 2", date:"04 Juillet", group:"Élim.", kickoff:"2026-07-04T23:00:00", matchIdx:null},
-  {id:"p91", label:"8es de Finale 3", date:"05 Juillet", group:"Élim.", kickoff:"2026-07-05T22:00:00", matchIdx:null},
-  {id:"p92", label:"8es de Finale 4", date:"06 Juillet", group:"Élim.", kickoff:"2026-07-06T02:00:00", matchIdx:null},
-  {id:"p93", label:"8es de Finale 5", date:"06 Juillet", group:"Élim.", kickoff:"2026-07-06T21:00:00", matchIdx:null},
-  {id:"p94", label:"8es de Finale 6", date:"07 Juillet", group:"Élim.", kickoff:"2026-07-07T02:00:00", matchIdx:null},
-  {id:"p95", label:"8es de Finale 7", date:"07 Juillet", group:"Élim.", kickoff:"2026-07-07T18:00:00", matchIdx:null},
-  {id:"p96", label:"8es de Finale 8", date:"07 Juillet", group:"Élim.", kickoff:"2026-07-07T22:00:00", matchIdx:null},
-  {id:"p97", label:"Quarts de Finale 1", date:"09 Juillet", group:"Élim.", kickoff:"2026-07-09T22:00:00", matchIdx:null},
-  {id:"p98", label:"Quarts de Finale 2", date:"10 Juillet", group:"Élim.", kickoff:"2026-07-10T21:00:00", matchIdx:null},
-  {id:"p99", label:"Quarts de Finale 3", date:"11 Juillet", group:"Élim.", kickoff:"2026-07-11T23:00:00", matchIdx:null},
-  {id:"p100", label:"Quarts de Finale 4", date:"12 Juillet", group:"Élim.", kickoff:"2026-07-12T03:00:00", matchIdx:null},
-  {id:"p101", label:"Demi-Finale 1", date:"14 Juillet", group:"Élim.", kickoff:"2026-07-14T21:00:00", matchIdx:null},
-  {id:"p102", label:"Demi-Finale 2", date:"15 Juillet", group:"Élim.", kickoff:"2026-07-15T21:00:00", matchIdx:null},
-  {id:"p104", label:"Petite Finale (3e place)", date:"18 Juillet", group:"Élim.", kickoff:"2026-07-18T23:00:00", matchIdx:null},
-  {id:"p105", label:"Finale", date:"19 Juillet", group:"Élim.", kickoff:"2026-07-19T21:00:00", matchIdx:null},
+  {id:"p73", label:"16es de Finale 1", date:"28 Juin", group:"Élim.", kickoff:"2026-06-28T21:00:00", matchIdx:72},
+  {id:"p74", label:"16es de Finale 2", date:"29 Juin", group:"Élim.", kickoff:"2026-06-29T19:00:00", matchIdx:73},
+  {id:"p75", label:"16es de Finale 3", date:"29 Juin", group:"Élim.", kickoff:"2026-06-29T22:30:00", matchIdx:74},
+  {id:"p76", label:"16es de Finale 4", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T03:00:00", matchIdx:75},
+  {id:"p77", label:"16es de Finale 5", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T19:00:00", matchIdx:76},
+  {id:"p78", label:"16es de Finale 6", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T23:00:00", matchIdx:77},
+  {id:"p79", label:"16es de Finale 7", date:"1e Juillet", group:"Élim.", kickoff:"2026-07-01T03:00:00", matchIdx:78},
+  {id:"p80", label:"16es de Finale 8", date:"1e Juillet", group:"Élim.", kickoff:"2026-07-01T18:00:00", matchIdx:79},
+  {id:"p81", label:"16es de Finale 9", date:"1e Juillet", group:"Élim.", kickoff:"2026-07-01T22:00:00", matchIdx:80},
+  {id:"p82", label:"16es de Finale 10", date:"2 Juillet", group:"Élim.", kickoff:"2026-07-02T02:00:00", matchIdx:81},
+  {id:"p83", label:"16es de Finale 11", date:"2 Juillet", group:"Élim.", kickoff:"2026-07-02T21:00:00", matchIdx:82},
+  {id:"p84", label:"16es de Finale 12", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T01:00:00", matchIdx:83},
+  {id:"p85", label:"16es de Finale 13", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T05:00:00", matchIdx:84},
+  {id:"p86", label:"16es de Finale 14", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T20:00:00", matchIdx:85},
+  {id:"p87", label:"16es de Finale 15", date:"4 Juillet", group:"Élim.", kickoff:"2026-07-04T00:00:00", matchIdx:86},
+  {id:"p88", label:"16es de Finale 16", date:"4 Juillet", group:"Élim.", kickoff:"2026-07-04T03:30:00", matchIdx:87},
+  {id:"p89", label:"8es de Finale 1", date:"04 Juillet", group:"Élim.", kickoff:"2026-07-04T19:00:00", matchIdx:88},
+  {id:"p90", label:"8es de Finale 2", date:"04 Juillet", group:"Élim.", kickoff:"2026-07-04T23:00:00", matchIdx:89},
+  {id:"p91", label:"8es de Finale 3", date:"05 Juillet", group:"Élim.", kickoff:"2026-07-05T22:00:00", matchIdx:90},
+  {id:"p92", label:"8es de Finale 4", date:"06 Juillet", group:"Élim.", kickoff:"2026-07-06T02:00:00", matchIdx:91},
+  {id:"p93", label:"8es de Finale 5", date:"06 Juillet", group:"Élim.", kickoff:"2026-07-06T21:00:00", matchIdx:92},
+  {id:"p94", label:"8es de Finale 6", date:"07 Juillet", group:"Élim.", kickoff:"2026-07-07T02:00:00", matchIdx:93},
+  {id:"p95", label:"8es de Finale 7", date:"07 Juillet", group:"Élim.", kickoff:"2026-07-07T18:00:00", matchIdx:94},
+  {id:"p96", label:"8es de Finale 8", date:"07 Juillet", group:"Élim.", kickoff:"2026-07-07T22:00:00", matchIdx:95},
+  {id:"p97", label:"Quarts de Finale 1", date:"09 Juillet", group:"Élim.", kickoff:"2026-07-09T22:00:00", matchIdx:96},
+  {id:"p98", label:"Quarts de Finale 2", date:"10 Juillet", group:"Élim.", kickoff:"2026-07-10T21:00:00", matchIdx:97},
+  {id:"p99", label:"Quarts de Finale 3", date:"11 Juillet", group:"Élim.", kickoff:"2026-07-11T23:00:00", matchIdx:98},
+  {id:"p100", label:"Quarts de Finale 4", date:"12 Juillet", group:"Élim.", kickoff:"2026-07-12T03:00:00", matchIdx:99},
+  {id:"p101", label:"Demi-Finale 1", date:"14 Juillet", group:"Élim.", kickoff:"2026-07-14T21:00:00", matchIdx:100},
+  {id:"p102", label:"Demi-Finale 2", date:"15 Juillet", group:"Élim.", kickoff:"2026-07-15T21:00:00", matchIdx:101},
+  {id:"p104", label:"Petite Finale (3e place)", date:"18 Juillet", group:"Élim.", kickoff:"2026-07-18T23:00:00", matchIdx:102},
+  {id:"p105", label:"Finale", date:"19 Juillet", group:"Élim.", kickoff:"2026-07-19T21:00:00", matchIdx:103},
 ];
 
 function isLocked(matchId) {
@@ -2223,9 +2233,20 @@ function syncScoresFromActuals() {
   PRONO_MATCHES.forEach(m => {
     if (m.matchIdx === undefined || m.matchIdx === null) return;
     const actual = D.actual[m.id] || {};
-    if (actual.s1 !== undefined) D.scores[m.matchIdx + 'a'] = actual.s1;
-    if (actual.s2 !== undefined) D.scores[m.matchIdx + 'b'] = actual.s2;
-    if (actual.top) D.scores[m.matchIdx + 'buteur1'] = actual.top;
+    if (actual.s1 !== undefined && actual.s1 !== '') D.scores[m.matchIdx + 'a'] = actual.s1;
+    if (actual.s2 !== undefined && actual.s2 !== '') D.scores[m.matchIdx + 'b'] = actual.s2;
+
+    // Support for multiple scorers fields
+    const b1 = actual.buteursReelsHome || [];
+    const b2 = actual.buteursReelsAway || [];
+    if (b1.length > 0) D.scores[m.matchIdx + 'buteur1'] = b1.join(', ');
+    if (b2.length > 0) D.scores[m.matchIdx + 'buteur2'] = b2.join(', ');
+
+    // Legacy top field support
+    if (actual.top && !D.scores[m.matchIdx + 'buteur1'] && !D.scores[m.matchIdx + 'buteur2']) {
+        D.scores[m.matchIdx + 'buteur1'] = actual.top;
+    }
+
     if (actual.scorers1) D.scores[m.matchIdx + 'scorers1'] = actual.scorers1;
     if (actual.scorers2) D.scores[m.matchIdx + 'scorers2'] = actual.scorers2;
   });
@@ -2401,7 +2422,8 @@ function renderMatchs(){
 
     // Extraction des noms sans emojis pour les parenthèses
     const getTeamName = (t) => t.replace(/[\uD83C|\uD83D|\uD83E][\uDDC0-\uDFFF]/g, '').trim();
-    
+    const isMobile = document.body.classList.contains('forced-mobile') || window.innerWidth < 768;
+
     // Récupération des buteurs (soit du flux actual, soit de la saisie manuelle via D.scores)
     const s1 = formatScorers(actual.scorers1 || D.scores[m.originalIdx + 'buteur1']);
     const s2 = formatScorers(actual.scorers2 || D.scores[m.originalIdx + 'buteur2']);
@@ -2420,8 +2442,8 @@ function renderMatchs(){
     return sectionHeader + `
     <div class="card" style="padding:10px 12px;margin-bottom:8px">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">
-        <div style="font-size:11px;color:var(--color-text-secondary)">${m.day} · ${m.heure || ''}</div>
-        <div style="font-size:11px;color:var(--color-text-secondary)">${m.stage === "Phase de Groupes" ? 'Groupe ' + m.g : m.stage}</div>
+        <div style="font-size:10px;color:var(--color-text-secondary)">${m.day}${isMobile ? '' : ' · ' + (m.heure || '')}</div>
+        <div style="font-size:10px;color:var(--color-text-secondary)">${m.stage === "Phase de Groupes" ? (isMobile ? 'Gr.' : 'Groupe ') + m.g : m.stage}</div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <div style="flex:1">
@@ -2526,7 +2548,7 @@ function applyBracketZoom() {
   const lbl = document.getElementById('bracket-zoom-label');
   if (inner) {
     inner.style.transformOrigin = 'left center';
-    inner.style.transform = 'scaleX(' + bracketZoom + ')';
+    inner.style.transform = 'scale(' + bracketZoom + ')';
   }
   if (lbl) lbl.textContent = Math.round(bracketZoom * 100) + '%';
   // Update scroll container height to fit zoomed content (height is fixed now)
@@ -2903,12 +2925,18 @@ function pickWinner(key, teamNum) {
   if (!t1) t1 = 'À dét.';
   if (!t2) t2 = 'À dét.';
   
-  const winner = teamNum === 1 ? t1 : t2;
+  let winner = teamNum === 1 ? t1 : t2;
   
   if (winner === 'À déterminer' || winner === 'À dét.' || winner === '?' || Array.isArray(winner)) return;
   if (typeof winner === 'string' && winner.match(/^\d[A-L]$/)) return;
 
-  D.bracket[key + '_w'] = winner;
+  // Toggle winner
+  if (D.bracket[key + '_w'] === winner) {
+    delete D.bracket[key + '_w'];
+    winner = 'À dét.';
+  } else {
+    D.bracket[key + '_w'] = winner;
+  }
   
   propagateWinner(key, winner); // propagation automatique
   
@@ -2936,6 +2964,13 @@ function propagateWinner(key, winner) {
   if (nextKey) {
     const slot = (index % 2 === 0) ? '_t1' : '_t2';
     D.bracket[nextKey + slot] = winner;
+
+    // If the winner changed (or was removed), we must also clear the winner of the next match
+    // and propagate that change downstream.
+    if (D.bracket[nextKey + '_w'] !== winner) {
+      delete D.bracket[nextKey + '_w'];
+      propagateWinner(nextKey, 'À dét.');
+    }
   }
 }
 
@@ -2983,6 +3018,18 @@ function renderPronos(){
     return acc;
   }, {});
 
+    const isMobile = document.body.classList.contains('forced-mobile') || window.innerWidth < 768;
+    const compactLabel = (lbl) => {
+        if (!isMobile) return lbl;
+        return lbl.replace(" Afrique du Sud", " Af. Sud")
+                  .replace(" République", " Rep.")
+                  .replace(" Bosnie-Herzégovine", " Bosnie")
+                  .replace(" États-Unis", " USA")
+                  .replace(" Nouvelle-Zélande", " N. Zélande")
+                  .replace(" Arabie Saoudite", " Ar. Saoudite")
+                  .replace(" de Finale", "");
+    };
+
   el.innerHTML=`<div style="margin-bottom:16px">
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
       <div class="section-title" style="margin:0">Classement</div>
@@ -2992,13 +3039,13 @@ function renderPronos(){
         const active = viewingPotes.size === 0 || viewingPotes.has(p);
         return `<button onclick="togglePote('${p}')" style="
           display:flex;align-items:center;gap:5px;
-          padding:3px 10px 3px 6px;
+          padding:3px 8px 3px 6px;
           border-radius:9999px;
           border:1.5px solid ${active ? AV_TX[pi] : 'var(--color-border-secondary)'};
           background:${active ? AV_BG[pi] : 'var(--color-background-secondary)'};
           color:${active ? AV_TX[pi] : 'var(--color-text-tertiary)'};
-          font-size:12px;font-weight:500;cursor:pointer;transition:all 0.15s">
-          <span style="width:18px;height:18px;border-radius:50%;background:${AV_TX[pi]};color:${AV_BG[pi]};display:flex;align-items:center;justify-content:center;font-size:10px">${p.charAt(0)}</span>
+          font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s">
+          <span style="width:16px;height:16px;border-radius:50%;background:${AV_TX[pi]};color:${AV_BG[pi]};display:flex;align-items:center;justify-content:center;font-size:9px">${p.charAt(0)}</span>
           ${p}
         </button>`;
       }).join('')}
@@ -3006,13 +3053,13 @@ function renderPronos(){
     <div class="leaderboard">${lb.map((p,i)=>{
       const pi=POTES.indexOf(p.name);const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
       const isViewing = viewingPotes.has(p.name);
-      return`<div class="lb-row${i===0?' lb-winner':''}" style="${isViewing ? 'outline:2px solid var(--color-text-info);outline-offset:1px' : ''}">
-        <span style="font-size:15px;font-weight:500;min-width:24px;color:var(--color-text-secondary)">${medal||'#'+(i+1)}</span>
-        <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;background:${AV_BG[pi]};color:${AV_TX[pi]}">${p.name.charAt(0)}</div>
-        <span style="flex:1;font-size:14px;font-weight:500;color:var(--color-text-primary);cursor:pointer" onclick="togglePote('${p.name}')">${p.name}</span>
-        <span style="font-size:18px;font-weight:500;color:var(--color-text-primary)">${p.pts}</span>
-        <span style="font-size:11px;color:var(--color-text-secondary);margin-left:3px">pts</span>
-        <button class="btn ${isViewing ? 'btn-primary' : ''}" onclick="togglePote('${p.name}')" style="font-size:11px;padding:3px 8px">${isViewing ? '✓ Filtré' : 'Filtrer'}</button>
+      return`<div class="lb-row${i===0?' lb-winner':''}" style="${isViewing ? 'outline:2px solid var(--color-text-info);outline-offset:1px' : ''}; padding: ${isMobile ? '6px 8px' : '10px 12px'};">
+        <span style="font-size:${isMobile ? '13px' : '15px'};font-weight:500;min-width:${isMobile ? '20px' : '24px'};color:var(--color-text-secondary)">${medal||'#'+(i+1)}</span>
+        <div style="width:${isMobile ? '24px' : '28px'};height:${isMobile ? '24px' : '28px'};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;background:${AV_BG[pi]};color:${AV_TX[pi]}">${p.name.charAt(0)}</div>
+        <span style="flex:1;font-size:${isMobile ? '13px' : '14px'};font-weight:500;color:var(--color-text-primary);cursor:pointer" onclick="togglePote('${p.name}')">${p.name}</span>
+        <span style="font-size:${isMobile ? '15px' : '18px'};font-weight:500;color:var(--color-text-primary)">${p.pts}</span>
+        <span style="font-size:10px;color:var(--color-text-secondary);margin-left:3px">${isMobile ? 'p' : 'pts'}</span>
+        <button class="btn ${isViewing ? 'btn-primary' : ''}" onclick="togglePote('${p.name}')" style="font-size:10px;padding:2px 6px">${isViewing ? (isMobile ? '✓' : '✓ Filtré') : 'Filtrer'}</button>
       </div>`;}).join('')}
     </div>
   </div>
@@ -3033,7 +3080,7 @@ function renderPronos(){
       const potesToShow = [currentPote, ...rawPotesToShow.filter(p => p !== currentPote)];
 
       return`<div class="prog-match">
-        <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${m.label}</span><span>${m.date} · ${m.group}</span></div>
+        <div class="prog-match-hdr"><span style="font-weight:500;color:var(--color-text-primary)">${compactLabel(m.label)}</span><span>${m.date}${isMobile ? '' : ' · ' + m.group}</span></div>
         <div style="padding:8px 12px;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-secondary)">
           <div style="display:flex; align-items:center; gap:10px; margin-bottom: 5px;">
             Score réel : <strong style="color:var(--color-text-primary)">${renderReadonlyScore(actual)}</strong>
