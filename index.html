@@ -2412,6 +2412,12 @@ function editPts(el,g,i){
 // Fonction de rendu de la section matchs avec ses filtres dynamiques de tri
 function renderMatchs(){
   const el=document.getElementById('matchs');
+  if (!el) return;
+  const activeEl = document.activeElement;
+  const focusedId = activeEl ? activeEl.id : null;
+  const selectionStart = activeEl ? activeEl.selectionStart : null;
+  const selectionEnd = activeEl ? activeEl.selectionEnd : null;
+
   let htmlFilters = `
   <div class="filter-container">
     <div style="display:flex;align-items:center;gap:6px">
@@ -2485,7 +2491,21 @@ function renderMatchs(){
         <div style="flex:1">
           <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">${getDisplayName(m.t1)}</div>
         </div>
-        <div class="match-score">${renderReadonlyScore(actual)}</div>
+        <div class="match-score">
+          ${isAdmin && prono ? `
+            <div style="display:flex;align-items:center;gap:4px;justify-content:center">
+              <input id="actual_matchs_${prono.id}_s1" class="score-in" type="number" min="0"
+                value="${(focusedId === 'actual_matchs_'+prono.id+'_s1') ? activeEl.value : (actual.s1||'')}"
+                oninput="setActual('${prono.id}','s1',this.value)" onblur="resetMobileZoom()"
+                style="width:28px;height:22px;font-size:11px">
+              <span style="font-size:10px;color:var(--color-text-tertiary)">-</span>
+              <input id="actual_matchs_${prono.id}_s2" class="score-in" type="number" min="0"
+                value="${(focusedId === 'actual_matchs_'+prono.id+'_s2') ? activeEl.value : (actual.s2||'')}"
+                oninput="setActual('${prono.id}','s2',this.value)" onblur="resetMobileZoom()"
+                style="width:28px;height:22px;font-size:11px">
+            </div>
+          ` : renderReadonlyScore(actual)}
+        </div>
         <div style="flex:1;text-align:right">
           <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">${getDisplayName(m.t2)}</div>
         </div>
@@ -2494,6 +2514,16 @@ function renderMatchs(){
     </div>`;
   }).join('');
   el.innerHTML = htmlFilters + htmlList;
+
+  if (focusedId) {
+    const newEl = document.getElementById(focusedId);
+    if (newEl) {
+      newEl.focus();
+      if (selectionStart !== null && newEl.setSelectionRange) {
+        try { newEl.setSelectionRange(selectionStart, selectionEnd); } catch(e) {}
+      }
+    }
+  }
 }
 
 // Fonction de déclenchement lors d'un changement de filtre
@@ -2551,6 +2581,10 @@ function renderBracket() {
   const el = document.getElementById('bracket');
   if (!el) return;
 
+  const scrollEl = document.getElementById('bracket-scroll');
+  const sl = scrollEl ? scrollEl.scrollLeft : 0;
+  const st = scrollEl ? scrollEl.scrollTop : 0;
+
   el.innerHTML = `
     <div class="card" style="padding:14px 10px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
@@ -2571,6 +2605,16 @@ function renderBracket() {
   `;
   applyBracketZoom();
   initBracketPanZoom();
+
+  if (sl || st) {
+    requestAnimationFrame(() => {
+      const newScrollEl = document.getElementById('bracket-scroll');
+      if (newScrollEl) {
+        newScrollEl.scrollLeft = sl;
+        newScrollEl.scrollTop = st;
+      }
+    });
+  }
 }
 
 function bracketZoomChange(delta, reset) {
@@ -3146,24 +3190,24 @@ function renderPronos(){
           </div>
           ${isAdmin ? `
           <div style="display:flex; gap:12px; margin-top:8px;">
-            <div style="flex:1;">
+            <div style="flex:1 1 0; min-width: 0;">
               <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs réels ${teams[0]}</div>
               <div style="display:flex; flex-wrap:wrap; gap:4px;">
                 ${Array.from({length: parseInt(actual.s1)||0}).map((_, i) => {
                   const selected = (actual.buteursReelsHome || [])[i] || '';
-                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:110px;" onchange="setActual('${m.id}', 'buteursReelsHome_${i}', this.value)" onblur="resetMobileZoom()">
+                  return `<select class="select-sm" style="font-size:11px; width: 100%;" onchange="setActual('${m.id}', 'buteursReelsHome_${i}', this.value)" onblur="resetMobileZoom()">
                     <option value="">-- Choisir --</option>
                     ${players1.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name} (${p.pos})</option>`).join('')}
                   </select>`;
                 }).join('') || '<span style="font-size:11px; color:var(--color-text-tertiary);">—</span>'}
               </div>
             </div>
-            <div style="flex:1;">
+            <div style="flex:1 1 0; min-width: 0;">
               <div style="font-size:10px; color:var(--color-text-secondary); margin-bottom:4px;">Buteurs réels ${teams[1]}</div>
               <div style="display:flex; flex-wrap:wrap; gap:4px;">
                 ${Array.from({length: parseInt(actual.s2)||0}).map((_, i) => {
                   const selected = (actual.buteursReelsAway || [])[i] || '';
-                  return `<select class="select-sm" style="font-size:11px; flex:1; min-width:110px;" onchange="setActual('${m.id}', 'buteursReelsAway_${i}', this.value)" onblur="resetMobileZoom()">
+                  return `<select class="select-sm" style="font-size:11px; width: 100%;" onchange="setActual('${m.id}', 'buteursReelsAway_${i}', this.value)" onblur="resetMobileZoom()">
                     <option value="">-- Choisir --</option>
                     ${players2.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name} (${p.pos})</option>`).join('')}
                   </select>`;
@@ -3201,12 +3245,12 @@ function renderPronos(){
 
             ${/* Buteurs — seulement si score saisi */(parseInt(bet.s1)||0) + (parseInt(bet.s2)||0) > 0 ? `
             <div style="display:flex;gap:12px;margin-top:8px;border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;">
-              <div style="flex:1;">
+              <div style="flex:1 1 0; min-width: 0;">
                 <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px;">Buteurs ${teams[0]}</div>
                 <div style="display:flex;flex-wrap:wrap;gap:4px;">
                   ${Array.from({length: parseInt(bet.s1)||0}).map((_,i) => {
                     const selected = (bet.buteursHome||[])[i]||'';
-                    return `<select class="select-sm" style="font-size:11px;flex:1;min-width:120px;${!isOwn?'background:#e9ecef;':''}"
+                    return `<select class="select-sm" style="font-size:11px;width: 100%;${!isOwn?'background:#e9ecef;':''}"
                       onchange="${isOwn ? `setBet('${m.id}','buteursHome_${i}',this.value)` : ''}"
                       onblur="resetMobileZoom()" ${locked || !isOwn ? 'disabled' : ''}>
                       <option value="">-- Choisir --</option>
@@ -3215,12 +3259,12 @@ function renderPronos(){
                   }).join('') || '<span style="font-size:11px;color:var(--color-text-tertiary);">Aucun but</span>'}
                 </div>
               </div>
-              <div style="flex:1;">
+              <div style="flex:1 1 0; min-width: 0;">
                 <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px;">Buteurs ${teams[1]}</div>
                 <div style="display:flex;flex-wrap:wrap;gap:4px;">
                   ${Array.from({length: parseInt(bet.s2)||0}).map((_,i) => {
                     const selected = (bet.buteursAway||[])[i]||'';
-                    return `<select class="select-sm" style="font-size:11px;flex:1;min-width:120px;${!isOwn?'background:#e9ecef;':''}"
+                    return `<select class="select-sm" style="font-size:11px;width: 100%;${!isOwn?'background:#e9ecef;':''}"
                       onchange="${isOwn ? `setBet('${m.id}','buteursAway_${i}',this.value)` : ''}"
                       onblur="resetMobileZoom()" ${locked || !isOwn ? 'disabled' : ''}>
                       <option value="">-- Choisir --</option>
