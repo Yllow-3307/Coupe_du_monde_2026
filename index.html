@@ -747,6 +747,42 @@ let POTES  = [];
 let AV_BG  = [];
 let AV_TX  = [];
 
+const ABBREVIATIONS = {
+  "Mexique": "MX", "Afrique du Sud": "ZA", "Corée du Sud": "KR", "Tchéquie": "CZ",
+  "Canada": "CA", "Bosnie-Herz.": "BA", "Qatar": "QA", "Suisse": "CH",
+  "Brésil": "BR", "Maroc": "MA", "Haïti": "HT", "Écosse": "SC",
+  "États-Unis": "US", "Paraguay": "PY", "Australie": "AU", "Turquie": "TR",
+  "Allemagne": "DE", "Curaçao": "CW", "Côte d'Ivoire": "CI", "Équateur": "EC",
+  "Pays-Bas": "NL", "Japon": "JP", "Suède": "SE", "Tunisie": "TN",
+  "Belgique": "BE", "Égypte": "EG", "Iran": "IR", "Nouvelle-Zélande": "NZ",
+  "Espagne": "ES", "Cap-Vert": "CV", "Arabie Saoudite": "SA", "Uruguay": "UY",
+  "France": "FR", "Sénégal": "SN", "Irak": "IQ", "Norvège": "NO",
+  "Argentine": "AR", "Algérie": "DZ", "Autriche": "AT", "Jordanie": "JO",
+  "Portugal": "PT", "RD Congo": "CD", "Ouzbékistan": "UZ", "Colombie": "CO",
+  "Angleterre": "EN", "Croatie": "HR", "Ghana": "GH", "Panama": "PA"
+};
+
+function getDisplayName(fullName, noFlag) {
+  if (!fullName) return '';
+  const isMobile = document.body.classList.contains('forced-mobile') || window.innerWidth < 768;
+  if (!isMobile) return fullName;
+
+  const trimmed = fullName.trim();
+  const parts = trimmed.split(/\s+/);
+
+  // Detect if there's a flag (emoji) at the beginning
+  if (parts.length > 1 && (/[\uD800-\uDBFF]/.test(parts[0]) || parts[0].length > 2)) {
+      if (/[\uD800-\uDBFF]/.test(parts[0])) {
+          const flag = parts[0];
+          const name = parts.slice(1).join(' ');
+          const abbr = ABBREVIATIONS[name] || (name.length > 2 ? name.substring(0, 2).toUpperCase() : name);
+          return noFlag ? abbr : flag + ' ' + abbr;
+      }
+  }
+
+  return ABBREVIATIONS[trimmed] || (trimmed.length > 2 ? trimmed.substring(0, 2).toUpperCase() : trimmed);
+}
+
 const GROUPS = {
   A: {teams: [["🇲🇽","Mexique"], ["🇿🇦","Afrique du Sud"], ["🇰🇷","Corée du Sud"], ["🇨🇿","Tchéquie"]]},
   B: {teams: [["🇨🇦","Canada"], ["🇧🇦","Bosnie-Herz."], ["🇶🇦","Qatar"], ["🇨🇭","Suisse"]]},
@@ -2345,7 +2381,7 @@ function renderGroups() {
                     <tr class="${cls}">
                       <td class="team-name" style="color:var(--color-text-primary)">
                         <span style="font-size:15px;width:22px;display:inline-block">${item.flag}</span>
-                        ${item.nom}
+                        ${getDisplayName(item.nom)}
                       </td>
                       <td>${item.mj}</td>
                       <td>${item.g}</td>
@@ -2447,11 +2483,11 @@ function renderMatchs(){
       </div>
       <div style="display:flex;align-items:center;gap:8px">
         <div style="flex:1">
-          <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">${m.t1}</div>
+          <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">${getDisplayName(m.t1)}</div>
         </div>
         <div class="match-score">${renderReadonlyScore(actual)}</div>
         <div style="flex:1;text-align:right">
-          <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">${m.t2}</div>
+          <div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px">${getDisplayName(m.t2)}</div>
         </div>
       </div>
       ${scorersLine}
@@ -2504,7 +2540,7 @@ function resolveBracketTeam(rule) {
     const t = classement[rank - 1];
     // On considère résolu si au moins un match a été joué dans le groupe
     // ou si on veut simplement afficher l'état actuel du classement.
-    return t.flag + ' ' + t.nom;
+    return t.flag + ' ' + getDisplayName(t.nom);
   }
   return rule;
 }
@@ -2547,14 +2583,18 @@ function applyBracketZoom() {
   const inner = document.getElementById('bracket-inner');
   const lbl = document.getElementById('bracket-zoom-label');
   if (inner) {
-    inner.style.transformOrigin = 'left center';
+    inner.style.transformOrigin = 'top left';
     inner.style.transform = 'scale(' + bracketZoom + ')';
   }
   if (lbl) lbl.textContent = Math.round(bracketZoom * 100) + '%';
-  // Update scroll container height to fit zoomed content (height is fixed now)
+
+  // Update scroll container height/width to fit zoomed content
   const scroll = document.getElementById('bracket-scroll');
   if (inner && scroll) {
-    scroll.style.height = '1450px';
+    // We use a wrapper approach or manual adjustment if needed
+    // For scale, we need to adjust the height of the container to allow scrolling
+    // Base height is roughly 1400px (from CSS or content)
+    scroll.style.minHeight = (1450 * bracketZoom) + 'px';
   }
 }
 
@@ -2630,7 +2670,7 @@ function createBracketRoundCol(title, count, prefix) {
         return `<div onclick="pickWinner('${key}',${slot === '_t1' ? 1 : 2})" 
                      oncontextmenu="if(isAdmin){ event.preventDefault(); editBracketTeam('${key}','${slot}'); }"
                      style="padding:7px 10px;border-radius:var(--border-radius-md);margin:${slot === '_t1' ? '0 0 4px 0' : '4px 0 0 0'};cursor:pointer;font-size:12px;color:${w === team && team !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${w === team && team !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${w === team && team !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};">
-          ${team}
+          ${getDisplayName(team)}
         </div>`;
       };
 
@@ -2669,7 +2709,7 @@ function createBracketFinalCol() {
            style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:8px;cursor:pointer;
            color:${finalW===finalT1&&finalT1!=='À dét.'?'#fff':'var(--color-text-primary)'};
            background:${finalW===finalT1&&finalT1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
-        ${finalT1}
+        ${getDisplayName(finalT1)}
       </div>
 
       <div style="text-align:center;font-size:22px">🏆</div>
@@ -2678,7 +2718,7 @@ function createBracketFinalCol() {
            style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:8px;cursor:pointer;
            color:${finalW===finalT2&&finalT2!=='À dét.'?'#fff':'var(--color-text-primary)'};
            background:${finalW===finalT2&&finalT2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
-        ${finalT2}
+        ${getDisplayName(finalT2)}
       </div>
     </div>
 
@@ -2694,7 +2734,7 @@ function createBracketFinalCol() {
            style="padding:10px 12px;border-radius:var(--border-radius-md);margin-bottom:8px;cursor:pointer;
            color:${thirdW===thirdT1&&thirdT1!=='À dét.'?'#fff':'var(--color-text-primary)'};
            background:${thirdW===thirdT1&&thirdT1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
-        ${thirdT1}
+        ${getDisplayName(thirdT1)}
       </div>
 
       <div style="text-align:center;font-size:20px">🥉</div>
@@ -2703,7 +2743,7 @@ function createBracketFinalCol() {
            style="padding:10px 12px;border-radius:var(--border-radius-md);margin-top:8px;cursor:pointer;
            color:${thirdW===thirdT2&&thirdT2!=='À dét.'?'#fff':'var(--color-text-primary)'};
            background:${thirdW===thirdT2&&thirdT2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};">
-        ${thirdT2}
+        ${getDisplayName(thirdT2)}
       </div>
     </div>
 
@@ -3021,13 +3061,12 @@ function renderPronos(){
     const isMobile = document.body.classList.contains('forced-mobile') || window.innerWidth < 768;
     const compactLabel = (lbl) => {
         if (!isMobile) return lbl;
-        return lbl.replace(" Afrique du Sud", " Af. Sud")
-                  .replace(" République", " Rep.")
-                  .replace(" Bosnie-Herzégovine", " Bosnie")
-                  .replace(" États-Unis", " USA")
-                  .replace(" Nouvelle-Zélande", " N. Zélande")
-                  .replace(" Arabie Saoudite", " Ar. Saoudite")
-                  .replace(" de Finale", "");
+        // Si c'est un format "Equipe A vs Equipe B"
+        if (lbl.includes(" vs ")) {
+            const parts = lbl.split(" vs ");
+            return getDisplayName(parts[0]) + " vs " + getDisplayName(parts[1]);
+        }
+        return lbl.replace(" de Finale", "");
     };
 
   el.innerHTML=`<div style="margin-bottom:16px">
@@ -3343,7 +3382,7 @@ function renderStats(){
     <div class="stat-card" style="grid-column: 1 / -1;">
       <div class="stat-lbl">Meilleure équipe</div>
       <div class="stat-val" style="font-size:16px; display:flex; align-items:center; gap:8px;">
-        ${bestTeam ? `<span>${bestTeam.flag}</span> <span>${bestTeam.name}</span>` : '—'}
+        ${bestTeam ? `<span>${bestTeam.flag}</span> <span>${getDisplayName(bestTeam.name)}</span>` : '—'}
       </div>
       <div class="stat-sub" style="margin-top:4px;">
         ${bestTeam ? `${bestTeam.goals} buts marqués · ${bestTeam.wins} matchs gagnés` : ''}
@@ -3358,7 +3397,7 @@ function renderStats(){
     ${D.teamStats.map((t,i)=>{
       const played=parseInt(t.played)||0, goals=parseInt(t.goals)||0, against=parseInt(t.against)||0, wins=parseInt(t.wins)||0;
       return`<div style="display:grid;grid-template-columns:1.2fr 1fr 0.6fr 0.6fr 0.7fr 0.7fr;gap:6px;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
-        <span style="font-size:12px;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><span style="font-size:14px">${t.flag}</span>${t.name}</span>
+        <span style="font-size:12px;display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><span style="font-size:14px">${t.flag}</span>${getDisplayName(t.name, true)}</span>
         <input class="inp-sm" value="${t.mvp||''}" oninput="D.teamStats[${i}].mvp=this.value;save()" style="height:24px;font-size:12px;width:100%" ${isAdmin?'':'disabled'}>
         <span style="text-align:center;font-size:12px;color:var(--color-text-primary)">${wins}</span>
         <span style="text-align:center;font-size:12px;color:var(--color-text-secondary)">${played>0?(goals/played).toFixed(1):'—'}</span>
@@ -3378,7 +3417,7 @@ function renderEquipes(){
     <div class="team-card-hdr" onclick="toggleTeam(${ti})">
       <span style="font-size:20px">${t.flag}</span>
       <div style="flex:1">
-        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">${t.name}</div>
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary)">${getDisplayName(t.name)}</div>
         <div style="font-size:11px;color:var(--color-text-secondary)">Gr. ${t.group} · ${t.coach}</div>
       </div>
       <i class="ti ti-chevron-down" id="chev${ti}" style="font-size:14px;color:var(--color-text-tertiary);transition:transform 0.2s" aria-hidden="true"></i>
