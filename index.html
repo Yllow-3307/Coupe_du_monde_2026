@@ -2949,6 +2949,7 @@ function editBracketTeam(key, slot) {
 }
 
 function pickWinner(key, teamNum) {
+  if (!isAdmin) return;
   const parts = key.split('_');
   const phase = parts[0];
   const idx = parseInt(parts[1]);
@@ -3019,7 +3020,7 @@ function propagateWinner(key, winner) {
 function saveSilent(){ save(); }
 
 let viewingPotes = new Set(); // vide = tous affichés
-let collapsedStatsTeams = new Set();
+let openedStatsTeams = new Set();
 
 function getTeamPlayers(teamLabel) {
   if (!teamLabel) return [];
@@ -3139,7 +3140,7 @@ function renderPronos(){
                   const selected = (actual.buteursReelsHome || [])[i] || '';
                   return `<select class="select-sm" style="font-size:11px; flex:1; min-width:110px;" onchange="setActual('${m.id}', 'buteursReelsHome_${i}', this.value)" onblur="resetMobileZoom()">
                     <option value="">-- Choisir --</option>
-                    ${players1.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
+                    ${players1.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name} (${p.pos})</option>`).join('')}
                   </select>`;
                 }).join('') || '<span style="font-size:11px; color:var(--color-text-tertiary);">—</span>'}
               </div>
@@ -3151,7 +3152,7 @@ function renderPronos(){
                   const selected = (actual.buteursReelsAway || [])[i] || '';
                   return `<select class="select-sm" style="font-size:11px; flex:1; min-width:110px;" onchange="setActual('${m.id}', 'buteursReelsAway_${i}', this.value)" onblur="resetMobileZoom()">
                     <option value="">-- Choisir --</option>
-                    ${players2.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name}</option>`).join('')}
+                    ${players2.map(p => `<option value="${p.name}" ${selected === p.name ? 'selected' : ''}>${p.name} (${p.pos})</option>`).join('')}
                   </select>`;
                 }).join('') || '<span style="font-size:11px; color:var(--color-text-tertiary);">—</span>'}
               </div>
@@ -3196,7 +3197,7 @@ function renderPronos(){
                       onchange="${isOwn ? `setBet('${m.id}','buteursHome_${i}',this.value)` : ''}"
                       onblur="resetMobileZoom()" ${locked || !isOwn ? 'disabled' : ''}>
                       <option value="">-- Choisir --</option>
-                      ${players1.map(p2 => `<option value="${p2.name}" ${selected===p2.name?'selected':''}>${p2.name}</option>`).join('')}
+                      ${players1.map(p2 => `<option value="${p2.name}" ${selected===p2.name?'selected':''}>${p2.name} (${p2.pos})</option>`).join('')}
                     </select>`;
                   }).join('') || '<span style="font-size:11px;color:var(--color-text-tertiary);">Aucun but</span>'}
                 </div>
@@ -3210,7 +3211,7 @@ function renderPronos(){
                       onchange="${isOwn ? `setBet('${m.id}','buteursAway_${i}',this.value)` : ''}"
                       onblur="resetMobileZoom()" ${locked || !isOwn ? 'disabled' : ''}>
                       <option value="">-- Choisir --</option>
-                      ${players2.map(p2 => `<option value="${p2.name}" ${selected===p2.name?'selected':''}>${p2.name}</option>`).join('')}
+                      ${players2.map(p2 => `<option value="${p2.name}" ${selected===p2.name?'selected':''}>${p2.name} (${p2.pos})</option>`).join('')}
                     </select>`;
                   }).join('') || '<span style="font-size:11px;color:var(--color-text-tertiary);">Aucun but</span>'}
                 </div>
@@ -3359,13 +3360,13 @@ function renderStats(){
     <div class="section-title">Notes joueurs par équipe</div>
     ${TEAMS_DATA.map(team => {
         const teamData = playersByTeam[team.name];
-        const isCollapsed = collapsedStatsTeams.has(team.name);
+        const isCollapsed = !openedStatsTeams.has(team.name);
         const posOrder = {G:0,D:1,M:2,A:3};
         const sortedPlayers = [...teamData.players].sort((a,b) => posOrder[a.pos] - posOrder[b.pos]);
 
         return `
           <div class="card" style="padding:0; overflow:hidden; margin-bottom:15px;">
-            <div onclick="if(collapsedStatsTeams.has('${team.name}')) collapsedStatsTeams.delete('${team.name}'); else collapsedStatsTeams.add('${team.name}'); renderStats();" 
+            <div onclick="if(openedStatsTeams.has('${team.name}')) openedStatsTeams.delete('${team.name}'); else openedStatsTeams.add('${team.name}'); renderStats();"
                  style="background:var(--color-background-secondary); padding:8px 12px; border-bottom:0.5px solid var(--color-border-tertiary); font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; cursor:pointer;">
               <span style="font-size:18px;">${teamData.flag}</span> ${team.name}
               <div style="flex:1"></div>
