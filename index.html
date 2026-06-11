@@ -2452,6 +2452,41 @@ function updateMatchFilters(){
   renderMatchs();
 }
 
+const R16_MATCH_RULES = [
+  { t1: "1E", t2: ["3A", "3B", "3C", "3D", "3F"] },
+  { t1: "1I", t2: ["3C", "3D", "3F", "3G", "3H"] },
+  { t1: "2A", t2: "2B" },
+  { t1: "1F", t2: "2C" },
+  { t1: "2K", t2: "2L" },
+  { t1: "1H", t2: "2J" },
+  { t1: "1D", t2: ["3B", "3E", "3F", "3I", "3J"] },
+  { t1: "1G", t2: ["3A", "3E", "3H", "3I", "3J"] },
+  { t1: "1C", t2: "1F" },
+  { t1: "2E", t2: "2I" },
+  { t1: "1A", t2: ["3C", "3E", "3F", "3H", "3I"] },
+  { t1: "1L", t2: ["3E", "3H", "3I", "3J", "3K"] },
+  { t1: "1J", t2: "2H" },
+  { t1: "2D", t2: "2G" },
+  { t1: "1B", t2: ["3E", "3F", "3G", "3I", "3J"] },
+  { t1: "1K", t2: ["3D", "3E", "3I", "3J", "3L"] }
+];
+
+function resolveBracketTeam(rule) {
+  if (typeof rule !== 'string') return rule;
+  const m = rule.match(/^(\d)([A-L])$/);
+  if (!m) return rule;
+  const rank = parseInt(m[1]);
+  const group = m[2];
+  const classement = getGroupeClassement(group);
+  if (classement && classement[rank - 1]) {
+    const t = classement[rank - 1];
+    // On considère résolu si au moins un match a été joué dans le groupe
+    // ou si on veut simplement afficher l'état actuel du classement.
+    return t.flag + ' ' + t.nom;
+  }
+  return rule;
+}
+
 let bracketZoom = 1.0;
 
 function renderBracket() {
@@ -2542,13 +2577,45 @@ function createBracketRoundCol(title, count, prefix) {
     </div>
     ${Array.from({length: count}, (_, i) => {
       const key = prefix + '_' + i;
-      const t1 = D.bracket[key + '_t1'] || 'À dét.';
-      const t2 = D.bracket[key + '_t2'] || 'À dét.';
       const w = D.bracket[key + '_w'];
+
+      let t1 = D.bracket[key + '_t1'];
+      let t2 = D.bracket[key + '_t2'];
+
+      if (prefix === 'r16') {
+        const rule = R16_MATCH_RULES[i];
+        if (!t1) t1 = resolveBracketTeam(rule.t1);
+        if (!t2) t2 = Array.isArray(rule.t2) ? rule.t2 : resolveBracketTeam(rule.t2);
+      } else {
+        if (!t1) t1 = 'À dét.';
+        if (!t2) t2 = 'À dét.';
+      }
+
+      const renderTeam = (team, slot) => {
+        if (Array.isArray(team)) {
+          if (!isAdmin) return `<div style="padding:7px 10px;font-size:12px;color:var(--color-text-tertiary)">En attente (3e)</div>`;
+          return `<div style="display:flex;gap:4px;align-items:center;margin:${slot === '_t1' ? '0 0 4px 0' : '4px 0 0 0'}">
+            <select class="select-sm" style="flex:1;height:24px;font-size:10px" onchange="D.bracket['${key}${slot}_tmp']=this.value">
+              <option value="">3e...</option>
+              ${team.map(r => {
+                const res = resolveBracketTeam(r);
+                return `<option value="${res}">${r} (${res})</option>`;
+              }).join('')}
+            </select>
+            <button class="btn" style="padding:0 4px;height:24px" onclick="if(D.bracket['${key}${slot}_tmp']){ D.bracket['${key}${slot}']=D.bracket['${key}${slot}_tmp']; save(); renderBracket(); }">✓</button>
+          </div>`;
+        }
+        return `<div onclick="pickWinner('${key}',${slot === '_t1' ? 1 : 2})"
+                     oncontextmenu="if(isAdmin){ event.preventDefault(); editBracketTeam('${key}','${slot}'); }"
+                     style="padding:7px 10px;border-radius:var(--border-radius-md);margin:${slot === '_t1' ? '0 0 4px 0' : '4px 0 0 0'};cursor:pointer;font-size:12px;color:${w === team && team !== 'À dét.' ? '#fff' : 'var(--color-text-primary)'};background:${w === team && team !== 'À dét.' ? '#1D9E75' : 'var(--color-background-secondary)'};border:0.5px solid ${w === team && team !== 'À dét.' ? '#1D9E75' : 'var(--color-border-tertiary)'};">
+          ${team}
+        </div>`;
+      };
+
       return `<div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:8px;margin-bottom:10px">
-        <div onclick="pickWinner('${key}',1)" style="padding:7px 10px;border-radius:var(--border-radius-md);margin-bottom:4px;cursor:pointer;font-size:12px;color:${w===t1&&t1!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t1&&t1!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t1}</div>
+        ${renderTeam(t1, '_t1')}
         <div style="text-align:center;font-size:10px;color:var(--color-text-tertiary)">VS</div>
-        <div onclick="pickWinner('${key}',2)" style="padding:7px 10px;border-radius:var(--border-radius-md);margin-top:4px;cursor:pointer;font-size:12px;color:${w===t2&&t2!=='À dét.'?'#fff':'var(--color-text-primary)'};background:${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-background-secondary)'};border:0.5px solid ${w===t2&&t2!=='À dét.'?'#1D9E75':'var(--color-border-tertiary)'};">${t2}</div>
+        ${renderTeam(t2, '_t2')}
       </div>`;
     }).join('')}
   </div>`;
@@ -2807,13 +2874,39 @@ function createFinalMatch() {
     </div>`;
 }
 
+function editBracketTeam(key, slot) {
+  if (!isAdmin) return;
+  const current = D.bracket[key + slot] || '';
+  const val = prompt("Entrez le nom de l'équipe (ou laissez vide pour réinitialiser) :", current);
+  if (val !== null) {
+    if (val === "") delete D.bracket[key + slot];
+    else D.bracket[key + slot] = val;
+    save();
+    renderBracket();
+  }
+}
+
 function pickWinner(key, teamNum) {
-  const t1 = D.bracket[key + '_t1'] || 'À déterminer';
-  const t2 = D.bracket[key + '_t2'] || 'À déterminer';
+  const parts = key.split('_');
+  const phase = parts[0];
+  const idx = parseInt(parts[1]);
+
+  let t1 = D.bracket[key + '_t1'];
+  let t2 = D.bracket[key + '_t2'];
+
+  if (phase === 'r16') {
+    const rule = R16_MATCH_RULES[idx];
+    if (!t1) t1 = resolveBracketTeam(rule.t1);
+    if (!t2) t2 = Array.isArray(rule.t2) ? rule.t2 : resolveBracketTeam(rule.t2);
+  }
+
+  if (!t1) t1 = 'À dét.';
+  if (!t2) t2 = 'À dét.';
   
   const winner = teamNum === 1 ? t1 : t2;
   
-  if (winner === 'À déterminer' || winner === 'À dét.' || winner === '?') return;
+  if (winner === 'À déterminer' || winner === 'À dét.' || winner === '?' || Array.isArray(winner)) return;
+  if (typeof winner === 'string' && winner.match(/^\d[A-L]$/)) return;
 
   D.bracket[key + '_w'] = winner;
   
