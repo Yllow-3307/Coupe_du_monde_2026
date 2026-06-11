@@ -2183,10 +2183,13 @@ function getScoreValue(matchId, side) {
 
 function parseScorers(value) {
   if (Array.isArray(value)) {
-    return value.map(s => ({
-      name: (s.name || s.player || '').trim(),
-      goals: parseInt(s.goals || s.buts || 1) || 1
-    })).filter(s => s.name);
+    return value.map(s => {
+      if (typeof s === 'string') return { name: s.trim(), goals: 1 };
+      return {
+        name: (s.name || s.player || '').trim(),
+        goals: parseInt(s.goals || s.buts || 1) || 1
+      };
+    }).filter(s => s.name);
   }
   return String(value || '').split(/[,;\n]+/).map(raw => {
     const txt = raw.trim();
@@ -2467,8 +2470,8 @@ function renderMatchs(){
     const isMobile = document.body.classList.contains('forced-mobile') || window.innerWidth < 768;
 
     // Récupération des buteurs (soit du flux actual, soit de la saisie manuelle via D.scores)
-    const s1 = formatScorers(actual.scorers1 || D.scores[m.originalIdx + 'buteur1']);
-    const s2 = formatScorers(actual.scorers2 || D.scores[m.originalIdx + 'buteur2']);
+    const s1 = formatScorers(actual.buteursReelsHome || actual.scorers1 || D.scores[m.originalIdx + 'buteur1']);
+    const s2 = formatScorers(actual.buteursReelsAway || actual.scorers2 || D.scores[m.originalIdx + 'buteur2']);
     
     // Format : Buteur 1, Buteur 2 (Mexique) | Buteur 3 (Afrique du Sud)
     let scorersLine = '';
@@ -2607,6 +2610,8 @@ function renderBracket() {
   initBracketPanZoom();
 
   if (sl || st) {
+    const s = document.getElementById('bracket-scroll');
+    if (s) { s.scrollLeft = sl; s.scrollTop = st; }
     requestAnimationFrame(() => {
       const newScrollEl = document.getElementById('bracket-scroll');
       if (newScrollEl) {
