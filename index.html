@@ -3019,6 +3019,7 @@ function propagateWinner(key, winner) {
 function saveSilent(){ save(); }
 
 let viewingPotes = new Set(); // vide = tous affichés
+let collapsedStatsTeams = new Set();
 
 function getTeamPlayers(teamLabel) {
   if (!teamLabel) return [];
@@ -3358,13 +3359,20 @@ function renderStats(){
     <div class="section-title">Notes joueurs par équipe</div>
     ${TEAMS_DATA.map(team => {
         const teamData = playersByTeam[team.name];
+        const isCollapsed = collapsedStatsTeams.has(team.name);
+        const posOrder = {G:0,D:1,M:2,A:3};
+        const sortedPlayers = [...teamData.players].sort((a,b) => posOrder[a.pos] - posOrder[b.pos]);
+
         return `
           <div class="card" style="padding:0; overflow:hidden; margin-bottom:15px;">
-            <div style="background:var(--color-background-secondary); padding:8px 12px; border-bottom:0.5px solid var(--color-border-tertiary); font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px;">
+            <div onclick="if(collapsedStatsTeams.has('${team.name}')) collapsedStatsTeams.delete('${team.name}'); else collapsedStatsTeams.add('${team.name}'); renderStats();" 
+                 style="background:var(--color-background-secondary); padding:8px 12px; border-bottom:0.5px solid var(--color-border-tertiary); font-weight:600; font-size:13px; display:flex; align-items:center; gap:8px; cursor:pointer;">
               <span style="font-size:18px;">${teamData.flag}</span> ${team.name}
+              <div style="flex:1"></div>
+              <i class="ti ti-chevron-${isCollapsed ? 'down' : 'up'}" style="font-size:14px;color:var(--color-text-tertiary)"></i>
             </div>
-            <div style="padding:0 12px;">
-              ${teamData.players.map(p => `
+            <div style="padding:0 12px; display:${isCollapsed ? 'none' : 'block'}">
+              ${sortedPlayers.map(p => `
                 <div style="display:grid;grid-template-columns:1fr 60px 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)">
                   <span style="font-size:12px;color:var(--color-text-primary); font-weight:500;">${p.name}</span>
                   <span class="player-pos" style="background:${posColors[p.pos]||'#F1EFE8'};color:${posTxt[p.pos]||'#2C2C2A'};width:max-content; justify-self: center;">${p.pos}</span>
@@ -3693,3 +3701,4 @@ async function deleteUser(pote) {
 </script>
 </body>
 </html>
+p
