@@ -749,7 +749,7 @@ let AV_TX  = [];
 
 const ABBREVIATIONS = {
   "Mexique": "MX", "Afrique du Sud": "ZA", "Corée du Sud": "KR", "Tchéquie": "CZ",
-  "Canada": "CA", "Bosnie-Herz.": "BA", "Qatar": "QA", "Suisse": "CH",
+  "Canada": "CA", "Bosnie-Herzégovine": "BA", "Qatar": "QA", "Suisse": "CH",
   "Brésil": "BR", "Maroc": "MA", "Haïti": "HT", "Écosse": "SC",
   "États-Unis": "US", "Paraguay": "PY", "Australie": "AU", "Turquie": "TR",
   "Allemagne": "DE", "Curaçao": "CW", "Côte d'Ivoire": "CI", "Équateur": "EC",
@@ -785,7 +785,7 @@ function getDisplayName(fullName, noFlag) {
 
 const GROUPS = {
   A: {teams: [["🇲🇽","Mexique"], ["🇿🇦","Afrique du Sud"], ["🇰🇷","Corée du Sud"], ["🇨🇿","Tchéquie"]]},
-  B: {teams: [["🇨🇦","Canada"], ["🇧🇦","Bosnie-Herz."], ["🇶🇦","Qatar"], ["🇨🇭","Suisse"]]},
+  B: {teams: [["🇨🇦","Canada"], ["🇧🇦","Bosnie-Herzégovine"], ["🇶🇦","Qatar"], ["🇨🇭","Suisse"]]},
   C: {teams: [["🇧🇷","Brésil"], ["🇲🇦","Maroc"], ["🇭🇹","Haïti"], ["🏴󠁧󠁢󠁳󠁣󠁴󠁿\u{e007f}","Écosse"]]},
   D: {teams: [["🇺🇸","États-Unis"], ["🇵🇾","Paraguay"], ["🇦🇺","Australie"], ["🇹🇷","Turquie"]]},
   E: {teams: [["🇩🇪","Allemagne"], ["🇨🇼","Curaçao"], ["🇨🇮","Côte d'Ivoire"], ["🇪🇨","Équateur"]]},
@@ -805,7 +805,7 @@ const GROUPS = {
 const PRONO_MATCHES = [
   {id:"p1", label:"🇲🇽 Mexique vs 🇿🇦 Afrique du Sud", date:"11 Juin", group:"Gr. A", kickoff:"2026-06-11T21:00:00", matchIdx:0},
   {id:"p2", label:"🇰🇷 Corée du Sud vs 🇨🇿 Tchéquie", date:"12 Juin", group:"Gr. A", kickoff:"2026-06-12T04:00:00", matchIdx:1},
-  {id:"p7", label:"🇨🇦 Canada vs 🇧🇦 Bosnie-Herz.", date:"12 Juin", group:"Gr. B", kickoff:"2026-06-12T21:00:00", matchIdx:2},
+  {id:"p7", label:"🇨🇦 Canada vs 🇧🇦 Bosnie-Herzégovine", date:"12 Juin", group:"Gr. B", kickoff:"2026-06-12T21:00:00", matchIdx:2},
   {id:"p19", label:"🇺🇸 États-Unis vs 🇵🇾 Paraguay", date:"13 Juin", group:"Gr. D", kickoff:"2026-06-13T03:00:00", matchIdx:3},
   {id:"p8", label:"🇶🇦 Qatar vs 🇨🇭 Suisse", date:"13 Juin", group:"Gr. B", kickoff:"2026-06-13T21:00:00", matchIdx:4},
   {id:"p13", label:"🇧🇷 Brésil vs 🇲🇦 Maroc", date:"14 Juin", group:"Gr. C", kickoff:"2026-06-14T00:00:00", matchIdx:5},
@@ -828,7 +828,7 @@ const PRONO_MATCHES = [
   {id:"p68", label:"🇬🇭 Ghana vs 🇵🇦 Panama", date:"18 Juin", group:"Gr. L", kickoff:"2026-06-18T01:00:00", matchIdx:22},
   {id:"p62", label:"🇺🇿 Ouzbékistan vs 🇨🇴 Colombie", date:"18 Juin", group:"Gr. K", kickoff:"2026-06-18T04:00:00", matchIdx:23},
   {id:"p3", label:"🇨🇿 Tchéquie vs 🇿🇦 Afrique du Sud", date:"18 Juin", group:"Gr. A", kickoff:"2026-06-18T18:00:00", matchIdx:24},
-  {id:"p9", label:"🇨🇭 Suisse vs 🇧🇦 Bosnie-Herz.", date:"18 Juin", group:"Gr. B", kickoff:"2026-06-18T21:00:00", matchIdx:25},
+  {id:"p9", label:"🇨🇭 Suisse vs 🇧🇦 Bosnie-Herzégovine", date:"18 Juin", group:"Gr. B", kickoff:"2026-06-18T21:00:00", matchIdx:25},
   {id:"p10", label:"🇨🇦 Canada vs 🇶🇦 Qatar", date:"19 Juin", group:"Gr. B", kickoff:"2026-06-19T00:00:00", matchIdx:26},
   {id:"p4", label:"🇲🇽 Mexique vs 🇰🇷 Corée du Sud", date:"19 Juin", group:"Gr. A", kickoff:"2026-06-19T03:00:00", matchIdx:27},
   {id:"p21", label:"🇺🇸 États-Unis vs 🇦🇺 Australie", date:"19 Juin", group:"Gr. D", kickoff:"2026-06-19T21:00:00", matchIdx:28},
@@ -852,7 +852,7 @@ const PRONO_MATCHES = [
   {id:"p70", label:"🇵🇦 Panama vs 🇭🇷 Croatie", date:"24 Juin", group:"Gr. L", kickoff:"2026-06-24T01:00:00", matchIdx:46},
   {id:"p64", label:"🇨🇩 RD Congo vs 🇨🇴 Colombie", date:"24 Juin", group:"Gr. K", kickoff:"2026-06-24T04:00:00", matchIdx:47},
   {id:"p11", label:"🇨🇭 Suisse vs 🇨🇦 Canada", date:"24 Juin", group:"Gr. B", kickoff:"2026-06-24T21:00:00", matchIdx:48},
-  {id:"p12", label:"🇧🇦 Bosnie-Herz. vs 🇶🇦 Qatar", date:"24 Juin", group:"Gr. B", kickoff:"2026-06-24T09:00:00", matchIdx:49},
+  {id:"p12", label:"🇧🇦 Bosnie-Herzégovine vs 🇶🇦 Qatar", date:"24 Juin", group:"Gr. B", kickoff:"2026-06-24T09:00:00", matchIdx:49},
   {id:"p17", label:"🇲🇦 Maroc vs 🇭🇹 Haïti", date:"25 Juin", group:"Gr. C", kickoff:"2026-06-25T00:00:00", matchIdx:50},
   {id:"p18", label:"🇧🇷 Brésil vs 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", date:"25 Juin", group:"Gr. C", kickoff:"", matchIdx:51},
   {id:"p6", label:"🇿🇦 Afrique du Sud vs 🇰🇷 Corée du Sud", date:"25 Juin", group:"Gr. A", kickoff:"2026-06-25T03:00:00", matchIdx:52},
@@ -953,7 +953,7 @@ const MATCHS_DATA = [
   // 12 Juin
   
   { day: "12 Juin", stage: "Phase de Groupes", g: "A", t1: "🇰🇷 Corée du Sud", t2: "🇨🇿 Tchéquie", heure: "04:00" },
-  { day: "12 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇧🇦 Bosnie-Herz.", heure: "21:00" },
+  { day: "12 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇧🇦 Bosnie-Herzégovine", heure: "21:00" },
 
 // 13 Juin
   { day: "13 Juin", stage: "Phase de Groupes", g: "D", t1: "🇺🇸 États-Unis", t2: "🇵🇾 Paraguay", heure: "03:00" },
@@ -988,7 +988,7 @@ const MATCHS_DATA = [
   { day: "18 Juin", stage: "Phase de Groupes", g: "L", t1: "🇬🇭 Ghana", t2: "🇵🇦 Panama", heure: "01:00" },
   { day: "18 Juin", stage: "Phase de Groupes", g: "K", t1: "🇺🇿 Ouzbékistan", t2: "🇨🇴 Colombie", heure: "04:00" },
   { day: "18 Juin", stage: "Phase de Groupes", g: "A", t1: "🇨🇿 Tchéquie", t2: "🇿🇦 Afrique du Sud", heure: "18:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇧🇦 Bosnie-Herz.", heure: "21:00" },
+  { day: "18 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇧🇦 Bosnie-Herzégovine", heure: "21:00" },
 
 // 19 Juin
   { day: "19 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇶🇦 Qatar", heure: "00:00" },
@@ -1026,7 +1026,7 @@ const MATCHS_DATA = [
   { day: "24 Juin", stage: "Phase de Groupes", g: "L", t1: "🇵🇦 Panama", t2: "🇭🇷 Croatie", heure: "01:00" },
   { day: "24 Juin", stage: "Phase de Groupes", g: "K", t1: "🇨🇩 RD Congo", t2: "🇨🇴 Colombie", heure: "04:00" },
   { day: "24 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇨🇦 Canada", heure: "21:00" },
-  { day: "24 Juin", stage: "Phase de Groupes", g: "B", t1: "🇧🇦 Bosnie-Herz.", t2: "🇶🇦 Qatar", heure: "09:00" },
+  { day: "24 Juin", stage: "Phase de Groupes", g: "B", t1: "🇧🇦 Bosnie-Herzégovine", t2: "🇶🇦 Qatar", heure: "09:00" },
 
 // 25 Juin
   { day: "25 Juin", stage: "Phase de Groupes", g: "C", t1: "🇲🇦 Maroc", t2: "🇭🇹 Haïti", heure: "00:00" },
@@ -1130,7 +1130,7 @@ const TEAMS_DATA = [
     {n:14,pos:"A",name:"Armando González"},  
     {n:16,pos:"A",name:"Julián Quiñones"},  
     {n:21,pos:"A",name:"César Huerta"},  
-    {n:22,pos:"A",name:"Guillermo Martínez"}
+    {n:22,pos:"A",name:"Guillermo Martínez"},
     {n:25,pos:"M",name:"Roberto Alvarado"}, 
    ]},
 
@@ -1167,7 +1167,7 @@ const TEAMS_DATA = [
     {n:10,pos:"A",name:"Relebohile Mofokeng"},
     {n:12,pos:"A",name:"Thapelo Maseko"},
     {n:15,pos:"A",name:"Iqraam Rayners"},
-    {n:17,pos:"A",name:"Evidence Makgopa"}
+    {n:17,pos:"A",name:"Evidence Makgopa"},
     {n:25,pos:"A",name:"Kamogelo Sebelebele"},
   ]},
   
@@ -1267,7 +1267,6 @@ const TEAMS_DATA = [
     {n:22,pos:"D",name:"Richie Laryea"},
     {n:24,pos:"D",name:"Alfie Jones"},
     {n:25,pos:"D",name:"Niko Sigur"},
-    {n:26,pos:"D",name:"Zorhan Bassong"},
 
     // Milieux
     {n:6,pos:"M",name:"Mathieu Choinière"},
