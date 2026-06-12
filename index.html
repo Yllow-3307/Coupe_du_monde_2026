@@ -679,7 +679,12 @@ function subscribeFirestore() {
       D.bracket   = data.bracket   || {};
       D.teamStats = data.teamStats || TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0,against:0}));
       D.playerRatings = data.playerRatings || {};
-      D.rdvList   = (data.rdvList || [{id:'rdv_0',match:'',heure:'',where:'',owner:'',presents:{}}]).map(r => ({...r, presents:r.presents||{}}));
+      let changed = false;
+      D.rdvList   = (data.rdvList || [{id:'rdv_0',match:'',heure:'',where:'',owner:'',presents:{}}]).map((r, ri) => {
+        if (!r.id) { r.id = 'rdv_' + Date.now() + '_' + ri; changed = true; }
+        return {...r, presents:r.presents||{}};
+      });
+      if (changed && isAdmin) saveRdv();
       D.pts       = data.pts       || {};
 
       syncScoresFromActuals();
@@ -4520,9 +4525,14 @@ function renderRdv(){
             <input id="rdv_${rdvId}_where" class="inp-sm" value="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end">
           <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
-          <button class="btn ${chatOpen?'btn-primary':''}" onclick="toggleChat('${rdvId}')" style="padding:4px 8px"><i class="ti ti-message" style="font-size:14px"></i> Chat</button>
+          <button class="btn ${chatOpen?'btn-primary':''}" onclick="toggleChat('${rdvId}')" style="padding:4px 8px">
+            <i class="ti ti-message" style="font-size:14px"></i> Chat
+          </button>
+          ${r.lastMsg ? `<div style="font-size:9px;color:var(--color-text-tertiary);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.lastMsg.sender)}: ${esc(r.lastMsg.txt)}">
+            ${esc(r.lastMsg.sender)}: ${esc(r.lastMsg.txt)}
+          </div>` : ''}
         </div>
       </div>
       <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
@@ -4611,11 +4621,16 @@ async function sendChat(rdvId) {
 
   const db = window._db;
   try {
+    const ts = Date.now();
     await db.collection('rdv_chats').doc(rdvId).collection('messages').add({
-      ts: Date.now(),
-      sender: currentPote,
-      txt: txt
+      ts, sender: currentPote, txt: txt
     });
+    // Update last message in RDV for everyone to see
+    const rdvIdx = D.rdvList.findIndex(r => r.id === rdvId);
+    if (rdvIdx !== -1) {
+      D.rdvList[rdvIdx].lastMsg = { sender: currentPote, txt, ts };
+      saveRdv();
+    }
   } catch (e) {
     console.error("Send error:", e);
     alert("Erreur d'envoi");
