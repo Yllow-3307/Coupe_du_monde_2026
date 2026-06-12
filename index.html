@@ -312,8 +312,17 @@
     width: 20px;
     border-top: 1.5px solid #ccc;
 }
- 
-    
+
+/* CHAT */
+.chat-area { border-top: 0.5px solid var(--color-border-tertiary); margin-top: 12px; padding-top: 12px; }
+.chat-messages { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; padding: 4px; }
+.chat-msg { font-size: 12px; padding: 6px 10px; border-radius: 12px; max-width: 85%; line-height: 1.4; position: relative; }
+.chat-msg-other { background: var(--color-background-secondary); align-self: flex-start; border-bottom-left-radius: 2px; }
+.chat-msg-own { background: var(--color-background-info); color: var(--color-text-info); align-self: flex-end; border-bottom-right-radius: 2px; }
+.chat-msg-info { font-size: 9px; color: var(--color-text-tertiary); margin-bottom: 2px; }
+.chat-input-row { display: flex; gap: 6px; }
+.chat-input-row input { flex: 1; height: 32px; font-size: 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 0 10px; background: var(--color-background-secondary); }
+
   </style>
 </head>
 <body>
@@ -414,6 +423,15 @@ let currentPote = null;
 let isAdmin = false;
 let unsubscribers = {};
 let PLAYERS_MAP = {}; // uid -> pseudo
+let openChats = new Set();
+let chatUnsubs = {};
+let rdvMessages = {};
+let chatDrafts = {}; // rdvId -> text
+
+function esc(str) {
+  if (!str) return "";
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
 
 // ===== LOGIN / SIGNUP TABS =====
 function switchLoginTab(tab) {
@@ -666,7 +684,7 @@ function subscribeFirestore() {
 
       syncScoresFromActuals();
       const activeTab = document.querySelector('.tab.active');
-      if (activeTab && activeTab.textContent.trim() !== 'RDV') activeTab.click();
+      if (activeTab) activeTab.click();
     }
   });
 
@@ -4460,12 +4478,14 @@ function getGroupeClassement(groupe) {
 
 function renderRdv(){
   const el=document.getElementById('rdv');
+  const activeEl = document.activeElement;
+  const focusedId = activeEl ? activeEl.id : null;
+  const selectionStart = activeEl ? activeEl.selectionStart : null;
+  const selectionEnd = activeEl ? activeEl.selectionEnd : null;
 
   // Filtrer le RDV template vide (owner vide ou match vide créé par défaut sans propriétaire réel)
   const visibleRdvs = D.rdvList.map((r, ri) => ({...r, _ri: ri})).filter(r => {
-    // Masquer si propriétaire vide ET match vide (c'est le template par défaut)
     if ((!r.owner || r.owner === '') && (!r.match || r.match === '')) return false;
-    // Masquer si c'est un RDV template auto-créé par "test..." avec champs vides
     if (r.owner && r.owner.startsWith('test') && (!r.match || r.match === '')) return false;
     return true;
   });
@@ -4481,21 +4501,29 @@ function renderRdv(){
   ${visibleRdvs.map((r)=>{
     const ri = r._ri;
     if(!r.presents) r.presents={};
+    const rdvId = r.id || 'legacy_' + ri;
     const owner = r.owner || '';
     const canEdit = owner === currentPote;
     const pres=r.presents||{};
     const count=Object.values(pres).filter(v=>v===1).length;
+    const chatOpen = openChats.has(rdvId);
+    const msgs = rdvMessages[rdvId] || [];
+    const draft = chatDrafts[rdvId] || '';
+
     return`<div class="rdv-card">
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
         <div style="flex:1">
           <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Créé par <strong style="color:var(--color-text-primary)">${owner || '—'}</strong></div>
-          <input class="inp-sm" value="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
+          <input id="rdv_${rdvId}_match" class="inp-sm" value="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <input type="time" class="inp-sm" value="${r.heure||''}" onchange="D.rdvList[${ri}].heure=this.value;saveRdv()" style="width:110px" ${canEdit?'':'disabled'}>
-            <input class="inp-sm" value="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
+            <input id="rdv_${rdvId}_heure" type="time" class="inp-sm" value="${r.heure||''}" onchange="D.rdvList[${ri}].heure=this.value;saveRdv()" style="width:110px" ${canEdit?'':'disabled'}>
+            <input id="rdv_${rdvId}_where" class="inp-sm" value="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
           </div>
         </div>
-        <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
+          <button class="btn ${chatOpen?'btn-primary':''}" onclick="toggleChat('${rdvId}')" style="padding:4px 8px"><i class="ti ti-message" style="font-size:14px"></i> Chat</button>
+        </div>
       </div>
       <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
         <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.filter(p => p !== owner).map((p,pi)=>{
@@ -4505,8 +4533,38 @@ function renderRdv(){
         }).join('')}</div>
         <span style="font-size:12px;color:var(--color-text-secondary)">${count>0?count+' présent'+(count>1?'s':''):'Personne encore'}</span>
       </div>
+
+      ${chatOpen ? `
+        <div class="chat-area">
+          <div class="chat-messages" id="chat_msgs_${rdvId}">
+            ${msgs.length === 0 ? '<p style="text-align:center;font-size:11px;color:var(--color-text-tertiary);margin:20px 0">Aucun message</p>' : ''}
+            ${msgs.map(m => `
+              <div class="chat-msg ${m.sender === currentPote ? 'chat-msg-own' : 'chat-msg-other'}">
+                <div class="chat-msg-info">${esc(m.sender)} · ${new Date(m.ts).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>
+                <div>${esc(m.txt)}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="chat-input-row">
+            <input type="text" id="chat_inp_${rdvId}" value="${esc(draft)}" placeholder="Ton message..."
+              oninput="chatDrafts['${rdvId}']=this.value"
+              onkeydown="if(event.key==='Enter') sendChat('${rdvId}')">
+            <button class="btn btn-primary" onclick="sendChat('${rdvId}')"><i class="ti ti-send"></i></button>
+          </div>
+        </div>
+      ` : ''}
     </div>`;
   }).join('')}`;
+
+  if (focusedId) {
+    const newEl = document.getElementById(focusedId);
+    if (newEl) {
+      newEl.focus();
+      if (selectionStart !== null && newEl.setSelectionRange) {
+        try { newEl.setSelectionRange(selectionStart, selectionEnd); } catch(e) {}
+      }
+    }
+  }
 }
 
 function toggleRdv(ri,p){
@@ -4515,6 +4573,53 @@ function toggleRdv(ri,p){
   D.rdvList[ri].presents[p]=(D.rdvList[ri].presents[p]||0)===1?0:1;
   saveRdv();
   renderRdv();
+}
+
+async function toggleChat(rdvId) {
+  if (openChats.has(rdvId)) {
+    openChats.delete(rdvId);
+    if (chatUnsubs[rdvId]) {
+      chatUnsubs[rdvId]();
+      delete chatUnsubs[rdvId];
+    }
+    renderRdv();
+  } else {
+    openChats.add(rdvId);
+    renderRdv(); // Show loading or empty state
+
+    const db = window._db;
+    chatUnsubs[rdvId] = db.collection('rdv_chats').doc(rdvId)
+      .collection('messages').orderBy('ts', 'asc').limitToLast(50)
+      .onSnapshot(snap => {
+        rdvMessages[rdvId] = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        renderRdv();
+        setTimeout(() => {
+          const m = document.getElementById(`chat_msgs_${rdvId}`);
+          if (m) m.scrollTop = m.scrollHeight;
+        }, 100);
+      }, err => console.error("Chat error:", err));
+  }
+}
+
+async function sendChat(rdvId) {
+  const inp = document.getElementById(`chat_inp_${rdvId}`);
+  const txt = inp.value.trim();
+  if (!txt) return;
+
+  inp.value = '';
+  delete chatDrafts[rdvId];
+
+  const db = window._db;
+  try {
+    await db.collection('rdv_chats').doc(rdvId).collection('messages').add({
+      ts: Date.now(),
+      sender: currentPote,
+      txt: txt
+    });
+  } catch (e) {
+    console.error("Send error:", e);
+    alert("Erreur d'envoi");
+  }
 }
   
 function addRdv(){
