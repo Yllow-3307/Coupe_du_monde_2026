@@ -1100,11 +1100,8 @@ const MATCHS_DATA = [
 
 
 const TEAMS_DATA = [
-  // Groupe A
-  // Mexique
   
-  {
-    flag:"🇲🇽",
+  { flag:"🇲🇽",
     name:"Mexique",
     group:"A",
     coach:"Javier Aguirre",
@@ -1179,7 +1176,6 @@ const TEAMS_DATA = [
     {n:26,pos:"A",name:"Kamogelo Sebelebele"}
   ]},
   
-  // Corée Du Sud
   
   {
   flag:"🇰🇷",
@@ -1222,7 +1218,6 @@ const TEAMS_DATA = [
     {n:26,pos:"A",name:"Cho Gue-sung"}
   ]},
 
-    // Tchéquie
   
   {
   flag:"🇨🇿",
@@ -1266,9 +1261,7 @@ const TEAMS_DATA = [
   ]
 },
   
-  // Groupe B
-    //Canada
-    {
+{
   flag:"🇨🇦",
   name:"Canada",
   group:"B",
@@ -4655,7 +4648,7 @@ async function resetAllMatchStatus() {
 // Fonction de suppression
 async function deleteUser(pote) {
   if (!isAdmin) return;
-  if (!confirm(`⚠️ Supprimer le joueur "${pote}" ?\n\nSes pronos et son profil seront définitivement effacés.`)) {
+  if (!confirm('⚠️ Supprimer le joueur "' + pote + '" ?\n\nSes pronos et son profil seront définitivement effacés.')) {
     return;
   }
 
