@@ -4054,7 +4054,11 @@ function renderPronos(){
 
   const lb=calcLB();
 
-  const byDate = PRONO_MATCHES.reduce((acc,m)=>{
+  const byDate = PRONO_MATCHES.filter(m => {
+    const actual = D.actual[m.id];
+    const finished = actual && actual.s1 !== undefined && actual.s1 !== '' && actual.s2 !== undefined && actual.s2 !== '';
+    return !finished;
+  }).reduce((acc,m)=>{
     const key = m.kickoff ? new Date(m.kickoff).toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) : m.date;
     if(!acc[key]) acc[key]=[];
     acc[key].push(m);
