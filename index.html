@@ -2129,6 +2129,7 @@ const TEAMS_DATA = [
 let currentFilterPhase = "all";
 let currentFilterGroup = "all";
 let currentStatsSection = "equipes";
+let currentPronoView = "upcoming";
 
 // Source JSON optionnelle pour les resultats automatiques.
 // Format accepte par match : { id:"p1", homeScore:1, awayScore:0, scorers:[{name:"Mbappe", goals:2}] }
@@ -3041,7 +3042,12 @@ function renderPronos(){
 
   const lb=calcLB();
 
-  const byDate = PRONO_MATCHES.reduce((acc,m)=>{
+  const filteredMatches = PRONO_MATCHES.filter(m => {
+    const locked = isLocked(m.id);
+    return currentPronoView === 'upcoming' ? !locked : locked;
+  });
+
+  const byDate = filteredMatches.reduce((acc,m)=>{
     const key = m.kickoff ? new Date(m.kickoff).toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) : m.date;
     if(!acc[key]) acc[key]=[];
     acc[key].push(m);
@@ -3092,7 +3098,13 @@ function renderPronos(){
       </div>`;}).join('')}
     </div>
   </div>
-  <div class="section-title" style="margin-top:1.5rem">Calendrier des pronos</div>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-top:1.5rem; margin-bottom:1rem;">
+    <div class="section-title" style="margin:0">Pronos par match</div>
+    <div style="display:flex; gap:4px; background:var(--color-background-secondary); padding:2px; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-tertiary);">
+      <button class="btn" onclick="switchPronoView('upcoming')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='upcoming'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">À venir</button>
+      <button class="btn" onclick="switchPronoView('past')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='past'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">Passés</button>
+    </div>
+  </div>
   <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">6 pts</span> Score exact + buteur</div>
   ${Object.entries(byDate).map(([date,matches])=>`
     <div class="calendar-day">${date}</div>
@@ -3235,6 +3247,11 @@ function togglePote(pote) {
   } else {
     viewingPotes.add(pote);
   }
+  renderPronos();
+}
+
+function switchPronoView(view) {
+  currentPronoView = view;
   renderPronos();
 }
 
