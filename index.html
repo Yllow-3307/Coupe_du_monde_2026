@@ -3145,15 +3145,16 @@ let currentStatsSection = "equipes";
 
 // Source JSON optionnelle pour les resultats automatiques.
 // Format accepte par match : { id:"p1", homeScore:1, awayScore:0, scorers:[{name:"Mbappe", goals:2}] }
-const RESULTS_FEED_URL = null; // désactivé, remplacé par API-Football
-const API_FOOTBALL_KEY = '0e0260f1dcaa8f004335d496764cc102';
+const RESULTS_FEED_URL = null;
+const API_PROXY_URL = "https://weathered-snowflake-51e7.louis-ragot-33.workers.dev";
 
 async function fetchAPIFootball(endpoint, params = {}) {
-  const url = new URL(`https://v3.football.api-sports.io/${endpoint}`);
+  const url = new URL(API_PROXY_URL);
+  url.searchParams.set("endpoint", endpoint);
+  url.searchParams.set("league", 1);
+  url.searchParams.set("season", 2026);
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  const res = await fetch(url.toString(), {
-    headers: { 'x-apisports-key': API_FOOTBALL_KEY }
-  });
+  const res = await fetch(url.toString());
   const data = await res.json();
   return data.response || [];
 }
@@ -3240,13 +3241,9 @@ function applyAutomaticMatchResult(matchId, payload) {
 
 async function refreshAutomaticResults(showMessage = true) {
   try {
-    // Matchs terminés de la CDM 2026
-    const fixtures = await fetchAPIFootball('fixtures', {
-      league: 1, season: 2026, status: 'FT'
-    });
+    const fixtures = await fetchAPIFootball('fixtures', { status: 'FT' });
 
     fixtures.forEach(f => {
-      // Retrouver le match via le nom des équipes
       const homeName = f.teams.home.name;
       const awayName = f.teams.away.name;
       const match = PRONO_MATCHES.find(m =>
@@ -3254,7 +3251,6 @@ async function refreshAutomaticResults(showMessage = true) {
         m.label.toLowerCase().includes(awayName.toLowerCase())
       );
       if (!match) return;
-
       if (!D.actual[match.id]) D.actual[match.id] = {};
       D.actual[match.id].s1 = String(f.goals.home ?? '');
       D.actual[match.id].s2 = String(f.goals.away ?? '');
@@ -3267,7 +3263,7 @@ async function refreshAutomaticResults(showMessage = true) {
     if (showMessage) alert('✓ Résultats mis à jour !');
   } catch(e) {
     console.error(e);
-    if (showMessage) alert("Impossible de récupérer les résultats. Vérifie ta clé API ou les CORS.");
+    if (showMessage) alert("Erreur lors de la récupération des résultats.");
   }
 }
   
