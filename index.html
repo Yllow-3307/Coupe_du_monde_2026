@@ -312,17 +312,8 @@
     width: 20px;
     border-top: 1.5px solid #ccc;
 }
-
-/* CHAT */
-.chat-area { border-top: 0.5px solid var(--color-border-tertiary); margin-top: 12px; padding-top: 12px; }
-.chat-messages { max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; padding: 4px; }
-.chat-msg { font-size: 12px; padding: 6px 10px; border-radius: 12px; max-width: 85%; line-height: 1.4; position: relative; }
-.chat-msg-other { background: var(--color-background-secondary); align-self: flex-start; border-bottom-left-radius: 2px; }
-.chat-msg-own { background: var(--color-background-info); color: var(--color-text-info); align-self: flex-end; border-bottom-right-radius: 2px; }
-.chat-msg-info { font-size: 9px; color: var(--color-text-tertiary); margin-bottom: 2px; }
-.chat-input-row { display: flex; gap: 6px; }
-.chat-input-row input { flex: 1; height: 32px; font-size: 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 0 10px; background: var(--color-background-secondary); }
-
+ 
+    
   </style>
 </head>
 <body>
@@ -423,15 +414,6 @@ let currentPote = null;
 let isAdmin = false;
 let unsubscribers = {};
 let PLAYERS_MAP = {}; // uid -> pseudo
-let openChats = new Set();
-let chatUnsubs = {};
-let rdvMessages = {};
-let chatDrafts = {}; // rdvId -> text
-
-function esc(str) {
-  if (!str) return "";
-  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
 
 // ===== LOGIN / SIGNUP TABS =====
 function switchLoginTab(tab) {
@@ -679,17 +661,12 @@ function subscribeFirestore() {
       D.bracket   = data.bracket   || {};
       D.teamStats = data.teamStats || TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0,against:0}));
       D.playerRatings = data.playerRatings || {};
-      let changed = false;
-      D.rdvList   = (data.rdvList || [{id:'rdv_0',match:'',heure:'',where:'',owner:'',presents:{}}]).map((r, ri) => {
-        if (!r.id) { r.id = 'rdv_' + Date.now() + '_' + ri; changed = true; }
-        return {...r, presents:r.presents||{}};
-      });
-      if (changed && isAdmin) saveRdv();
+      D.rdvList   = (data.rdvList || [{id:'rdv_0',match:'',heure:'',where:'',owner:'',presents:{}}]).map(r => ({...r, presents:r.presents||{}}));
       D.pts       = data.pts       || {};
 
       syncScoresFromActuals();
       const activeTab = document.querySelector('.tab.active');
-      if (activeTab) activeTab.click();
+      if (activeTab && activeTab.textContent.trim() !== 'RDV') activeTab.click();
     }
   });
 
@@ -772,7 +749,7 @@ let AV_TX  = [];
 
 const ABBREVIATIONS = {
   "Mexique": "MX", "Afrique du Sud": "ZA", "Corée du Sud": "KR", "Tchéquie": "CZ",
-  "Canada": "CA", "Bosnie-Herzégovine": "BA", "Qatar": "QA", "Suisse": "CH",
+  "Canada": "CA", "Bosnie-Herz.": "BA", "Qatar": "QA", "Suisse": "CH",
   "Brésil": "BR", "Maroc": "MA", "Haïti": "HT", "Écosse": "SC",
   "États-Unis": "US", "Paraguay": "PY", "Australie": "AU", "Turquie": "TR",
   "Allemagne": "DE", "Curaçao": "CW", "Côte d'Ivoire": "CI", "Équateur": "EC",
@@ -808,7 +785,7 @@ function getDisplayName(fullName, noFlag) {
 
 const GROUPS = {
   A: {teams: [["🇲🇽","Mexique"], ["🇿🇦","Afrique du Sud"], ["🇰🇷","Corée du Sud"], ["🇨🇿","Tchéquie"]]},
-  B: {teams: [["🇨🇦","Canada"], ["🇧🇦","Bosnie-Herzégovine"], ["🇶🇦","Qatar"], ["🇨🇭","Suisse"]]},
+  B: {teams: [["🇨🇦","Canada"], ["🇧🇦","Bosnie-Herz."], ["🇶🇦","Qatar"], ["🇨🇭","Suisse"]]},
   C: {teams: [["🇧🇷","Brésil"], ["🇲🇦","Maroc"], ["🇭🇹","Haïti"], ["🏴󠁧󠁢󠁳󠁣󠁴󠁿\u{e007f}","Écosse"]]},
   D: {teams: [["🇺🇸","États-Unis"], ["🇵🇾","Paraguay"], ["🇦🇺","Australie"], ["🇹🇷","Turquie"]]},
   E: {teams: [["🇩🇪","Allemagne"], ["🇨🇼","Curaçao"], ["🇨🇮","Côte d'Ivoire"], ["🇪🇨","Équateur"]]},
@@ -827,95 +804,77 @@ const GROUPS = {
 
 const PRONO_MATCHES = [
   {id:"p1", label:"🇲🇽 Mexique vs 🇿🇦 Afrique du Sud", date:"11 Juin", group:"Gr. A", kickoff:"2026-06-11T21:00:00", matchIdx:0},
-  
   {id:"p2", label:"🇰🇷 Corée du Sud vs 🇨🇿 Tchéquie", date:"12 Juin", group:"Gr. A", kickoff:"2026-06-12T04:00:00", matchIdx:1},
-  {id:"p7", label:"🇨🇦 Canada vs 🇧🇦 Bosnie-Herzégovine", date:"12 Juin", group:"Gr. B", kickoff:"2026-06-12T21:00:00", matchIdx:2},
-  
+  {id:"p7", label:"🇨🇦 Canada vs 🇧🇦 Bosnie-Herz.", date:"12 Juin", group:"Gr. B", kickoff:"2026-06-12T21:00:00", matchIdx:2},
   {id:"p19", label:"🇺🇸 États-Unis vs 🇵🇾 Paraguay", date:"13 Juin", group:"Gr. D", kickoff:"2026-06-13T03:00:00", matchIdx:3},
   {id:"p8", label:"🇶🇦 Qatar vs 🇨🇭 Suisse", date:"13 Juin", group:"Gr. B", kickoff:"2026-06-13T21:00:00", matchIdx:4},
-  
   {id:"p13", label:"🇧🇷 Brésil vs 🇲🇦 Maroc", date:"14 Juin", group:"Gr. C", kickoff:"2026-06-14T00:00:00", matchIdx:5},
-  {id:"p14", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse vs 🇭🇹 Haïti", date:"14 Juin", group:"Gr. C", kickoff:"", matchIdx:6},
+  {id:"p14", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse vs 🇭🇹 Haïti", date:"14 Juin", group:"Gr. C", kickoff:"2026-06-14T03:00:00", matchIdx:6},
   {id:"p20", label:"🇦🇺 Australie vs 🇹🇷 Turquie", date:"14 Juin", group:"Gr. D", kickoff:"2026-06-14T06:00:00", matchIdx:7},
   {id:"p25", label:"🇩🇪 Allemagne vs 🇨🇼 Curaçao", date:"14 Juin", group:"Gr. E", kickoff:"2026-06-14T19:00:00", matchIdx:8},
   {id:"p31", label:"🇳🇱 Pays-Bas vs 🇯🇵 Japon", date:"14 Juin", group:"Gr. F", kickoff:"2026-06-14T22:00:00", matchIdx:9},
-  
   {id:"p26", label:"🇨🇮 Côte d'Ivoire vs 🇪🇨 Équateur", date:"15 Juin", group:"Gr. E", kickoff:"2026-06-15T01:00:00", matchIdx:10},
   {id:"p32", label:"🇸🇪 Suède vs 🇹🇳 Tunisie", date:"15 Juin", group:"Gr. F", kickoff:"2026-06-15T04:00:00", matchIdx:11},
   {id:"p43", label:"🇪🇸 Espagne vs 🇨🇻 Cap-Vert", date:"15 Juin", group:"Gr. H", kickoff:"2026-06-15T18:00:00", matchIdx:12},
   {id:"p37", label:"🇧🇪 Belgique vs 🇪🇬 Égypte", date:"15 Juin", group:"Gr. G", kickoff:"2026-06-15T21:00:00", matchIdx:13},
-  
   {id:"p44", label:"🇸🇦 Arabie Saoudite vs 🇺🇾 Uruguay", date:"16 Juin", group:"Gr. H", kickoff:"2026-06-16T00:00:00", matchIdx:14},
   {id:"p38", label:"🇮🇷 Iran vs 🇳🇿 Nouvelle-Zélande", date:"16 Juin", group:"Gr. G", kickoff:"2026-06-16T03:00:00", matchIdx:15},
   {id:"p49", label:"🇫🇷 France vs 🇸🇳 Sénégal", date:"16 Juin", group:"Gr. I", kickoff:"2026-06-16T21:00:00", matchIdx:16},
-  
   {id:"p50", label:"🇳🇴 Norvège vs 🇮🇶 Irak", date:"17 Juin", group:"Gr. I", kickoff:"2026-06-17T00:00:00", matchIdx:17},
   {id:"p55", label:"🇦🇷 Argentine vs 🇩🇿 Algérie", date:"17 Juin", group:"Gr. J", kickoff:"2026-06-17T03:00:00", matchIdx:18},
   {id:"p56", label:"🇦🇹 Autriche vs 🇯🇴 Jordanie", date:"17 Juin", group:"Gr. J", kickoff:"2026-06-17T06:00:00", matchIdx:19},
   {id:"p61", label:"🇵🇹 Portugal vs 🇨🇩 RD Congo", date:"17 Juin", group:"Gr. K", kickoff:"2026-06-17T19:00:00", matchIdx:20},
-  {id:"p67", label:"🇬🇧 Angleterre vs 🇭🇷 Croatie", date:"17 Juin", group:"Gr. L", kickoff:"2026-06-17T22:00:00", matchIdx:21},
-  
+  {id:"p67", label:"🇬🇧 Angleterre vs 🇭🇷 Croatie", date:"15 Juin", group:"Gr. L", kickoff:"2026-06-15T21:00:00", matchIdx:21},
   {id:"p68", label:"🇬🇭 Ghana vs 🇵🇦 Panama", date:"18 Juin", group:"Gr. L", kickoff:"2026-06-18T01:00:00", matchIdx:22},
   {id:"p62", label:"🇺🇿 Ouzbékistan vs 🇨🇴 Colombie", date:"18 Juin", group:"Gr. K", kickoff:"2026-06-18T04:00:00", matchIdx:23},
   {id:"p3", label:"🇨🇿 Tchéquie vs 🇿🇦 Afrique du Sud", date:"18 Juin", group:"Gr. A", kickoff:"2026-06-18T18:00:00", matchIdx:24},
-  {id:"p9", label:"🇨🇭 Suisse vs 🇧🇦 Bosnie-Herzégovine", date:"18 Juin", group:"Gr. B", kickoff:"2026-06-18T21:00:00", matchIdx:25},
-  
+  {id:"p9", label:"🇨🇭 Suisse vs 🇧🇦 Bosnie-Herz.", date:"18 Juin", group:"Gr. B", kickoff:"2026-06-18T21:00:00", matchIdx:25},
   {id:"p10", label:"🇨🇦 Canada vs 🇶🇦 Qatar", date:"19 Juin", group:"Gr. B", kickoff:"2026-06-19T00:00:00", matchIdx:26},
   {id:"p4", label:"🇲🇽 Mexique vs 🇰🇷 Corée du Sud", date:"19 Juin", group:"Gr. A", kickoff:"2026-06-19T03:00:00", matchIdx:27},
   {id:"p21", label:"🇺🇸 États-Unis vs 🇦🇺 Australie", date:"19 Juin", group:"Gr. D", kickoff:"2026-06-19T21:00:00", matchIdx:28},
-  
-  {id:"p15", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse vs 🇲🇦 Maroc", date:"20 Juin", group:"Gr. C", kickoff:"", matchIdx:29},
+  {id:"p15", label:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse vs 🇲🇦 Maroc", date:"20 Juin", group:"Gr. C", kickoff:"2026-06-20T00:00:00", matchIdx:29},
   {id:"p16", label:"🇧🇷 Brésil vs 🇭🇹 Haïti", date:"20 Juin", group:"Gr. E", kickoff:"2026-06-20T02:30:00", matchIdx:30},
   {id:"p22", label:"🇹🇷 Turquie vs 🇵🇾 Paraguay", date:"20 Juin", group:"Gr. D", kickoff:"2026-06-20T05:00:00", matchIdx:31},
   {id:"p33", label:"🇳🇱 Pays-Bas vs 🇸🇪 Suède", date:"20 Juin", group:"Gr. F", kickoff:"2026-06-20T19:00:00", matchIdx:32},
   {id:"p27", label:"🇩🇪 Allemagne vs 🇨🇮 Côte d'Ivoire", date:"20 Juin", group:"Gr. E", kickoff:"2026-06-20T22:00:00", matchIdx:33},
-  
   {id:"p28", label:"🇪🇨 Équateur vs 🇨🇼 Curaçao", date:"21 Juin", group:"Gr. E", kickoff:"2026-06-21T02:00:00", matchIdx:34},
   {id:"p34", label:"🇹🇳 Tunisie vs 🇯🇵 Japon", date:"21 Juin", group:"Gr. F", kickoff:"2026-06-21T21:00:00", matchIdx:35},
   {id:"p45", label:"🇪🇸 Espagne vs 🇸🇦 Arabie Saoudite", date:"21 Juin", group:"Gr. H", kickoff:"2026-06-21T18:00:00", matchIdx:36},
   {id:"p39", label:"🇧🇪 Belgique vs 🇮🇷 Iran", date:"21 Juin", group:"Gr. G", kickoff:"2026-06-21T21:00:00", matchIdx:37},
-  
   {id:"p46", label:"🇺🇾 Uruguay vs 🇨🇻 Cap-Vert", date:"22 Juin", group:"Gr. H", kickoff:"2026-06-22T00:00:00", matchIdx:38},
   {id:"p40", label:"🇳🇿 Nouvelle-Zélande vs 🇪🇬 Égypte", date:"22 Juin", group:"Gr. G", kickoff:"2026-06-22T03:00:00", matchIdx:39},
   {id:"p57", label:"🇦🇷 Argentine vs 🇦🇹 Autriche", date:"22 Juin", group:"Gr. J", kickoff:"2026-06-22T19:00:00", matchIdx:40},
   {id:"p51", label:"🇮🇶 Irak vs 🇫🇷 France", date:"22 Juin", group:"Gr. I", kickoff:"2026-06-22T23:00:00", matchIdx:41},
-  
   {id:"p52", label:"🇸🇳 Sénégal vs 🇳🇴 Norvège", date:"23 Juin", group:"Gr. I", kickoff:"2026-06-23T02:00:00", matchIdx:42},
   {id:"p58", label:"🇯🇴 Jordanie vs 🇩🇿 Algérie", date:"23 Juin", group:"Gr. J", kickoff:"2026-06-23T05:00:00", matchIdx:43},
   {id:"p63", label:"🇺🇿 Ouzbékistan vs 🇵🇹 Portugal", date:"23 Juin", group:"Gr. K", kickoff:"2026-06-23T19:00:00", matchIdx:44},
-  {id:"p69", label:"🇬🇧 Angleterre vs 🇬🇭 Ghana", date:"23 Juin", group:"Gr. L", kickoff:"2026-06-20T22:00:00", matchIdx:45},
-  
+  {id:"p69", label:"🇬🇧 Angleterre vs 🇬🇭 Ghana", date:"20 Juin", group:"Gr. L", kickoff:"2026-06-20T22:00:00", matchIdx:45},
   {id:"p70", label:"🇵🇦 Panama vs 🇭🇷 Croatie", date:"24 Juin", group:"Gr. L", kickoff:"2026-06-24T01:00:00", matchIdx:46},
   {id:"p64", label:"🇨🇩 RD Congo vs 🇨🇴 Colombie", date:"24 Juin", group:"Gr. K", kickoff:"2026-06-24T04:00:00", matchIdx:47},
   {id:"p11", label:"🇨🇭 Suisse vs 🇨🇦 Canada", date:"24 Juin", group:"Gr. B", kickoff:"2026-06-24T21:00:00", matchIdx:48},
-  {id:"p12", label:"🇧🇦 Bosnie-Herzégovine vs 🇶🇦 Qatar", date:"24 Juin", group:"Gr. B", kickoff:"2026-06-24T09:00:00", matchIdx:49},
-  
+  {id:"p12", label:"🇧🇦 Bosnie-Herz. vs 🇶🇦 Qatar", date:"24 Juin", group:"Gr. B", kickoff:"2026-06-24T09:00:00", matchIdx:49},
   {id:"p17", label:"🇲🇦 Maroc vs 🇭🇹 Haïti", date:"25 Juin", group:"Gr. C", kickoff:"2026-06-25T00:00:00", matchIdx:50},
-  {id:"p18", label:"🇧🇷 Brésil vs 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", date:"25 Juin", group:"Gr. C", kickoff:"", matchIdx:51},
+  {id:"p18", label:"🇧🇷 Brésil vs 🏴󠁧󠁢󠁳󠁣󠁴󠁿 Écosse", date:"25 Juin", group:"Gr. C", kickoff:"2026-06-25T00:00:00", matchIdx:51},
   {id:"p6", label:"🇿🇦 Afrique du Sud vs 🇰🇷 Corée du Sud", date:"25 Juin", group:"Gr. A", kickoff:"2026-06-25T03:00:00", matchIdx:52},
   {id:"p5", label:"🇨🇿 Tchéquie vs 🇲🇽 Mexique", date:"25 Juin", group:"Gr. A", kickoff:"2026-06-25T03:00:00", matchIdx:53},
   {id:"p30", label:"🇨🇼 Curaçao vs 🇨🇮 Côte d'Ivoire", date:"25 Juin", group:"Gr. E", kickoff:"2026-06-25T22:00:00", matchIdx:54},
   {id:"p29", label:"🇪🇨 Équateur vs 🇩🇪 Allemagne", date:"25 Juin", group:"Gr. E", kickoff:"2026-06-25T22:00:00", matchIdx:55},
-  
   {id:"p36", label:"🇹🇳 Tunisie vs 🇳🇱 Pays-Bas", date:"26 Juin", group:"Gr. F", kickoff:"2026-06-26T01:00:00", matchIdx:56},
   {id:"p35", label:"🇯🇵 Japon vs 🇸🇪 Suède", date:"26 Juin", group:"Gr. F", kickoff:"2026-06-26T01:00:00", matchIdx:57},
   {id:"p23", label:"🇹🇷 Turquie vs 🇺🇸 États-Unis", date:"26 Juin", group:"Gr. D", kickoff:"2026-06-26T04:00:00", matchIdx:58},
   {id:"p24", label:"🇵🇾 Paraguay vs 🇦🇺 Australie", date:"26 Juin", group:"Gr. D", kickoff:"2026-06-26T04:00:00", matchIdx:59},
   {id:"p53", label:"🇫🇷 France vs 🇳🇴 Norvège", date:"26 Juin", group:"Gr. I", kickoff:"2026-06-26T21:00:00", matchIdx:60},
   {id:"p54", label:"🇮🇶 Irak vs 🇸🇳 Sénégal", date:"26 Juin", group:"Gr. I", kickoff:"2026-06-26T21:00:00", matchIdx:61},
-  
   {id:"p47", label:"🇨🇻 Cap-Vert vs 🇸🇦 Arabie Saoudite", date:"27 Juin", group:"Gr. H", kickoff:"2026-06-27T02:00:00", matchIdx:62},
   {id:"p48", label:"🇺🇾 Uruguay vs 🇪🇸 Espagne", date:"27 Juin", group:"Gr. H", kickoff:"2026-06-27T02:00:00", matchIdx:63},
   {id:"p42", label:"🇳🇿 Nouvelle-Zélande vs 🇧🇪 Belgique", date:"27 Juin", group:"Gr. G", kickoff:"2026-06-27T05:00:00", matchIdx:64},
-  {id:"p41", label:"🇪🇬 Égypte vs 🇮🇷 Iran", date:"27 Juin", group:"Gr. G", kickoff:"2026-06-27T05:00:00", matchIdx:65},
-  {id:"p71", label:"🇵🇦 Panama vs 🇬🇧 Angleterre", date:"27 Juin", group:"Gr. L", kickoff:"2026-06-27T23:00:00", matchIdx:66},
-  {id:"p72", label:"🇭🇷 Croatie vs 🇬🇭 Ghana", date:"27 Juin", group:"Gr. L", kickoff:"2026-06-27T23:00:00", matchIdx:67},
-  
+  {id:"p41", label:"🇪🇬 Égypte vs 🇮🇷 Iran", date:"16 Juin", group:"Gr. G", kickoff:"2026-06-16T05:00:00", matchIdx:65},
+  {id:"p71", label:"🇵🇦 Panama vs 🇬🇧 Angleterre", date:"24 Juin", group:"Gr. L", kickoff:"2026-06-24T23:00:00", matchIdx:66},
+  {id:"p72", label:"🇭🇷 Croatie vs 🇬🇭 Ghana", date:"20 Juin", group:"Gr. L", kickoff:"2026-06-20T23:00:00", matchIdx:67},
   {id:"p65", label:"🇵🇹 Portugal vs 🇨🇴 Colombie", date:"28 Juin", group:"Gr. H", kickoff:"2026-06-28T01:30:00", matchIdx:68},
   {id:"p66", label:"🇨🇩 RD Congo vs 🇺🇿 Ouzbékistan", date:"28 Juin", group:"Gr. H", kickoff:"2026-06-28T01:30:00", matchIdx:69},
   {id:"p59", label:"🇩🇿 Algérie vs 🇦🇹 Autriche", date:"28 Juin", group:"Gr. J", kickoff:"2026-06-28T04:00:00", matchIdx:70},
   {id:"p60", label:"🇯🇴 Jordanie vs 🇦🇷 Argentine", date:"28 Juin", group:"Gr. J", kickoff:"2026-06-28T04:00:00", matchIdx:71},
-  
   {id:"p73", label:"16es de Finale 1", date:"28 Juin", group:"Élim.", kickoff:"", matchIdx:72},
   {id:"p74", label:"16es de Finale 2", date:"29 Juin", group:"Élim.", kickoff:"", matchIdx:73},
   {id:"p75", label:"16es de Finale 3", date:"29 Juin", group:"Élim.", kickoff:"", matchIdx:74},
@@ -994,7 +953,7 @@ const MATCHS_DATA = [
   // 12 Juin
   
   { day: "12 Juin", stage: "Phase de Groupes", g: "A", t1: "🇰🇷 Corée du Sud", t2: "🇨🇿 Tchéquie", heure: "04:00" },
-  { day: "12 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇧🇦 Bosnie-Herzégovine", heure: "21:00" },
+  { day: "12 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇧🇦 Bosnie-Herz.", heure: "21:00" },
 
 // 13 Juin
   { day: "13 Juin", stage: "Phase de Groupes", g: "D", t1: "🇺🇸 États-Unis", t2: "🇵🇾 Paraguay", heure: "03:00" },
@@ -1029,7 +988,7 @@ const MATCHS_DATA = [
   { day: "18 Juin", stage: "Phase de Groupes", g: "L", t1: "🇬🇭 Ghana", t2: "🇵🇦 Panama", heure: "01:00" },
   { day: "18 Juin", stage: "Phase de Groupes", g: "K", t1: "🇺🇿 Ouzbékistan", t2: "🇨🇴 Colombie", heure: "04:00" },
   { day: "18 Juin", stage: "Phase de Groupes", g: "A", t1: "🇨🇿 Tchéquie", t2: "🇿🇦 Afrique du Sud", heure: "18:00" },
-  { day: "18 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇧🇦 Bosnie-Herzégovine", heure: "21:00" },
+  { day: "18 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇧🇦 Bosnie-Herz.", heure: "21:00" },
 
 // 19 Juin
   { day: "19 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇦 Canada", t2: "🇶🇦 Qatar", heure: "00:00" },
@@ -1067,7 +1026,7 @@ const MATCHS_DATA = [
   { day: "24 Juin", stage: "Phase de Groupes", g: "L", t1: "🇵🇦 Panama", t2: "🇭🇷 Croatie", heure: "01:00" },
   { day: "24 Juin", stage: "Phase de Groupes", g: "K", t1: "🇨🇩 RD Congo", t2: "🇨🇴 Colombie", heure: "04:00" },
   { day: "24 Juin", stage: "Phase de Groupes", g: "B", t1: "🇨🇭 Suisse", t2: "🇨🇦 Canada", heure: "21:00" },
-  { day: "24 Juin", stage: "Phase de Groupes", g: "B", t1: "🇧🇦 Bosnie-Herzégovine", t2: "🇶🇦 Qatar", heure: "09:00" },
+  { day: "24 Juin", stage: "Phase de Groupes", g: "B", t1: "🇧🇦 Bosnie-Herz.", t2: "🇶🇦 Qatar", heure: "09:00" },
 
 // 25 Juin
   { day: "25 Juin", stage: "Phase de Groupes", g: "C", t1: "🇲🇦 Maroc", t2: "🇭🇹 Haïti", heure: "00:00" },
@@ -1138,7 +1097,6 @@ const MATCHS_DATA = [
 
 { day: "19 Juillet", stage: "Finale", g: "", t1: "Vainqueur DF1", t2: "Vainqueur DF2" }
   ];
-
 
 const TEAMS_DATA = [
   
@@ -3125,22 +3083,11 @@ const TEAMS_DATA = [
 let currentFilterPhase = "all";
 let currentFilterGroup = "all";
 let currentStatsSection = "equipes";
+let currentPronoView = "upcoming";
 
 // Source JSON optionnelle pour les resultats automatiques.
 // Format accepte par match : { id:"p1", homeScore:1, awayScore:0, scorers:[{name:"Mbappe", goals:2}] }
-const RESULTS_FEED_URL = null;
-const API_PROXY_URL = "https://weathered-snowflake-51e7.louis-ragot-33.workers.dev";
-
-async function fetchAPIFootball(endpoint, params = {}) {
-  const url = new URL(API_PROXY_URL);
-  url.searchParams.set("endpoint", endpoint);
-  url.searchParams.set("league", 1);
-  url.searchParams.set("season", 2026);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  const res = await fetch(url.toString());
-  const data = await res.json();
-  return data.response || [];
-}
+const RESULTS_FEED_URL = "https://worldcup26.ir/get/games";
 
 // D is now synced from Firestore. Initialize empty.
 let D = {
@@ -3223,33 +3170,31 @@ function applyAutomaticMatchResult(matchId, payload) {
 }
 
 async function refreshAutomaticResults(showMessage = true) {
+  if (!RESULTS_FEED_URL) {
+    if (showMessage) alert("Aucune source automatique n'est encore configurée.");
+    return;
+  }
   try {
-    const fixtures = await fetchAPIFootball('fixtures', { status: 'FT' });
-
-    fixtures.forEach(f => {
-      const homeName = f.teams.home.name;
-      const awayName = f.teams.away.name;
-      const match = PRONO_MATCHES.find(m =>
-        m.label.toLowerCase().includes(homeName.toLowerCase()) ||
-        m.label.toLowerCase().includes(awayName.toLowerCase())
-      );
-      if (!match) return;
-      if (!D.actual[match.id]) D.actual[match.id] = {};
-      D.actual[match.id].s1 = String(f.goals.home ?? '');
-      D.actual[match.id].s2 = String(f.goals.away ?? '');
+    const res = await fetch(RESULTS_FEED_URL, {cache:'no-store'});
+    const data = await res.json();
+    const matches = Array.isArray(data) ? data : (data.games || data.matches || data.results || []);
+    matches.forEach(item => {
+      const status = String(item.finished ?? item.status ?? item.time_elapsed ?? '').toLowerCase();
+      if (status === 'false' || status === 'notstarted' || status === 'scheduled') return;
+      const rawId = item.pronoId || item.matchId || item.id;
+      const id = String(rawId || '').startsWith('p') ? String(rawId) : 'p' + rawId;
+      if (rawId) applyAutomaticMatchResult(id, item);
     });
-
     if (isAdmin) await saveActuals();
     syncScoresFromActuals();
     const activeTab = document.querySelector('.tab.active');
     if (activeTab) activeTab.click();
-    if (showMessage) alert('✓ Résultats mis à jour !');
   } catch(e) {
     console.error(e);
-    if (showMessage) alert("Erreur lors de la récupération des résultats.");
+    if (showMessage) alert("Impossible d'actualiser les résultats automatiquement.");
   }
 }
-  
+
 function syncScoresFromActuals() {
   PRONO_MATCHES.forEach(m => {
     if (m.matchIdx === undefined || m.matchIdx === null) return;
@@ -4051,11 +3996,12 @@ function renderPronos(){
 
   const lb=calcLB();
 
-  const byDate = PRONO_MATCHES.filter(m => {
-    const actual = D.actual[m.id];
-    const finished = actual && actual.s1 !== undefined && actual.s1 !== '' && actual.s2 !== undefined && actual.s2 !== '';
-    return !finished;
-  }).reduce((acc,m)=>{
+  const filteredMatches = PRONO_MATCHES.filter(m => {
+    const locked = isLocked(m.id);
+    return currentPronoView === 'upcoming' ? !locked : locked;
+  });
+
+  const byDate = filteredMatches.reduce((acc,m)=>{
     const key = m.kickoff ? new Date(m.kickoff).toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'}) : m.date;
     if(!acc[key]) acc[key]=[];
     acc[key].push(m);
@@ -4106,8 +4052,14 @@ function renderPronos(){
       </div>`;}).join('')}
     </div>
   </div>
-  <div class="section-title" style="margin-top:1.5rem">Calendrier des pronos</div>
-  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">+ 1 pt</span> Bon résultat &nbsp;<span class="pts-chip pts-2"> + 2 pts</span> score exact &nbsp;<span class="pts-chip pts-3">+3 pts</span>Bon Buteur</div>
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-top:1.5rem; margin-bottom:1rem;">
+    <div class="section-title" style="margin:0">Pronos par match</div>
+    <div style="display:flex; gap:4px; background:var(--color-background-secondary); padding:2px; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-tertiary);">
+      <button class="btn" onclick="switchPronoView('upcoming')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='upcoming'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">À venir</button>
+      <button class="btn" onclick="switchPronoView('past')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='past'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">Passés</button>
+    </div>
+  </div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">6 pts</span> Score exact + buteur</div>
   ${Object.entries(byDate).map(([date,matches])=>`
     <div class="calendar-day">${date}</div>
     ${matches.map(m=>{
@@ -4249,6 +4201,11 @@ function togglePote(pote) {
   } else {
     viewingPotes.add(pote);
   }
+  renderPronos();
+}
+
+function switchPronoView(view) {
+  currentPronoView = view;
   renderPronos();
 }
 
@@ -4484,14 +4441,12 @@ function getGroupeClassement(groupe) {
 
 function renderRdv(){
   const el=document.getElementById('rdv');
-  const activeEl = document.activeElement;
-  const focusedId = activeEl ? activeEl.id : null;
-  const selectionStart = activeEl ? activeEl.selectionStart : null;
-  const selectionEnd = activeEl ? activeEl.selectionEnd : null;
 
   // Filtrer le RDV template vide (owner vide ou match vide créé par défaut sans propriétaire réel)
   const visibleRdvs = D.rdvList.map((r, ri) => ({...r, _ri: ri})).filter(r => {
+    // Masquer si propriétaire vide ET match vide (c'est le template par défaut)
     if ((!r.owner || r.owner === '') && (!r.match || r.match === '')) return false;
+    // Masquer si c'est un RDV template auto-créé par "test..." avec champs vides
     if (r.owner && r.owner.startsWith('test') && (!r.match || r.match === '')) return false;
     return true;
   });
@@ -4507,34 +4462,21 @@ function renderRdv(){
   ${visibleRdvs.map((r)=>{
     const ri = r._ri;
     if(!r.presents) r.presents={};
-    const rdvId = r.id || 'legacy_' + ri;
     const owner = r.owner || '';
     const canEdit = owner === currentPote;
     const pres=r.presents||{};
     const count=Object.values(pres).filter(v=>v===1).length;
-    const chatOpen = openChats.has(rdvId);
-    const msgs = rdvMessages[rdvId] || [];
-    const draft = chatDrafts[rdvId] || '';
-
     return`<div class="rdv-card">
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px">
         <div style="flex:1">
           <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">Créé par <strong style="color:var(--color-text-primary)">${owner || '—'}</strong></div>
-          <input id="rdv_${rdvId}_match" class="inp-sm" value="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
+          <input class="inp-sm" value="${r.match||''}" onchange="D.rdvList[${ri}].match=this.value;saveRdv()" placeholder="Quel match ?" style="width:100%;margin-bottom:5px" ${canEdit?'':'disabled'}>
           <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <input id="rdv_${rdvId}_heure" type="time" class="inp-sm" value="${r.heure||''}" onchange="D.rdvList[${ri}].heure=this.value;saveRdv()" style="width:110px" ${canEdit?'':'disabled'}>
-            <input id="rdv_${rdvId}_where" class="inp-sm" value="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
+            <input type="time" class="inp-sm" value="${r.heure||''}" onchange="D.rdvList[${ri}].heure=this.value;saveRdv()" style="width:110px" ${canEdit?'':'disabled'}>
+            <input class="inp-sm" value="${r.where||''}" onchange="D.rdvList[${ri}].where=this.value;saveRdv()" placeholder="Où ? (bar, chez...)" style="flex:1" ${canEdit?'':'disabled'}>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end">
-          <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
-          <button class="btn ${chatOpen?'btn-primary':''}" onclick="toggleChat('${rdvId}')" style="padding:4px 8px">
-            <i class="ti ti-message" style="font-size:14px"></i> Chat
-          </button>
-          ${r.lastMsg ? `<div style="font-size:9px;color:var(--color-text-tertiary);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.lastMsg.sender)}: ${esc(r.lastMsg.txt)}">
-            ${esc(r.lastMsg.sender)}: ${esc(r.lastMsg.txt)}
-          </div>` : ''}
-        </div>
+        <button class="btn" onclick="removeRdv(${ri})" aria-label="Supprimer ce RDV" style="padding:4px 8px;color:var(--color-text-danger)" ${canEdit?'':'disabled'}><i class="ti ti-trash" style="font-size:14px" aria-hidden="true"></i></button>
       </div>
       <div style="border-top:0.5px solid var(--color-border-tertiary);padding-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
         <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">${POTES.filter(p => p !== owner).map((p,pi)=>{
@@ -4544,38 +4486,8 @@ function renderRdv(){
         }).join('')}</div>
         <span style="font-size:12px;color:var(--color-text-secondary)">${count>0?count+' présent'+(count>1?'s':''):'Personne encore'}</span>
       </div>
-      
-      ${chatOpen ? `
-        <div class="chat-area">
-          <div class="chat-messages" id="chat_msgs_${rdvId}">
-            ${msgs.length === 0 ? '<p style="text-align:center;font-size:11px;color:var(--color-text-tertiary);margin:20px 0">Aucun message</p>' : ''}
-            ${msgs.map(m => `
-              <div class="chat-msg ${m.sender === currentPote ? 'chat-msg-own' : 'chat-msg-other'}">
-                <div class="chat-msg-info">${esc(m.sender)} · ${new Date(m.ts).toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit'})}</div>
-                <div>${esc(m.txt)}</div>
-              </div>
-            `).join('')}
-          </div>
-          <div class="chat-input-row">
-            <input type="text" id="chat_inp_${rdvId}" value="${esc(draft)}" placeholder="Ton message..." 
-              oninput="chatDrafts['${rdvId}']=this.value"
-              onkeydown="if(event.key==='Enter') sendChat('${rdvId}')">
-            <button class="btn btn-primary" onclick="sendChat('${rdvId}')"><i class="ti ti-send"></i></button>
-          </div>
-        </div>
-      ` : ''}
     </div>`;
   }).join('')}`;
-
-  if (focusedId) {
-    const newEl = document.getElementById(focusedId);
-    if (newEl) {
-      newEl.focus();
-      if (selectionStart !== null && newEl.setSelectionRange) {
-        try { newEl.setSelectionRange(selectionStart, selectionEnd); } catch(e) {}
-      }
-    }
-  }
 }
 
 function toggleRdv(ri,p){
@@ -4584,58 +4496,6 @@ function toggleRdv(ri,p){
   D.rdvList[ri].presents[p]=(D.rdvList[ri].presents[p]||0)===1?0:1;
   saveRdv();
   renderRdv();
-}
-
-async function toggleChat(rdvId) {
-  if (openChats.has(rdvId)) {
-    openChats.delete(rdvId);
-    if (chatUnsubs[rdvId]) {
-      chatUnsubs[rdvId]();
-      delete chatUnsubs[rdvId];
-    }
-    renderRdv();
-  } else {
-    openChats.add(rdvId);
-    renderRdv(); // Show loading or empty state
-    
-    const db = window._db;
-    chatUnsubs[rdvId] = db.collection('rdv_chats').doc(rdvId)
-      .collection('messages').orderBy('ts', 'asc').limitToLast(50)
-      .onSnapshot(snap => {
-        rdvMessages[rdvId] = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
-        renderRdv();
-        setTimeout(() => {
-          const m = document.getElementById(`chat_msgs_${rdvId}`);
-          if (m) m.scrollTop = m.scrollHeight;
-        }, 100);
-      }, err => console.error("Chat error:", err));
-  }
-}
-
-async function sendChat(rdvId) {
-  const inp = document.getElementById(`chat_inp_${rdvId}`);
-  const txt = inp.value.trim();
-  if (!txt) return;
-  
-  inp.value = '';
-  delete chatDrafts[rdvId];
-
-  const db = window._db;
-  try {
-    const ts = Date.now();
-    await db.collection('rdv_chats').doc(rdvId).collection('messages').add({
-      ts, sender: currentPote, txt: txt
-    });
-    // Update last message in RDV for everyone to see
-    const rdvIdx = D.rdvList.findIndex(r => r.id === rdvId);
-    if (rdvIdx !== -1) {
-      D.rdvList[rdvIdx].lastMsg = { sender: currentPote, txt, ts };
-      saveRdv();
-    }
-  } catch (e) {
-    console.error("Send error:", e);
-    alert("Erreur d'envoi");
-  }
 }
   
 function addRdv(){
@@ -4752,7 +4612,7 @@ async function resetAllMatchStatus() {
 // Fonction de suppression
 async function deleteUser(pote) {
   if (!isAdmin) return;
-  if (!confirm('⚠️ Supprimer le joueur "' + pote + '" ?\n\nSes pronos et son profil seront définitivement effacés.')) {
+  if (!confirm(`⚠️ Supprimer le joueur "${pote}" ?\n\nSes pronos et son profil seront définitivement effacés.`)) {
     return;
   }
 
