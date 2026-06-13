@@ -1098,6 +1098,11 @@ const MATCHS_DATA = [
 { day: "19 Juillet", stage: "Finale", g: "", t1: "Vainqueur DF1", t2: "Vainqueur DF2" }
   ];
 
+
+Équipes
+
+
+
 const TEAMS_DATA = [
   
 {flag:"🇲🇽",name:"Mexique", group:"A", coach:"Javier Aguirre",
@@ -1732,39 +1737,32 @@ const TEAMS_DATA = [
   group:"E",
   coach:"Julian Nagelsmann",
   players:[
-    // Gardiens
     {n:1,pos:"G",name:"Manuel Neuer"},
-    {n:12,pos:"G",name:"Alexander Nübel"},
-    {n:23,pos:"G",name:"Oliver Baumann"},
-
-    // Défenseurs
-    {n:2,pos:"D",name:"Antonio Rüdiger"},
-    {n:3,pos:"D",name:"Waldemar Anton"},
+        {n:2,pos:"D",name:"Antonio Rüdiger"},
+        {n:3,pos:"D",name:"Waldemar Anton"},
     {n:4,pos:"D",name:"Jonathan Tah"},
-    {n:6,pos:"D",name:"Joshua Kimmich"},
-    {n:15,pos:"D",name:"Nico Schlotterbeck"},
-    {n:18,pos:"D",name:"Nathaniel Brown"},
-    {n:22,pos:"D",name:"David Raum"},
-    {n:24,pos:"D",name:"Malick Thiaw"},
-
-    // Milieux
     {n:5,pos:"M",name:"Aleksandar Pavlović"},
+    {n:6,pos:"D",name:"Joshua Kimmich"},
+    {n:7,pos:"A",name:"Kai Havertz"},
     {n:8,pos:"M",name:"Leon Goretzka"},
+    {n:9,pos:"M",name:"Jamie Leweling"},
     {n:10,pos:"M",name:"Jamal Musiala"},
-    {n:13,pos:"M",name:"Pascal Groß"},
-    {n:14,pos:"M",name:"Felix Nmecha"},
+    {n:11,pos:"A",name:"Nick Woltemade"},
+    {n:12,pos:"G",name:"Oliver Baumann"},
+    {n:13,pos:"M",name:"Pascal Gross"},
+    {n:14,pos:"A",name:"Max Beier"},
+    {n:15,pos:"D",name:"Nico Schlotterbeck"},
     {n:16,pos:"M",name:"Angelo Stiller"},
     {n:17,pos:"M",name:"Florian Wirtz"},
+    {n:18,pos:"D",name:"Nathaniel Brown"},    
     {n:19,pos:"M",name:"Leroy Sané"},
-    {n:20,pos:"M",name:"Assan Ouédraogo"},
-
-    // Attaquants
-    {n:7,pos:"A",name:"Kai Havertz"},
-    {n:9,pos:"A",name:"Jamie Leweling"},
-    {n:11,pos:"A",name:"Nick Woltemade"},
-    {n:21,pos:"A",name:"Max Beier"},
-    {n:25,pos:"A",name:"Deniz Undav"},
-    {n:26,pos:"A",name:"Jonathan Burkardt"}
+    {n:20,pos:"M",name:"Nadiem Amiri"}
+    {n:21,pos:"G",name:"Alexander Nübel"},
+    {n:22,pos:"D",name:"David Raum"},
+    {n:23,pos:"M",name:"Felix Nmecha"},
+    {n:24,pos:"D",name:"Malick Thiaw"},
+    {n:25,pos:"M",name:"Assan Ouédraogo"},
+    {n:26,pos:"A",name:"Deniz Undav"},
   ]
 },
 
@@ -3083,7 +3081,7 @@ const TEAMS_DATA = [
 let currentFilterPhase = "all";
 let currentFilterGroup = "all";
 let currentStatsSection = "equipes";
-let currentPronoView = "upcoming";
+let currentPronoView = "today";
 
 // Source JSON optionnelle pour les resultats automatiques.
 // Format accepte par match : { id:"p1", homeScore:1, awayScore:0, scorers:[{name:"Mbappe", goals:2}] }
@@ -3996,9 +3994,18 @@ function renderPronos(){
 
   const lb=calcLB();
 
+  const now = new Date();
+  const todayStr = now.toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'});
+
   const filteredMatches = PRONO_MATCHES.filter(m => {
-    const locked = isLocked(m.id);
-    return currentPronoView === 'upcoming' ? !locked : locked;
+    if (!m.kickoff) return currentPronoView === 'upcoming';
+    const kDate = new Date(m.kickoff);
+    const kDateStr = kDate.toLocaleDateString('fr-FR', {day:'2-digit', month:'long', year:'numeric'});
+    
+    if (currentPronoView === 'today') return kDateStr === todayStr;
+    if (currentPronoView === 'past') return kDate < now && kDateStr !== todayStr;
+    if (currentPronoView === 'upcoming') return kDate > now && kDateStr !== todayStr;
+    return false;
   });
 
   const byDate = filteredMatches.reduce((acc,m)=>{
@@ -4055,8 +4062,9 @@ function renderPronos(){
   <div style="display:flex; align-items:center; justify-content:space-between; margin-top:1.5rem; margin-bottom:1rem;">
     <div class="section-title" style="margin:0">Pronos par match</div>
     <div style="display:flex; gap:4px; background:var(--color-background-secondary); padding:2px; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-tertiary);">
-      <button class="btn" onclick="switchPronoView('upcoming')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='upcoming'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">À venir</button>
       <button class="btn" onclick="switchPronoView('past')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='past'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">Passés</button>
+      <button class="btn" onclick="switchPronoView('today')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='today'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">Aujourd'hui</button>
+      <button class="btn" onclick="switchPronoView('upcoming')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='upcoming'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">À venir</button>
     </div>
   </div>
   <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">6 pts</span> Score exact + buteur</div>
