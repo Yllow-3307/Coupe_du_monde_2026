@@ -3145,7 +3145,18 @@ let currentStatsSection = "equipes";
 
 // Source JSON optionnelle pour les resultats automatiques.
 // Format accepte par match : { id:"p1", homeScore:1, awayScore:0, scorers:[{name:"Mbappe", goals:2}] }
-const RESULTS_FEED_URL = "https://worldcup26.ir/get/games";
+const RESULTS_FEED_URL = null; // désactivé, remplacé par API-Football
+const API_FOOTBALL_KEY = '0e0260f1dcaa8f004335d496764cc102';
+
+async function fetchAPIFootball(endpoint, params = {}) {
+  const url = new URL(`https://v3.football.api-sports.io/${endpoint}`);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url.toString(), {
+    headers: { 'x-apisports-key': API_FOOTBALL_KEY }
+  });
+  const data = await res.json();
+  return data.response || [];
+}
 
 // D is now synced from Firestore. Initialize empty.
 let D = {
@@ -3228,31 +3239,38 @@ function applyAutomaticMatchResult(matchId, payload) {
 }
 
 async function refreshAutomaticResults(showMessage = true) {
-  if (!RESULTS_FEED_URL) {
-    if (showMessage) alert("Aucune source automatique n'est encore configurée.");
-    return;
-  }
   try {
-    const res = await fetch(RESULTS_FEED_URL, {cache:'no-store'});
-    const data = await res.json();
-    const matches = Array.isArray(data) ? data : (data.games || data.matches || data.results || []);
-    matches.forEach(item => {
-      const status = String(item.finished ?? item.status ?? item.time_elapsed ?? '').toLowerCase();
-      if (status === 'false' || status === 'notstarted' || status === 'scheduled') return;
-      const rawId = item.pronoId || item.matchId || item.id;
-      const id = String(rawId || '').startsWith('p') ? String(rawId) : 'p' + rawId;
-      if (rawId) applyAutomaticMatchResult(id, item);
+    // Matchs terminés de la CDM 2026
+    const fixtures = await fetchAPIFootball('fixtures', {
+      league: 1, season: 2026, status: 'FT'
     });
+
+    fixtures.forEach(f => {
+      // Retrouver le match via le nom des équipes
+      const homeName = f.teams.home.name;
+      const awayName = f.teams.away.name;
+      const match = PRONO_MATCHES.find(m =>
+        m.label.toLowerCase().includes(homeName.toLowerCase()) ||
+        m.label.toLowerCase().includes(awayName.toLowerCase())
+      );
+      if (!match) return;
+
+      if (!D.actual[match.id]) D.actual[match.id] = {};
+      D.actual[match.id].s1 = String(f.goals.home ?? '');
+      D.actual[match.id].s2 = String(f.goals.away ?? '');
+    });
+
     if (isAdmin) await saveActuals();
     syncScoresFromActuals();
     const activeTab = document.querySelector('.tab.active');
     if (activeTab) activeTab.click();
+    if (showMessage) alert('✓ Résultats mis à jour !');
   } catch(e) {
     console.error(e);
-    if (showMessage) alert("Impossible d'actualiser les résultats automatiquement.");
+    if (showMessage) alert("Impossible de récupérer les résultats. Vérifie ta clé API ou les CORS.");
   }
 }
-
+  
 function syncScoresFromActuals() {
   PRONO_MATCHES.forEach(m => {
     if (m.matchIdx === undefined || m.matchIdx === null) return;
