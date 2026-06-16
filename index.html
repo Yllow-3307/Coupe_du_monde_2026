@@ -3131,6 +3131,37 @@ function scorerMatches(actualValue, betValue) {
   return bet.some(b => actual.some(a => a.includes(b) || b.includes(a)));
 }
 
+function countCorrectScorers(actualValue, betValue) {
+  const parsedActual = parseScorers(actualValue);
+  let actual = [];
+  parsedActual.forEach(s => {
+    const name = normalizeName(s.name);
+    for (let i = 0; i < (s.goals || 1); i++) actual.push(name);
+  });
+
+  let bet = [];
+  if (Array.isArray(betValue)) {
+    bet = betValue.filter(Boolean).map(s => normalizeName(s));
+  } else {
+    const parsedBet = parseScorers(betValue);
+    parsedBet.forEach(s => {
+      const name = normalizeName(s.name);
+      for (let i = 0; i < (s.goals || 1); i++) bet.push(name);
+    });
+  }
+
+  let count = 0;
+  let tempActual = [...actual];
+  bet.forEach(b => {
+    const idx = tempActual.findIndex(a => a.includes(b) || b.includes(a));
+    if (idx !== -1) {
+      count++;
+      tempActual.splice(idx, 1);
+    }
+  });
+  return count;
+}
+
 function goalCount(value) {
   if (Array.isArray(value)) return value.filter(Boolean).length;
   return parseScorers(value).reduce((sum, s) => sum + (parseInt(s.goals) || 1), 0);
@@ -4053,7 +4084,7 @@ function renderPronos(){
       <button class="btn" onclick="switchPronoView('upcoming')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='upcoming'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">À venir</button>
     </div>
   </div>
-  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">6 pts</span> Score exact + buteur</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">+3 pts</span> par bon buteur</div>
   ${Object.entries(byDate).map(([date,matches])=>`
     <div class="calendar-day">${date}</div>
     ${matches.map(m=>{
@@ -4131,7 +4162,7 @@ function renderPronos(){
                 ${locked ? 'disabled' : ''}>
               <div style="flex:1"></div>
               ${locked && isOwn ? '<span class="pts-chip pts-0">verrouillé</span>' : ''}
-              ${pts > 0 ? `<span class="pts-chip pts-${Math.min(pts,3)}">+${pts}</span>` : '<span class="pts-chip pts-0">—</span>'}
+              ${pts > 0 ? `<span class="pts-chip ${pts >= 6 ? 'pts-3' : (pts >= 3 ? 'pts-2' : 'pts-1')}">+${pts}</span>` : '<span class="pts-chip pts-0">—</span>'}
             </div>
 
             ${/* Buteurs — seulement si score saisi */(parseInt(bet.s1)||0) + (parseInt(bet.s2)||0) > 0 ? `
@@ -4262,7 +4293,9 @@ function calcPts(matchId, pote){
   if(String(bet.s1) === String(actual.s1) && String(bet.s2) === String(actual.s2)) pts += 2;
   
   const allBetScorers = [...(bet.buteursHome || []), ...(bet.buteursAway || [])];
-  if(actual.top && allBetScorers.length > 0 && scorerMatches(actual.top, allBetScorers)) pts += 3;
+  if(actual.top && allBetScorers.length > 0) {
+    pts += 3 * countCorrectScorers(actual.top, allBetScorers);
+  }
   return pts;
 }
 
