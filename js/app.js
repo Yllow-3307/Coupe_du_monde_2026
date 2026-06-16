@@ -847,7 +847,7 @@ function renderPronos(){
   </div>
   <div class="section-title" style="margin-top:1.5rem">Pronos par match</div>
   ${htmlFilters}
-  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">2 pts</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">+1 pt</span> par bon buteur</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">2 pts</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">+3 pts</span> par bon buteur</div>
   ${PRONO_MATCHES.map(m=>{
     const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
     return`<div class="prog-match">
@@ -870,7 +870,7 @@ function renderPronos(){
           <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
           <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="setBet('${m.id}','${pote}','s2',this.value)" style="width:28px;height:24px;font-size:12px">
           <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" oninput="setBet('${m.id}','${pote}','top',this.value)" style="width:90px;height:24px;font-size:12px">
-          ${pts>0?`<span class="pts-chip ${pts >= 6 ? 'pts-3' : (pts >= 3 ? 'pts-2' : 'pts-1')}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
+          ${pts>0?`<span class="pts-chip ${pts >= 9 ? 'pts-3' : (pts >= 3 ? 'pts-2' : 'pts-1')}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
         </div>`;}).join('')}</div>
     </div>`;}).join('')}`;
 }
@@ -908,7 +908,7 @@ function updatePronosFilters(){
         ${POTES.map(p => `<option value="${p}" ${p === selectedPote ? 'selected' : ''}>${p}</option>`).join('')}
       </select>
     </div>
-    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">2 pts</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">+1 pt</span> par bon buteur</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">2 pts</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">+3 pts</span> par bon buteur</div>
     ${PRONO_MATCHES.map(m=>{
       const actual=D.actual[m.id]||{s1:'',s2:'',top:''};
       const bet=D.pronos[m.id+selectedPote]||{s1:'',s2:'',top:''};
@@ -931,7 +931,7 @@ function updatePronosFilters(){
             <span style="color:var(--color-text-tertiary);font-size:11px">–</span>
             <input class="score-in" type="number" min="0" max="20" placeholder="?" value="${bet.s2}" oninput="setBet('${m.id}','${selectedPote}','s2',this.value)" style="width:28px;height:24px;font-size:12px">
             <input class="inp-sm" placeholder="buteur..." value="${bet.top||''}" oninput="setBet('${m.id}','${selectedPote}','top',this.value)" style="width:90px;height:24px;font-size:12px">
-            ${pts>0?`<span class="pts-chip ${pts >= 6 ? 'pts-3' : (pts >= 3 ? 'pts-2' : 'pts-1')}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
+            ${pts>0?`<span class="pts-chip ${pts >= 9 ? 'pts-3' : (pts >= 3 ? 'pts-2' : 'pts-1')}">+${pts}</span>`:`<span class="pts-chip pts-0">—</span>`}
           </div>
         </div>
       </div>`;}).join('')}`;
@@ -950,7 +950,7 @@ function calcPts(mid,pote){
   if(bs1===as1&&bs2===as2)pts=3;
 
   if(actual.top && bet.top) {
-    pts += 1 * countCorrectScorers(actual.top, bet.top);
+    pts += 3 * countCorrectScorers(actual.top, bet.top);
   }
   return pts;
 }
