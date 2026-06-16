@@ -325,6 +325,19 @@
 .chat-input-area { padding: 12px; display: flex; gap: 8px; border-top: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); }
 .chat-input { flex: 1; height: 38px; padding: 0 12px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 13px; outline: none; }
 .chat-input:focus { border-color: var(--color-text-info); }
+
+.chat-actions { position: absolute; top: -12px; right: -4px; display: none; gap: 4px; background: white; border: 0.5px solid var(--color-border-tertiary); border-radius: 4px; padding: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+.chat-msg:hover .chat-actions { display: flex; }
+.chat-action-btn { background: none; border: none; cursor: pointer; font-size: 12px; padding: 2px 4px; border-radius: 2px; color: var(--color-text-secondary); }
+.chat-action-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+.chat-reactions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.chat-reaction { font-size: 11px; background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 10px; cursor: pointer; border: 1px solid transparent; color: inherit; }
+.other .chat-reaction { background: var(--color-background-secondary); border-color: var(--color-border-tertiary); color: var(--color-text-secondary); }
+.chat-reaction.active { border-color: var(--color-text-info); background: var(--color-background-info); color: var(--color-text-info); }
+.emoji-picker-popup { display: none; position: absolute; top: -38px; right: 0; background: white; border: 0.5px solid var(--color-border-tertiary); border-radius: 20px; padding: 4px 10px; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20; }
+.emoji-picker-popup.show { display: flex; }
+.emoji-picker-popup span { cursor: pointer; font-size: 18px; transition: transform 0.1s; }
+.emoji-picker-popup span:hover { transform: scale(1.3); }
     
   </style>
 </head>
@@ -423,12 +436,12 @@
 // ===== FIREBASE AUTH & FIRESTORE =====
 const ADMIN_EMAIL = "louis.ragot.33@gmail.com"; // ← ton email admin
 
-let currentUser = null;
-let currentPote = null;
-let isAdmin = false;
-let unsubscribers = {};
-let PLAYERS_MAP = {}; // uid -> pseudo
-let GLOBAL_CHAT = [];
+var currentUser = null;
+var currentPote = null;
+var isAdmin = false;
+var unsubscribers = {};
+var PLAYERS_MAP = {}; // uid -> pseudo
+var GLOBAL_CHAT = [];
 
 // ===== LOGIN / SIGNUP TABS =====
 function switchLoginTab(tab) {
@@ -4612,12 +4625,27 @@ function renderChat() {
         ${GLOBAL_CHAT.map(m => {
           const isSelf = m.sender === currentPote;
           const time = new Date(m.ts).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+          const reactions = m.reactions || {};
           return `
             <div class="chat-msg ${isSelf ? 'self' : 'other'}">
+              <div class="chat-actions">
+                ${isSelf ? `<button class="chat-action-btn" title="Supprimer" onclick="deleteChatMessage(${m.ts})"><i class="ti ti-trash"></i></button>` : ''}
+                <button class="chat-action-btn" title="Réagir" onclick="toggleEmojiPicker(event, ${m.ts})"><i class="ti ti-mood-smile"></i></button>
+              </div>
               <div class="chat-msg-meta">
                 <strong>${esc(m.sender)}</strong> • ${time}
               </div>
               <div class="chat-msg-text">${esc(m.text)}</div>
+              <div class="chat-reactions">
+                ${Object.entries(reactions).map(([emoji, users]) => {
+                  if (!users || users.length === 0) return '';
+                  const hasReacted = users.includes(currentPote);
+                  return `<span class="chat-reaction ${hasReacted ? 'active' : ''}" onclick="reactToMessage(${m.ts}, '${esc(emoji)}')" title="${esc(users.join(', '))}">${esc(emoji)} ${users.length}</span>`;
+                }).join('')}
+              </div>
+              <div id="emoji-picker-${m.ts}" class="emoji-picker-popup">
+                 ${['👍','❤️','😂','🔥','👏','😮'].map(e => `<span onclick="reactToMessage(${m.ts}, '${e}')">${e}</span>`).join('')}
+              </div>
             </div>
           `;
         }).join('')}
@@ -4638,6 +4666,43 @@ function renderChat() {
   document.getElementById('chat-input').onkeydown = e => { if (e.key === 'Enter') sendChatMessage(); };
 }
 
+function toggleEmojiPicker(event, ts) {
+  event.stopPropagation();
+  const all = document.querySelectorAll('.emoji-picker-popup');
+  all.forEach(p => { if (p.id !== 'emoji-picker-'+ts) p.classList.remove('show'); });
+  document.getElementById('emoji-picker-'+ts).classList.toggle('show');
+}
+window.addEventListener('click', () => {
+  document.querySelectorAll('.emoji-picker-popup').forEach(p => p.classList.remove('show'));
+});
+
+async function deleteChatMessage(ts) {
+  if (!confirm("Supprimer ce message ?")) return;
+  const newHistory = GLOBAL_CHAT.filter(m => m.ts !== ts);
+  try {
+    const db = window._db;
+    await db.collection('shared').doc('chat').set({ messages: newHistory });
+  } catch(e) { console.error(e); }
+}
+
+async function reactToMessage(ts, emoji) {
+  const newHistory = GLOBAL_CHAT.map(m => {
+    if (m.ts !== ts) return m;
+    const reactions = { ...(m.reactions || {}) };
+    if (!reactions[emoji]) reactions[emoji] = [];
+    if (reactions[emoji].includes(currentPote)) {
+      reactions[emoji] = reactions[emoji].filter(u => u !== currentPote);
+    } else {
+      reactions[emoji].push(currentPote);
+    }
+    return { ...m, reactions };
+  });
+  try {
+    const db = window._db;
+    await db.collection('shared').doc('chat').set({ messages: newHistory });
+  } catch(e) { console.error(e); }
+}
+
 async function sendChatMessage() {
   const inp = document.getElementById('chat-input');
   const txt = inp.value.trim();
@@ -4647,7 +4712,8 @@ async function sendChatMessage() {
   const msg = {
     sender: currentPote,
     text: txt,
-    ts: Date.now()
+    ts: Date.now(),
+    reactions: {}
   };
 
   // Limit history to last 50 messages

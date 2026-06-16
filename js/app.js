@@ -560,6 +560,7 @@ D.pts = D.pts||{}; D.scores = D.scores||{}; D.bracket = D.bracket||{};
 D.pronos = D.pronos||{}; D.actual = D.actual||{};
 D.teamStats = D.teamStats||TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0}));
 D.rdvList = D.rdvList||[{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}];
+D.chat = D.chat || [];
 
 function save(){try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}}
 
@@ -1168,15 +1169,109 @@ function addRdv(){D.rdvList.push({id:'rdv_'+Date.now(),date:'',mois:'',match:'',
 function removeRdv(ri){if(D.rdvList.length<=1){D.rdvList[0]={id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',presents:{}}}else{D.rdvList.splice(ri,1)}save();renderRdv()}
 
 function showTab(id){
-  const tabs=['groupes','matchs','bracket','pronos','stats','equipes','rdv'];
+  const tabs=['groupes','matchs','bracket','pronos','stats','equipes','rdv','chat'];
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===id));
   document.querySelectorAll('.sec').forEach(s=>s.classList.toggle('active',s.id===id));
-  const renders={groupes:renderGroups,matchs:renderMatchs,bracket:renderBracket,pronos:renderPronos,stats:renderStats,equipes:renderEquipes,rdv:renderRdv};
+  const renders={groupes:renderGroups,matchs:renderMatchs,bracket:renderBracket,pronos:renderPronos,stats:renderStats,equipes:renderEquipes,rdv:renderRdv,chat:renderChat};
   if(renders[id])renders[id]();
 }
-  if (id === 'bracket') {
-    renderBracket(); // Ceci va déclencher l'affichage quand on clique sur l'onglet
-  }
+
+// ====================== CHAT SYSTEM ======================
+var currentPote = "Louis"; // Default for standalone app.js
+
+function renderChat() {
+  const el = document.getElementById('chat');
+  if (!el) return;
+
+  const esc = (str) => String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m]));
+
+  el.innerHTML = `
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages">
+        ${D.chat.map(m => {
+          const isSelf = m.sender === currentPote;
+          const time = new Date(m.ts).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+          const reactions = m.reactions || {};
+          return `
+            <div class="chat-msg ${isSelf ? 'self' : 'other'}">
+              <div class="chat-actions">
+                ${isSelf ? `<button class="chat-action-btn" title="Supprimer" onclick="deleteChatMessage(${m.ts})"><i class="ti ti-trash"></i></button>` : ''}
+                <button class="chat-action-btn" title="Réagir" onclick="toggleEmojiPicker(event, ${m.ts})"><i class="ti ti-mood-smile"></i></button>
+              </div>
+              <div class="chat-msg-meta">
+                <strong>${esc(m.sender)}</strong> • ${time}
+              </div>
+              <div class="chat-msg-text">${esc(m.text)}</div>
+              <div class="chat-reactions">
+                ${Object.entries(reactions).map(([emoji, users]) => {
+                  if (!users || users.length === 0) return '';
+                  const hasReacted = users.includes(currentPote);
+                  return `<span class="chat-reaction ${hasReacted ? 'active' : ''}" onclick="reactToMessage(${m.ts}, '${esc(emoji)}')" title="${esc(users.join(', '))}">${esc(emoji)} ${users.length}</span>`;
+                }).join('')}
+              </div>
+              <div id="emoji-picker-${m.ts}" class="emoji-picker-popup">
+                 ${['👍','❤️','😂','🔥','👏','😮'].map(e => `<span onclick="reactToMessage(${m.ts}, '${e}')">${e}</span>`).join('')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+        ${D.chat.length === 0 ? '<p style="text-align:center;color:var(--color-text-tertiary);margin-top:20px;font-size:13px;">Aucun message. Commencez la discussion !</p>' : ''}
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" class="chat-input" placeholder="Écris un message..." autocomplete="off">
+        <button class="btn btn-primary" onclick="sendChatMessage()" style="height:38px;padding:0 15px;">Envoyer</button>
+      </div>
+    </div>
+  `;
+
+  const msgBox = document.getElementById('chat-messages');
+  if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+  document.getElementById('chat-input').onkeydown = e => { if (e.key === 'Enter') sendChatMessage(); };
+}
+
+function toggleEmojiPicker(event, ts) {
+  event.stopPropagation();
+  const all = document.querySelectorAll('.emoji-picker-popup');
+  all.forEach(p => { if (p.id !== 'emoji-picker-'+ts) p.classList.remove('show'); });
+  document.getElementById('emoji-picker-'+ts).classList.toggle('show');
+}
+window.addEventListener('click', () => {
+  document.querySelectorAll('.emoji-picker-popup').forEach(p => p.classList.remove('show'));
+});
+
+async function deleteChatMessage(ts) {
+  if (!confirm("Supprimer ce message ?")) return;
+  D.chat = D.chat.filter(m => m.ts !== ts);
+  save();
+  renderChat();
+}
+
+async function reactToMessage(ts, emoji) {
+  D.chat = D.chat.map(m => {
+    if (m.ts !== ts) return m;
+    const reactions = { ...(m.reactions || {}) };
+    if (!reactions[emoji]) reactions[emoji] = [];
+    if (reactions[emoji].includes(currentPote)) {
+      reactions[emoji] = reactions[emoji].filter(u => u !== currentPote);
+    } else {
+      reactions[emoji].push(currentPote);
+    }
+    return { ...m, reactions };
+  });
+  save();
+  renderChat();
+}
+
+async function sendChatMessage() {
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  const msg = { sender: currentPote, text: txt, ts: Date.now(), reactions: {} };
+  D.chat = [...D.chat, msg].slice(-50);
+  save();
+  renderChat();
+}
 
 renderGroups();
 </script>
