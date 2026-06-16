@@ -2394,35 +2394,39 @@ const TEAMS_DATA = [
   group:"I",
   coach:"Didier Deschamps",
   players:[
-    {n:16,pos:"G",name:"Mike Maignan"},
-    {n:1,pos:"G",name:"Brice Samba"},
+    // Gardiens
+    {n:1,pos:"G",name:"Mike Maignan"},
+    {n:12,pos:"G",name:"Brice Samba"},
     {n:23,pos:"G",name:"Alphonse Areola"},
 
-    {n:5,pos:"D",name:"Jules Koundé"},
-    {n:2,pos:"D",name:"Malo Gusto"},
-    {n:17,pos:"D",name:"William Saliba"},
+    // Défenseurs
+    {n:2,pos:"D",name:"Jules Koundé"},
+    {n:3,pos:"D",name:"William Saliba"},
     {n:4,pos:"D",name:"Dayot Upamecano"},
-    {n:15,pos:"D",name:"Ibrahima Konaté"},
-    {n:19,pos:"D",name:"Theo Hernández"},
-    {n:3,pos:"D",name:"Lucas Digne"},
-    {n:26,pos:"D",name:"Maxence Lacroix"},
-    {n:21,pos:"D",name:"Lucas Hernandez"},
+    {n:5,pos:"D",name:"Ibrahima Konaté"},
+    {n:13,pos:"D",name:"Theo Hernández"},
+    {n:14,pos:"D",name:"Lucas Digne"},
+    {n:15,pos:"D",name:"Benjamin Pavard"},
+    {n:16,pos:"D",name:"Clément Lenglet"},
 
-    {n:8,pos:"M",name:"Aurélien Tchouaméni"},
+    // Milieux
+    {n:6,pos:"M",name:"Aurélien Tchouaméni"},
     {n:7,pos:"M",name:"Eduardo Camavinga"},
-    {n:14,pos:"M",name:"Adrien Rabiot"},
-    {n:25,pos:"M",name:"Magnes Akliouche"},
+    {n:8,pos:"M",name:"Adrien Rabiot"},
+    {n:10,pos:"M",name:"Antoine Griezmann"},
+    {n:17,pos:"M",name:"Youssouf Fofana"},
     {n:18,pos:"M",name:"Warren Zaïre-Emery"},
-    {n:21,pos:"M",name:"Rayan Cherki"},
-    {n:13,pos:"M",name:"NGolo Kanté"},
+    {n:19,pos:"M",name:"Mattéo Guendouzi"},
+    {n:20,pos:"M",name:"Khéphren Thuram"},
 
-    {n:10,pos:"A",name:"Kylian Mbappé"},
-    {n:7,pos:"A",name:"Ousmane Dembélé"},
-    {n:9,pos:"A",name:"Marcus Thuram"},
-    {n:20,pos:"A",name:"Désiré Doué"},
-    {n:12,pos:"A",name:"Bradley Barcola"},
-    {n:22,pos:"A",name:"JP Mateta"},
-    {n:11,pos:"A",name:"Michael Olise"}
+    // Attaquants
+    {n:9,pos:"A",name:"Kylian Mbappé"},
+    {n:11,pos:"A",name:"Ousmane Dembélé"},
+    {n:21,pos:"A",name:"Marcus Thuram"},
+    {n:22,pos:"A",name:"Randal Kolo Muani"},
+    {n:24,pos:"A",name:"Bradley Barcola"},
+    {n:25,pos:"A",name:"Kingsley Coman"},
+    {n:26,pos:"A",name:"Michael Olise"}
   ]
 },
 
@@ -4080,7 +4084,7 @@ function renderPronos(){
       <button class="btn" onclick="switchPronoView('upcoming')" style="padding:3px 8px; font-size:10px; border:none; ${currentPronoView==='upcoming'?'background:var(--color-background-primary); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,0.05);':''} transition:all 0.15s">À venir</button>
     </div>
   </div>
-  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">1 pt</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">+3 pts</span> par bon buteur</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px"><span class="pts-chip pts-1">2 pts</span> bon résultat &nbsp;<span class="pts-chip pts-2">3 pts</span> score exact &nbsp;<span class="pts-chip pts-3">+1 pt</span> par bon buteur</div>
   ${Object.entries(byDate).map(([date,matches])=>`
     <div class="calendar-day">${date}</div>
     ${matches.map(m=>{
@@ -4285,12 +4289,12 @@ function calcPts(matchId, pote){
   if(actual.s1 === '' || actual.s2 === '' || actual.s1 === undefined || actual.s2 === undefined) return 0;
   let pts = 0;
   const bs1 = parseInt(bet.s1), bs2 = parseInt(bet.s2), as1 = parseInt(actual.s1), as2 = parseInt(actual.s2);
-  if((bs1 > bs2 && as1 > as2) || (bs1 < bs2 && as1 < as2) || (bs1 === bs2 && as1 === as2)) pts += 1;
-  if(String(bet.s1) === String(actual.s1) && String(bet.s2) === String(actual.s2)) pts += 2;
+  if((bs1 > bs2 && as1 > as2) || (bs1 < bs2 && as1 < as2) || (bs1 === bs2 && as1 === as2)) pts += 2;
+  if(String(bet.s1) === String(actual.s1) && String(bet.s2) === String(actual.s2)) pts = 3;
   
   const allBetScorers = [...(bet.buteursHome || []), ...(bet.buteursAway || [])];
   if(actual.top && allBetScorers.length > 0) {
-    pts += 3 * countCorrectScorers(actual.top, allBetScorers);
+    pts += 1 * countCorrectScorers(actual.top, allBetScorers);
   }
   return pts;
 }
