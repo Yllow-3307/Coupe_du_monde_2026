@@ -3,6 +3,41 @@ const POTES = ["Alban","Lino","Louis","Maxime","Simon","Theo","Titouan","Victor"
 const AV_BG = ["#CECBF6","#9FE1CB","#F5C4B3","#FAC775","#B5D4F4","#F4C0D1","#C0DD97","#D3D1C7"];
 const AV_TX = ["#3C3489","#085041","#712B13","#633806","#0C447C","#72243E","#27500A","#2C2C2A"];
 
+const ABBREVIATIONS = {
+  "Mexique": "MX", "Afrique du Sud": "ZA", "Corée du Sud": "KR", "Tchéquie": "CZ",
+  "Canada": "CA", "Bosnie-Herz.": "BA", "Qatar": "QA", "Suisse": "CH",
+  "Brésil": "BR", "Maroc": "MA", "Haïti": "HT", "Écosse": "SC",
+  "États-Unis": "US", "Paraguay": "PY", "Australie": "AU", "Turquie": "TR",
+  "Allemagne": "DE", "Curaçao": "CW", "Côte d'Ivoire": "CI", "Équateur": "EC",
+  "Pays-Bas": "NL", "Japon": "JP", "Suède": "SE", "Tunisie": "TN",
+  "Belgique": "BE", "Égypte": "EG", "Iran": "IR", "Nouvelle-Zélande": "NZ",
+  "Espagne": "ES", "Cap-Vert": "CV", "Arabie Saoudite": "SA", "Uruguay": "UY",
+  "France": "FR", "Sénégal": "SN", "Irak": "IQ", "Norvège": "NO",
+  "Argentine": "AR", "Algérie": "DZ", "Autriche": "AT", "Jordanie": "JO",
+  "Portugal": "PT", "RD Congo": "CD", "Ouzbékistan": "UZ", "Colombie": "CO",
+  "Angleterre": "EN", "Croatie": "HR", "Ghana": "GH", "Panama": "PA"
+};
+
+function getDisplayName(fullName, noFlag) {
+  if (!fullName) return '';
+  const isMobile = document.body.classList.contains('forced-mobile') || window.innerWidth < 768;
+  if (!isMobile) return fullName;
+
+  const trimmed = fullName.trim();
+  const parts = trimmed.split(/\s+/);
+
+  if (parts.length > 1 && (/[\uD800-\uDBFF]/.test(parts[0]) || parts[0].length > 2)) {
+      if (/[\uD800-\uDBFF]/.test(parts[0])) {
+          const flag = parts[0];
+          const name = parts.slice(1).join(' ');
+          const abbr = ABBREVIATIONS[name] || (name.length > 2 ? name.substring(0, 2).toUpperCase() : name);
+          return noFlag ? abbr : flag + ' ' + abbr;
+      }
+  }
+
+  return ABBREVIATIONS[trimmed] || (trimmed.length > 2 ? trimmed.substring(0, 2).toUpperCase() : trimmed);
+}
+
 const GROUPS = {
   A:{teams:[["🇲🇽","Mexique"],["🇿🇦","Afrique du Sud"],["🇰🇷","Corée du Sud"],["🇨🇿","Tchéquie"]]},
   B:{teams:[["🇨🇦","Canada"],["🇧🇦","Bosnie-Herz."],["🇶🇦","Qatar"],["🇨🇭","Suisse"]]},
@@ -554,6 +589,39 @@ const TEAMS_DATA = [
 let currentFilterPhase = "all";
 let currentFilterGroup = "all";
 
+const R16_MATCH_RULES = [
+  { t1: "1E", t2: ["3A", "3B", "3C", "3D", "3F"] },
+  { t1: "1I", t2: ["3C", "3D", "3F", "3G", "3H"] },
+  { t1: "2A", t2: "2B" },
+  { t1: "1F", t2: "2C" },
+  { t1: "2K", t2: "2L" },
+  { t1: "1H", t2: "2J" },
+  { t1: "1D", t2: ["3B", "3E", "3F", "3I", "3J"] },
+  { t1: "1G", t2: ["3A", "3E", "3H", "3I", "3J"] },
+  { t1: "1C", t2: "2F" },
+  { t1: "2E", t2: "2I" },
+  { t1: "1A", t2: ["3C", "3E", "3F", "3H", "3I"] },
+  { t1: "1L", t2: ["3E", "3H", "3I", "3J", "3K"] },
+  { t1: "1J", t2: "2H" },
+  { t1: "2D", t2: "2G" },
+  { t1: "1B", t2: ["3E", "3F", "3G", "3I", "3J"] },
+  { t1: "1K", t2: ["3D", "3E", "3I", "3J", "3L"] }
+];
+
+function resolveBracketTeam(rule) {
+  if (typeof rule !== 'string') return rule;
+  const m = rule.match(/^(\d)([A-L])$/);
+  if (!m) return rule;
+  const rank = parseInt(m[1]);
+  const group = m[2];
+  const classement = getGroupeClassement(group);
+  if (classement && classement[rank - 1]) {
+    const t = classement[rank - 1];
+    return t.flag + ' ' + getDisplayName(t.nom);
+  }
+  return rule;
+}
+
 let D = {};
 try { D = JSON.parse(localStorage.getItem('wc26v3')||'{}'); } catch(e) { D = {}; }
 D.pts = D.pts||{}; D.scores = D.scores||{}; D.bracket = D.bracket||{};
@@ -723,13 +791,43 @@ function renderBracket() {
     for (let i = 0; i < n; i++) {
       const mi = startIdx + i;
       const k = `${side}_${phase}_${mi}`;
-      const t1 = D.bracket[k+'_t1'] || '?';
-      const t2 = D.bracket[k+'_t2'] || '?';
-      const winner = D.bracket[k+'_w'];
+      let t1 = D.bracket[k+'_t1'];
+      let t2 = D.bracket[k+'_t2'];
+      const w = D.bracket[k+'_w'];
+
+      if (phase === '16') {
+        const ruleIdx = side === 'L' ? mi : mi + 8;
+        const rule = R16_MATCH_RULES[ruleIdx];
+        if (!t1) t1 = resolveBracketTeam(rule.t1);
+        if (!t2) t2 = Array.isArray(rule.t2) ? rule.t2 : resolveBracketTeam(rule.t2);
+      }
+      if (!t1) t1 = 'À dét.';
+      if (!t2) t2 = 'À dét.';
+
+      const renderTeam = (team, slot) => {
+        if (Array.isArray(team)) {
+          return `<div style="display:flex;gap:4px;align-items:center;margin:${slot === '_t1' ? '0 0 2px 0' : '2px 0 0 0'}">
+            <select class="select-sm" style="flex:1;height:20px;font-size:9px" onchange="D.bracket['${k}${slot}_tmp']=this.value">
+              <option value="">3e...</option>
+              ${team.map(r => {
+                const res = resolveBracketTeam(r);
+                return `<option value="${res}">${r} (${res})</option>`;
+              }).join('')}
+            </select>
+            <button class="btn" style="padding:0 4px;height:20px" onclick="if(D.bracket['${k}${slot}_tmp']){ D.bracket['${k}${slot}']=D.bracket['${k}${slot}_tmp']; save(); renderBracket(); }">✓</button>
+          </div>`;
+        }
+        return `<div onclick="pickWinner('${k}',${slot === '_t1' ? 1 : 2})"
+                     class="b-team${w === team && team !== 'À dét.' ? ' winner' : ''}"
+                     style="height:23px;display:flex;align-items:center;">
+          ${getDisplayName(team)}
+        </div>`;
+      };
+
       const mt = i === 0 ? firstTop : gap;
       html += `<div class="b-match" style="margin-top:${mt}px" data-key="${k}">
-        <div class="b-team${winner===t1&&t1!=='?'?' winner':''}" onclick="pickWinner('${k}',1)">${t1}</div>
-        <div class="b-team${winner===t2&&t2!=='?'?' winner':''}" onclick="pickWinner('${k}',2)">${t2}</div>
+        ${renderTeam(t1, '_t1')}
+        ${renderTeam(t2, '_t2')}
       </div>`;
     }
     return html;
@@ -746,17 +844,17 @@ function renderBracket() {
 
   // Finale au centre
   const fk = 'finale';
-  const ft1 = D.bracket[fk+'_t1'] || '?';
-  const ft2 = D.bracket[fk+'_t2'] || '?';
+  const ft1 = D.bracket[fk+'_t1'] || 'À dét.';
+  const ft2 = D.bracket[fk+'_t2'] || 'À dét.';
   const fw  = D.bracket[fk+'_w'];
   const finaleCol = `<div class="b-col" style="min-width:120px;padding:0 4px">
     <div class="b-col-title" style="height:28px;display:flex;align-items:center;justify-content:center">Finale</div>
     <div style="height:${TOTAL_H}px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px">
       <div class="b-match">
-        <div class="b-team${fw===ft1&&ft1!=='?'?' winner':''}" onclick="pickWinner('${fk}',1)">${ft1}</div>
-        <div class="b-team${fw===ft2&&ft2!=='?'?' winner':''}" onclick="pickWinner('${fk}',2)">${ft2}</div>
+        <div class="b-team${fw===ft1&&ft1!=='À dét.'?' winner':''}" onclick="pickWinner('${fk}',1)">${getDisplayName(ft1)}</div>
+        <div class="b-team${fw===ft2&&ft2!=='À dét.'?' winner':''}" onclick="pickWinner('${fk}',2)">${getDisplayName(ft2)}</div>
       </div>
-      ${fw && fw !== '?' ? `<div style="text-align:center;margin-top:8px"><div style="font-size:20px">🏆</div><div style="font-size:11px;font-weight:500;color:var(--color-text-primary);padding:4px 8px;background:var(--color-background-warning);border-radius:6px;margin-top:4px">${fw}</div></div>` : ''}
+      ${fw && fw !== 'À dét.' ? `<div style="text-align:center;margin-top:8px"><div style="font-size:20px">🏆</div><div style="font-size:11px;font-weight:500;color:var(--color-text-primary);padding:4px 8px;background:var(--color-background-warning);border-radius:6px;margin-top:4px">${getDisplayName(fw)}</div></div>` : ''}
     </div>
   </div>`;
 
@@ -786,33 +884,85 @@ function renderBracket() {
 }
 
 function pickWinner(key, teamNum) {
-  const t1 = D.bracket[key+'_t1'] || '?';
-  const t2 = D.bracket[key+'_t2'] || '?';
-  const winner = teamNum === 1 ? t1 : t2;
-  if (winner === '?') return;
-  D.bracket[key+'_w'] = winner;
-
-  // Propager le vainqueur dans le match suivant
-  const parts = key.split('_'); // side, phase, idx
+  const parts = key.split('_');
   const side = parts[0];
   const phase = parts[1];
   const idx = parseInt(parts[2]) || 0;
 
-  const nextPhase = {
-    '16':'8','8':'QF','QF':'SF','SF':'finale'
-  }[phase];
-  if (!nextPhase) { save(); renderBracket(); return; }
+  let t1 = D.bracket[key + '_t1'];
+  let t2 = D.bracket[key + '_t2'];
 
-  if (nextPhase === 'finale') {
-    const slot = side === 'L' ? '_t1' : '_t2';
-    D.bracket['finale'+slot] = winner;
-  } else {
-    const nextIdx = Math.floor(idx / 2);
-    const slot = idx % 2 === 0 ? '_t1' : '_t2';
-    D.bracket[`${side}_${nextPhase}_${nextIdx}${slot}`] = winner;
+  if (phase === '16') {
+    const ruleIdx = side === 'L' ? idx : idx + 8;
+    const rule = R16_MATCH_RULES[ruleIdx];
+    if (!t1) t1 = resolveBracketTeam(rule.t1);
+    if (!t2) t2 = Array.isArray(rule.t2) ? rule.t2 : resolveBracketTeam(rule.t2);
   }
+
+  if (!t1) t1 = 'À dét.';
+  if (!t2) t2 = 'À dét.';
+
+  let winner = teamNum === 1 ? t1 : t2;
+
+  if (winner === 'À déterminer' || winner === 'À dét.' || winner === '?' || Array.isArray(winner)) return;
+  if (typeof winner === 'string' && winner.match(/^\d[A-L]$/)) return;
+
+  // Toggle winner
+  if (D.bracket[key + '_w'] === winner) {
+    delete D.bracket[key + '_w'];
+    winner = 'À dét.';
+  } else {
+    D.bracket[key + '_w'] = winner;
+  }
+
+  propagateWinner(key, winner);
+
   save();
   renderBracket();
+}
+
+function propagateWinner(key, winner) {
+  const parts = key.split('_');
+  const side = parts[0];
+  const phase = parts[1];
+  const idx = parseInt(parts[2]) || 0;
+
+  const nextPhaseMap = { '16': '8', '8': 'QF', 'QF': 'SF', 'SF': 'finale' };
+  const nextPhase = nextPhaseMap[phase];
+
+  if (nextPhase) {
+    let nextKey = "";
+    let slot = "";
+    if (nextPhase === 'finale') {
+      nextKey = 'finale';
+      slot = side === 'L' ? '_t1' : '_t2';
+    } else {
+      nextKey = `${side}_${nextPhase}_${Math.floor(idx / 2)}`;
+      slot = idx % 2 === 0 ? '_t1' : '_t2';
+    }
+
+    D.bracket[nextKey + slot] = winner;
+
+    // Logic for third place match (Petite finale)
+    if (phase === 'SF') {
+      let loser = 'À dét.';
+      const t1 = D.bracket[key + '_t1'];
+      const t2 = D.bracket[key + '_t2'];
+      if (winner !== 'À dét.') {
+        loser = (winner === t1) ? t2 : t1;
+      }
+      const thirdSlot = side === 'L' ? '_t1' : '_t2';
+      D.bracket['third' + thirdSlot] = loser;
+      delete D.bracket['third_w'];
+    }
+
+    // If the winner changed (or was removed), we must also clear the winner of the next match
+    // and propagate that change downstream.
+    if (D.bracket[nextKey + '_w'] !== winner) {
+      delete D.bracket[nextKey + '_w'];
+      propagateWinner(nextKey, 'À dét.');
+    }
+  }
 }
   
 function renderPronos(){
