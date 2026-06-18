@@ -441,7 +441,7 @@ const ADMIN_EMAIL = "louis.ragot.33@gmail.com"; // ← ton email admin
 
 let currentUser = null;
 let currentPote = null;
-let isAdmin = false;
+var isAdmin = false;
 let unsubscribers = {};
 let PLAYERS_MAP = {}; // uid -> pseudo
 let GLOBAL_CHAT = [];
@@ -3113,7 +3113,7 @@ let currentPronoView = "today";
 const RESULTS_FEED_URL = "https://worldcup26.ir/get/games";
 
 // D is now synced from Firestore. Initialize empty.
-let D = {
+var D = {
   pts: {}, scores: {}, bracket: {},
   pronos: {}, actual: {},
   teamStats: TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0,against:0})),
@@ -3503,7 +3503,7 @@ const R16_MATCH_RULES = [
   { t1: "1H", t2: "2J" },
   { t1: "1D", t2: ["3B", "3E", "3F", "3I", "3J"] },
   { t1: "1G", t2: ["3A", "3E", "3H", "3I", "3J"] },
-  { t1: "1C", t2: "1F" },
+  { t1: "1C", t2: "2F" },
   { t1: "2E", t2: "2I" },
   { t1: "1A", t2: ["3C", "3E", "3F", "3H", "3I"] },
   { t1: "1L", t2: ["3E", "3H", "3I", "3J", "3K"] },
