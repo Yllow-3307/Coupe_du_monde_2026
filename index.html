@@ -441,7 +441,7 @@ const ADMIN_EMAIL = "louis.ragot.33@gmail.com"; // ← ton email admin
 
 let currentUser = null;
 let currentPote = null;
-let isAdmin = false;
+var isAdmin = false;
 let unsubscribers = {};
 let PLAYERS_MAP = {}; // uid -> pseudo
 let GLOBAL_CHAT = [];
@@ -1295,7 +1295,6 @@ const TEAMS_DATA = [
     {n:1,pos:"G",name:"Dayne St. Clair"},
     {n:16,pos:"G",name:"Maxime Crépeau"},
     {n:18,pos:"G",name:"Owen GOODMAN"},
-
     
     {n:2,pos:"D",name:"Alistair Johnston"},
     {n:3,pos:"D",name:"Alfie Jones"},
@@ -1608,12 +1607,11 @@ const TEAMS_DATA = [
   group:"D",
   coach:"Mauricio Pochettino",
   players:[
-    // Gardiens
+    
     {n:1,pos:"G",name:"Matt Turner"},
     {n:24,pos:"G",name:"Matt Freese"},
     {n:25,pos:"G",name:"Chris Brady"},
 
-    // Défenseurs
     {n:2,pos:"D",name:"Sergiño Dest"},
     {n:3,pos:"D",name:"Chris Richards"},
     {n:5,pos:"D",name:"Antonee Robinson"},
@@ -1625,22 +1623,20 @@ const TEAMS_DATA = [
     {n:22,pos:"D",name:"Mark McKenzie"},
     {n:23,pos:"D",name:"Joe Scally"},
 
-    // Milieux
     {n:4,pos:"M",name:"Tyler Adams"},
-    {n:7,pos:"M",name:"Sebastian Berhalter"},
+    {n:14,pos:"M",name:"Sebastian Berhalter"},
     {n:8,pos:"M",name:"Weston McKennie"},
-    {n:14,pos:"M",name:"Cristian Roldan"},
-    {n:15,pos:"M",name:"Malik Tillman"},
-    {n:17,pos:"M",name:"Gio Reyna"},
+    {n:15,pos:"M",name:"Cristian Roldan"},
+    {n:17,pos:"M",name:"Malik Tillman"},
+    {n:7,pos:"M",name:"Gio Reyna"},
 
-    // Attaquants
-    {n:9,pos:"A",name:"Folarin Balogun"},
-    {n:9,pos:"A",name:"Christian Pulisic"},
-    {n:9,pos:"A",name:"Alex Zendejas"},
-    {n:11,pos:"A",name:"Ricardo Pepi"},
-    {n:20,pos:"A",name:"Haji Wright"},
-    {n:21,pos:"A",name:"Brenden Aaronson"},
-    {n:26,pos:"A",name:"Tim Weah"}
+    {n:20,pos:"A",name:"Folarin Balogun"},
+    {n:10,pos:"A",name:"Christian Pulisic"},
+    {n:26,pos:"A",name:"Alex Zendejas"},
+    {n:9,pos:"A",name:"Ricardo Pepi"},
+    {n:19,pos:"A",name:"Haji Wright"},
+    {n:11,pos:"A",name:"Brenden Aaronson"},
+    {n:21,pos:"A",name:"Tim Weah"}
   ]
 },
   
@@ -2640,41 +2636,37 @@ const TEAMS_DATA = [
   flag:"🇩🇿",
   name:"Algérie",
   group:"J",
-  coach:"Djamel Belmadi",
+  coach:"Vladimir PETKOVIC",
   players:[
-    // Gardiens
-    {n:1,pos:"G",name:"Anthony Mandrea"},
-    {n:12,pos:"G",name:"Alexandre Oukidja"},
-    {n:23,pos:"G",name:"Mustapha Zeghba"},
+    {n:1,pos:"G",name:"Melvin Mastil"},
+    {n:16,pos:"G",name:"Oussama Benbot"},
+    {n:23,pos:"G",name:"Luca Zidane"},
 
-    // Défenseurs
-    {n:2,pos:"D",name:"Ramy Bensebaini"},
-    {n:3,pos:"D",name:"Aïssa Mandi"},
+    {n:21,pos:"D",name:"Ramy Bensebaini"},
+    {n:2,pos:"D",name:"Aïssa Mandi"},
     {n:4,pos:"D",name:"Mohamed Amine Tougaï"},
-    {n:5,pos:"D",name:"Djamel Benlamri"},
-    {n:13,pos:"D",name:"Youcef Atal"},
-    {n:14,pos:"D",name:"Rayan Aït-Nouri"},
-    {n:15,pos:"D",name:"Jaouen Hadjam"},
-    {n:16,pos:"D",name:"Ahmed Touba"},
+    {n:5,pos:"D",name:"Zinnedine Belaid"},
+    {n:3,pos:"D",name:"Achraf Abada"},
+    {n:15,pos:"D",name:"Rayan Aït-Nouri"},
+    {n:13,pos:"D",name:"Jaouen Hadjam"},
+    {n:26,pos:"D",name:"Samir Chergui"},
+    {n:17,pos:"D",name:"Rafik Belghali"},
 
-    // Milieux
-    {n:6,pos:"M",name:"Ismaël Bennacer"},
-    {n:7,pos:"M",name:"Houssem Aouar"},
-    {n:8,pos:"M",name:"Sofiane Feghouli"},
-    {n:10,pos:"M",name:"Ramiz Zerrouki"},
-    {n:17,pos:"M",name:"Nabil Bentaleb"},
-    {n:18,pos:"M",name:"Farès Chaïbi"},
-    {n:19,pos:"M",name:"Adlène Guedioura"},
-    {n:20,pos:"M",name:"Yacine Brahimi"},
+    {n:14,pos:"M",name:"Hicham Badaoui"},
+    {n:8,pos:"M",name:"Houssem Aouar"},
+    {n:6,pos:"M",name:"Ramiz Zerrouki"},
+    {n:19,pos:"M",name:"Nabil Bentaleb"},
+    {n:10,pos:"M",name:"Farès Chaïbi"},
+    {n:22,pos:"M",name:"Ibrahim Maza"},
+    {n:24,pos:"M",name:"Yassine Titraoui"},
 
-    // Attaquants
-    {n:9,pos:"A",name:"Riyad Mahrez"},
-    {n:11,pos:"A",name:"Islam Slimani"},
-    {n:21,pos:"A",name:"Mohamed Amoura"},
-    {n:22,pos:"A",name:"Anis Hadj Moussa"},
-    {n:24,pos:"A",name:"Baghdad Bounedjah"},
-    {n:25,pos:"A",name:"Mohamed El Amine Amoura"},
-    {n:26,pos:"A",name:"Fares Ghedjemis"}
+    {n:7,pos:"A",name:"Riyad Mahrez"},
+    {n:9,pos:"A",name:"Amine Gouiri"},
+    {n:18,pos:"A",name:"Mohamed Amoura"},
+    {n:12,pos:"A",name:"Nadhir Benbouali"},
+    {n:11,pos:"A",name:"Anis Hadj Moussa"},
+    {n:20,pos:"A",name:"Adil Boulbina"},
+    {n:25,pos:"A",name:"Fares Ghedjemis"}
   ]
 },
 
@@ -3100,7 +3092,7 @@ const TEAMS_DATA = [
     {n:25,pos:"A",name:"Rolando Blackburn"},
     {n:26,pos:"A",name:"Eric Davis Jr"}
     ]},
-]
+]	
 
 // Variables globales de filtres pour les matchs
 let currentFilterPhase = "all";
@@ -3113,7 +3105,7 @@ let currentPronoView = "today";
 const RESULTS_FEED_URL = "https://worldcup26.ir/get/games";
 
 // D is now synced from Firestore. Initialize empty.
-let D = {
+var D = {
   pts: {}, scores: {}, bracket: {},
   pronos: {}, actual: {},
   teamStats: TEAMS_DATA.map(t=>({flag:t.flag,name:t.name,mvp:'',goals:0,played:0,cs:0,against:0})),
@@ -3503,7 +3495,7 @@ const R16_MATCH_RULES = [
   { t1: "1H", t2: "2J" },
   { t1: "1D", t2: ["3B", "3E", "3F", "3I", "3J"] },
   { t1: "1G", t2: ["3A", "3E", "3H", "3I", "3J"] },
-  { t1: "1C", t2: "1F" },
+  { t1: "1C", t2: "2F" },
   { t1: "2E", t2: "2I" },
   { t1: "1A", t2: ["3C", "3E", "3F", "3H", "3I"] },
   { t1: "1L", t2: ["3E", "3H", "3I", "3J", "3K"] },
