@@ -151,16 +151,38 @@ const PRONO_MATCHES = [
   {id:"p72",label:"🇨🇺 Cuba vs 🇷🇴 Roumanie",date:"27 Juin",group:"Gr. L"},
 
   // --- PHASES ÉLIMINATOIRES ---
-  {id:"p73",label:"16es de Finale 1",date:"28-30 Juin",group:"Élim."},
-  {id:"p74",label:"16es de Finale 2",date:"01-03 Juillet",group:"Élim."},
-  {id:"p75",label:"8es de Finale 1",date:"04-06 Juillet",group:"Élim."},
-  {id:"p76",label:"8es de Finale 2",date:"07 Juillet",group:"Élim."},
-  {id:"p77",label:"Quarts de Finale 1",date:"09-10 Juillet",group:"Élim."},
-  {id:"p78",label:"Quarts de Finale 2",date:"11 Juillet",group:"Élim."},
-  {id:"p79",label:"Demi-Finale 1",date:"14 Juillet",group:"Élim."},
-  {id:"p80",label:"Demi-Finale 2",date:"15 Juillet",group:"Élim."},
-  {id:"p81",label:"Petite Finale (3e place)",date:"18 Juillet",group:"Élim."},
-  {id:"p82",label:"Finale",date:"19 Juillet",group:"Élim."},
+  {id:"p73", label:"🇩🇪 Allemagne vs 🇵🇾 Paraguay", date:"29 Juin", group:"Élim.", kickoff:"2026-06-29T22:30:00", matchIdx:72},
+  {id:"p74", label:"🇫🇷 France vs 🇸🇪 Suède", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T23:00:00", matchIdx:73},
+  {id:"p75", label:"🇿🇦 Afrique du Sud vs 🇨🇦 Canada", date:"28 Juin", group:"Élim.", kickoff:"2026-06-28T21:00:00", matchIdx:74},
+  {id:"p76", label:"🇳🇱 Pays-Bas vs 🇲🇦 Maroc", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T03:00:00", matchIdx:75},
+  {id:"p77", label:"🇵🇹 Portugal vs 🇭🇷 Croatie", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T01:00:00", matchIdx:76},
+  {id:"p78", label:"🇪🇸 Espagne vs 🇦🇹 Autriche", date:"2 Juillet", group:"Élim.", kickoff:"2026-07-02T23:00:00", matchIdx:77},
+  {id:"p79", label:"🇺🇸 États-Unis vs 🇧🇦 Bosnie-Herzégovine", date:"2 Juillet", group:"Élim.", kickoff:"2026-07-02T02:00:00", matchIdx:78},
+  {id:"p80", label:"🇧🇪 Belgique vs 🇸🇳 Sénégal", date:"1 Juillet", group:"Élim.", kickoff:"2026-07-01T22:00:00", matchIdx:79},
+  {id:"p81", label:"🇧🇷 Brésil vs 🇯🇵 Japon", date:"29 Juin", group:"Élim.", kickoff:"2026-06-29T19:00:00", matchIdx:80},
+  {id:"p82", label:"🇨🇮 Côte d'Ivoire vs 🇳🇴 Norvège", date:"30 Juin", group:"Élim.", kickoff:"2026-06-30T19:00:00", matchIdx:81},
+  {id:"p83", label:"🇲🇽 Mexique vs 🇪🇨 Équateur", date:"1 Juillet", group:"Élim.", kickoff:"2026-07-01T03:00:00", matchIdx:82},
+  {id:"p84", label:"🇬🇧 Angleterre vs 🇨🇩 RD Congo", date:"1 Juillet", group:"Élim.", kickoff:"2026-07-01T18:00:00", matchIdx:83},
+  {id:"p85", label:"🇦🇷 Argentine vs 🇨🇻 Cap-Vert", date:"4 Juillet", group:"Élim.", kickoff:"2026-07-04T00:00:00", matchIdx:84},
+  {id:"p86", label:"🇦🇺 Australie vs 🇪🇬 Égypte", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T20:00:00", matchIdx:85},
+  {id:"p87", label:"🇨🇭 Suisse vs 🇩🇿 Algérie", date:"3 Juillet", group:"Élim.", kickoff:"2026-07-03T17:00:00", matchIdx:86},
+  {id:"p88", label:"🇨🇴 Colombie vs 🇬🇭 Ghana", date:"4 Juillet", group:"Élim.", kickoff:"2026-07-04T03:30:00", matchIdx:87},
+  {id:"p89", label:"8es de Finale 1", date:"4 Juillet", group:"Élim.", kickoff:"", matchIdx:88},
+  {id:"p90", label:"8es de Finale 2", date:"4 Juillet", group:"Élim.", kickoff:"", matchIdx:89},
+  {id:"p91", label:"8es de Finale 3", date:"5 Juillet", group:"Élim.", kickoff:"", matchIdx:90},
+  {id:"p92", label:"8es de Finale 4", date:"6 Juillet", group:"Élim.", kickoff:"", matchIdx:91},
+  {id:"p93", label:"8es de Finale 5", date:"6 Juillet", group:"Élim.", kickoff:"", matchIdx:92},
+  {id:"p94", label:"8es de Finale 6", date:"7 Juillet", group:"Élim.", kickoff:"", matchIdx:93},
+  {id:"p95", label:"8es de Finale 7", date:"7 Juillet", group:"Élim.", kickoff:"", matchIdx:94},
+  {id:"p96", label:"8es de Finale 8", date:"7 Juillet", group:"Élim.", kickoff:"", matchIdx:95},
+  {id:"p97", label:"Quarts de Finale 1", date:"9 Juillet", group:"Élim.", kickoff:"", matchIdx:96},
+  {id:"p98", label:"Quarts de Finale 2", date:"10 Juillet", group:"Élim.", kickoff:"", matchIdx:97},
+  {id:"p99", label:"Quarts de Finale 3", date:"11 Juillet", group:"Élim.", kickoff:"", matchIdx:98},
+  {id:"p100", label:"Quarts de Finale 4", date:"12 Juillet", group:"Élim.", kickoff:"", matchIdx:99},
+  {id:"p101", label:"Demi-Finale 1", date:"14 Juillet", group:"Élim.", kickoff:"", matchIdx:100},
+  {id:"p102", label:"Demi-Finale 2", date:"15 Juillet", group:"Élim.", kickoff:"", matchIdx:101},
+  {id:"p104", label:"Petite Finale (3e place)", date:"18 Juillet", group:"Élim.", kickoff:"", matchIdx:102},
+  {id:"p105", label:"Finale", date:"19 Juillet", group:"Élim.", kickoff:"", matchIdx:103}
 ];
 
 // Base complète de données de tous les matchs
@@ -262,13 +284,43 @@ const MATCHS_DATA = [
   {day:"27 Juin", stage:"Phase de Groupes", g:"L", t1:"🇨🇺 Cuba", t2:"🇷🇴 Roumanie"},
 
   // --- PHASES ÉLIMINATOIRES ---
-  {day:"28 Juin - 03 Juillet", stage:"16es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 16e"},
-  {day:"04 - 07 Juillet", stage:"16es de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Match Éliminatoire 8e"},
-  {day:"09 - 11 Juillet", stage:"Quarts de Finale", g:"", t1:"Qualifié", t2:"Qualifié", info:"Top 8 mondial"},
-  {day:"14 Juillet", stage:"Demi-Finale 1", g:"", t1:"Qualifié", t2:"Qualifié"},
-  {day:"15 Juillet", stage:"Demi-Finale 2", g:"", t1:"Qualifié", t2:"Qualifié"},
-  {day:"18 Juillet", stage:"Petite Finale (3e place)", g:"", t1:"Perdant DF1", t2:"Perdant DF2"},
-  {day:"19 Juillet", stage:"Finale", g:"", t1:"Vainqueur DF1", t2:"Vainqueur DF2"}
+  { day: "29 Juin", stage: "16es de Finale 1", g: "", t1: "🇩🇪 Allemagne", t2: "🇵🇾 Paraguay", heure: "22:30" },
+  { day: "30 Juin", stage: "16es de Finale 2", g: "", t1: "🇫🇷 France", t2: "🇸🇪 Suède", heure: "23:00" },
+  { day: "28 Juin", stage: "16es de Finale 3", g: "", t1: "🇿🇦 Afrique du Sud", t2: "🇨🇦 Canada", heure: "21:00" },
+  { day: "30 Juin", stage: "16es de Finale 4", g: "", t1: "🇳🇱 Pays-Bas", t2: "🇲🇦 Maroc", heure: "03:00" },
+  { day: "3 Juillet", stage: "16es de Finale 5", g: "", t1: "🇵🇹 Portugal", t2: "🇭🇷 Croatie", heure: "01:00" },
+  { day: "2 Juillet", stage: "16es de Finale 6", g: "", t1: "🇪🇸 Espagne", t2: "🇦🇹 Autriche", heure: "23:00" },
+  { day: "2 Juillet", stage: "16es de Finale 7", g: "", t1: "🇺🇸 États-Unis", t2: "🇧🇦 Bosnie-Herzégovine", heure: "02:00" },
+  { day: "1 Juillet", stage: "16es de Finale 8", g: "", t1: "🇧🇪 Belgique", t2: "🇸🇳 Sénégal", heure: "22:00" },
+  { day: "29 Juin", stage: "16es de Finale 9", g: "", t1: "🇧🇷 Brésil", t2: "🇯🇵 Japon", heure: "19:00" },
+  { day: "30 Juin", stage: "16es de Finale 10", g: "", t1: "🇨🇮 Côte d'Ivoire", t2: "🇳🇴 Norvège", heure: "19:00" },
+  { day: "1 Juillet", stage: "16es de Finale 11", g: "", t1: "🇲🇽 Mexique", t2: "🇪🇨 Équateur", heure: "03:00" },
+  { day: "1 Juillet", stage: "16es de Finale 12", g: "", t1: "🇬🇧 Angleterre", t2: "🇨🇩 RD Congo", heure: "18:00" },
+  { day: "4 Juillet", stage: "16es de Finale 13", g: "", t1: "🇦🇷 Argentine", t2: "🇨🇻 Cap-Vert", heure: "00:00" },
+  { day: "3 Juillet", stage: "16es de Finale 14", g: "", t1: "🇦🇺 Australie", t2: "🇪🇬 Égypte", heure: "20:00" },
+  { day: "3 Juillet", stage: "16es de Finale 15", g: "", t1: "🇨🇭 Suisse", t2: "🇩🇿 Algérie", heure: "17:00" },
+  { day: "4 Juillet", stage: "16es de Finale 16", g: "", t1: "🇨🇴 Colombie", t2: "🇬🇭 Ghana", heure: "03:30" },
+
+  { day: "4 Juillet", stage: "8es de Finale 1", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 8e" },
+  { day: "4 Juillet", stage: "8es de Finale 2", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 8e" },
+  { day: "5 Juillet", stage: "8es de Finale 3", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 8e" },
+  { day: "6 Juillet", stage: "8es de Finale 4", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 8e" },
+  { day: "6 Juillet", stage: "8es de Finale 5", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 8e" },
+  { day: "7 Juillet", stage: "8es de Finale 6", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 8e" },
+  { day: "7 Juillet", stage: "8es de Finale 7", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 8e" },
+  { day: "7 Juillet", stage: "8es de Finale 8", g: "", t1: "Qualifié", t2: "Qualifié", info: "Match Éliminatoire 8e" },
+
+  { day: "9 Juillet", stage: "Quarts de Finale 1", g: "", t1: "Qualifié", t2: "Qualifié", info: "Top 8 mondial" },
+  { day: "10 Juillet", stage: "Quarts de Finale 2", g: "", t1: "Qualifié", t2: "Qualifié", info: "Top 8 mondial" },
+  { day: "11 Juillet", stage: "Quarts de Finale 3", g: "", t1: "Qualifié", t2: "Qualifié", info: "Top 8 mondial" },
+  { day: "12 Juillet", stage: "Quarts de Finale 4", g: "", t1: "Qualifié", t2: "Qualifié", info: "Top 8 mondial" },
+
+  { day: "14 Juillet", stage: "Demi-Finale 1", g: "", t1: "Qualifié", t2: "Qualifié" },
+  { day: "15 Juillet", stage: "Demi-Finale 2", g: "", t1: "Qualifié", t2: "Qualifié" },
+
+  { day: "18 Juillet", stage: "Petite Finale (3e place)", g: "", t1: "Perdant DF1", t2: "Perdant DF2" },
+
+  { day: "19 Juillet", stage: "Finale", g: "", t1: "Vainqueur DF1", t2: "Vainqueur DF2" }
 ];
 
 const TEAMS_DATA = [
@@ -590,22 +642,22 @@ let currentFilterPhase = "all";
 let currentFilterGroup = "all";
 
 const R16_MATCH_RULES = [
-  { t1: "1E", t2: ["3A", "3B", "3C", "3D", "3F"] },
-  { t1: "1I", t2: ["3C", "3D", "3F", "3G", "3H"] },
-  { t1: "2A", t2: "2B" },
-  { t1: "1F", t2: "2C" },
-  { t1: "2K", t2: "2L" },
-  { t1: "1H", t2: "2J" },
-  { t1: "1D", t2: ["3B", "3E", "3F", "3I", "3J"] },
-  { t1: "1G", t2: ["3A", "3E", "3H", "3I", "3J"] },
-  { t1: "1C", t2: "2F" },
-  { t1: "2E", t2: "2I" },
-  { t1: "1A", t2: ["3C", "3E", "3F", "3H", "3I"] },
-  { t1: "1L", t2: ["3E", "3H", "3I", "3J", "3K"] },
-  { t1: "1J", t2: "2H" },
-  { t1: "2D", t2: "2G" },
-  { t1: "1B", t2: ["3E", "3F", "3G", "3I", "3J"] },
-  { t1: "1K", t2: ["3D", "3E", "3I", "3J", "3L"] }
+  { t1: "🇩🇪 Allemagne", t2: "🇵🇾 Paraguay" },
+  { t1: "🇫🇷 France", t2: "🇸🇪 Suède" },
+  { t1: "🇿🇦 Afrique du Sud", t2: "🇨🇦 Canada" },
+  { t1: "🇳🇱 Pays-Bas", t2: "🇲🇦 Maroc" },
+  { t1: "🇵🇹 Portugal", t2: "🇭🇷 Croatie" },
+  { t1: "🇪🇸 Espagne", t2: "🇦🇹 Autriche" },
+  { t1: "🇺🇸 États-Unis", t2: "🇧🇦 Bosnie-Herzégovine" },
+  { t1: "🇧🇪 Belgique", t2: "🇸🇳 Sénégal" },
+  { t1: "🇧🇷 Brésil", t2: "🇯🇵 Japon" },
+  { t1: "🇨🇮 Côte d'Ivoire", t2: "🇳🇴 Norvège" },
+  { t1: "🇲🇽 Mexique", t2: "🇪🇨 Équateur" },
+  { t1: "🇬🇧 Angleterre", t2: "🇨🇩 RD Congo" },
+  { t1: "🇦🇷 Argentine", t2: "🇨🇻 Cap-Vert" },
+  { t1: "🇦🇺 Australie", t2: "🇪🇬 Égypte" },
+  { t1: "🇨🇭 Suisse", t2: "🇩🇿 Algérie" },
+  { t1: "🇨🇴 Colombie", t2: "🇬🇭 Ghana" }
 ];
 
 function resolveBracketTeam(rule) {
@@ -632,6 +684,67 @@ D.rdvList = D.rdvList||[{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',p
 function save(){try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}}
 
 function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
+
+function syncEliminationMatches() {
+  if (!D.bracket) D.bracket = {};
+
+  const updateMatchData = (matchIdx, pronoId, t1, t2) => {
+    const pm = PRONO_MATCHES.find(m => m.id === pronoId);
+    if (pm) pm.label = `${t1} vs ${t2}`;
+    const md = MATCHS_DATA[matchIdx];
+    if (md) { md.t1 = t1; md.t2 = t2; }
+  };
+
+  // 16es (Indices 72-87 in MATCHS_DATA, IDs p73-p88)
+  for (let i = 0; i < 16; i++) {
+    const key = 'r16_' + i;
+    const rule = R16_MATCH_RULES[i];
+    let t1 = D.bracket[key + '_t1'] || resolveBracketTeam(rule.t1);
+    let t2 = D.bracket[key + '_t2'] || (Array.isArray(rule.t2) ? rule.t2 : resolveBracketTeam(rule.t2));
+    if (Array.isArray(t2)) t2 = "À dét.";
+    updateMatchData(72 + i, 'p' + (73 + i), t1, t2);
+  }
+
+  // 8es (Indices 88-95, IDs p89-p96)
+  for (let i = 0; i < 8; i++) {
+    const key = '16_' + i;
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(88 + i, 'p' + (89 + i), t1, t2);
+  }
+
+  // QF (Indices 96-99, IDs p97-p100)
+  for (let i = 0; i < 4; i++) {
+    const key = 'qf_' + i;
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(96 + i, 'p' + (97 + i), t1, t2);
+  }
+
+  // SF (Indices 100-101, IDs p101-p102)
+  for (let i = 0; i < 2; i++) {
+    const key = 'sf_' + i;
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(100 + i, 'p' + (101 + i), t1, t2);
+  }
+
+  // Petite Finale (Index 102, ID p104)
+  {
+    const key = 'third';
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(102, 'p104', t1, t2);
+  }
+
+  // Finale (Index 103, ID p105)
+  {
+    const key = 'final';
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(103, 'p105', t1, t2);
+  }
+}
 
 // Récupère les scores depuis Google Sheets
 async function syncScoresFromGoogle() {
@@ -691,6 +804,7 @@ function editPts(el,g,i){
 
 // Fonction de rendu de la section matchs avec ses filtres dynamiques de tri
 function renderMatchs(){
+  syncEliminationMatches();
   const el=document.getElementById('matchs');
   
   // Construction de l'interface des filtres
@@ -966,6 +1080,7 @@ function propagateWinner(key, winner) {
 }
   
 function renderPronos(){
+  syncEliminationMatches();
   const el=document.getElementById('pronos');
   const lb=calcLB();
   
@@ -1869,22 +1984,22 @@ let currentFilterPhase = "all";
 let currentFilterGroup = "all";
 
 const R16_MATCH_RULES = [
-  { t1: "1E", t2: ["3A", "3B", "3C", "3D", "3F"] },
-  { t1: "1I", t2: ["3C", "3D", "3F", "3G", "3H"] },
-  { t1: "2A", t2: "2B" },
-  { t1: "1F", t2: "2C" },
-  { t1: "2K", t2: "2L" },
-  { t1: "1H", t2: "2J" },
-  { t1: "1D", t2: ["3B", "3E", "3F", "3I", "3J"] },
-  { t1: "1G", t2: ["3A", "3E", "3H", "3I", "3J"] },
-  { t1: "1C", t2: "2F" },
-  { t1: "2E", t2: "2I" },
-  { t1: "1A", t2: ["3C", "3E", "3F", "3H", "3I"] },
-  { t1: "1L", t2: ["3E", "3H", "3I", "3J", "3K"] },
-  { t1: "1J", t2: "2H" },
-  { t1: "2D", t2: "2G" },
-  { t1: "1B", t2: ["3E", "3F", "3G", "3I", "3J"] },
-  { t1: "1K", t2: ["3D", "3E", "3I", "3J", "3L"] }
+  { t1: "🇩🇪 Allemagne", t2: "🇵🇾 Paraguay" },
+  { t1: "🇫🇷 France", t2: "🇸🇪 Suède" },
+  { t1: "🇿🇦 Afrique du Sud", t2: "🇨🇦 Canada" },
+  { t1: "🇳🇱 Pays-Bas", t2: "🇲🇦 Maroc" },
+  { t1: "🇵🇹 Portugal", t2: "🇭🇷 Croatie" },
+  { t1: "🇪🇸 Espagne", t2: "🇦🇹 Autriche" },
+  { t1: "🇺🇸 États-Unis", t2: "🇧🇦 Bosnie-Herzégovine" },
+  { t1: "🇧🇪 Belgique", t2: "🇸🇳 Sénégal" },
+  { t1: "🇧🇷 Brésil", t2: "🇯🇵 Japon" },
+  { t1: "🇨🇮 Côte d'Ivoire", t2: "🇳🇴 Norvège" },
+  { t1: "🇲🇽 Mexique", t2: "🇪🇨 Équateur" },
+  { t1: "🇬🇧 Angleterre", t2: "🇨🇩 RD Congo" },
+  { t1: "🇦🇷 Argentine", t2: "🇨🇻 Cap-Vert" },
+  { t1: "🇦🇺 Australie", t2: "🇪🇬 Égypte" },
+  { t1: "🇨🇭 Suisse", t2: "🇩🇿 Algérie" },
+  { t1: "🇨🇴 Colombie", t2: "🇬🇭 Ghana" }
 ];
 
 function resolveBracketTeam(rule) {
@@ -1911,6 +2026,67 @@ D.rdvList = D.rdvList||[{id:'rdv_0',date:'',mois:'',match:'',heure:'',where:'',p
 function save(){try{localStorage.setItem('wc26v3',JSON.stringify(D))}catch(e){}}
 
 function getPts(g,i){return D.pts[g+i]!==undefined?D.pts[g+i]:0}
+
+function syncEliminationMatches() {
+  if (!D.bracket) D.bracket = {};
+
+  const updateMatchData = (matchIdx, pronoId, t1, t2) => {
+    const pm = PRONO_MATCHES.find(m => m.id === pronoId);
+    if (pm) pm.label = `${t1} vs ${t2}`;
+    const md = MATCHS_DATA[matchIdx];
+    if (md) { md.t1 = t1; md.t2 = t2; }
+  };
+
+  // 16es (Indices 72-87 in MATCHS_DATA, IDs p73-p88)
+  for (let i = 0; i < 16; i++) {
+    const key = 'r16_' + i;
+    const rule = R16_MATCH_RULES[i];
+    let t1 = D.bracket[key + '_t1'] || resolveBracketTeam(rule.t1);
+    let t2 = D.bracket[key + '_t2'] || (Array.isArray(rule.t2) ? rule.t2 : resolveBracketTeam(rule.t2));
+    if (Array.isArray(t2)) t2 = "À dét.";
+    updateMatchData(72 + i, 'p' + (73 + i), t1, t2);
+  }
+
+  // 8es (Indices 88-95, IDs p89-p96)
+  for (let i = 0; i < 8; i++) {
+    const key = '16_' + i;
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(88 + i, 'p' + (89 + i), t1, t2);
+  }
+
+  // QF (Indices 96-99, IDs p97-p100)
+  for (let i = 0; i < 4; i++) {
+    const key = 'qf_' + i;
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(96 + i, 'p' + (97 + i), t1, t2);
+  }
+
+  // SF (Indices 100-101, IDs p101-p102)
+  for (let i = 0; i < 2; i++) {
+    const key = 'sf_' + i;
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(100 + i, 'p' + (101 + i), t1, t2);
+  }
+
+  // Petite Finale (Index 102, ID p104)
+  {
+    const key = 'third';
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(102, 'p104', t1, t2);
+  }
+
+  // Finale (Index 103, ID p105)
+  {
+    const key = 'final';
+    let t1 = D.bracket[key + '_t1'] || 'À dét.';
+    let t2 = D.bracket[key + '_t2'] || 'À dét.';
+    updateMatchData(103, 'p105', t1, t2);
+  }
+}
 
 // Récupère les scores depuis Google Sheets
 async function syncScoresFromGoogle() {
@@ -1970,6 +2146,7 @@ function editPts(el,g,i){
 
 // Fonction de rendu de la section matchs avec ses filtres dynamiques de tri
 function renderMatchs(){
+  syncEliminationMatches();
   const el=document.getElementById('matchs');
   
   // Construction de l'interface des filtres
@@ -2245,6 +2422,7 @@ function propagateWinner(key, winner) {
 }
   
 function renderPronos(){
+  syncEliminationMatches();
   const el=document.getElementById('pronos');
   const lb=calcLB();
   
